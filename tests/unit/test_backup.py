@@ -32,12 +32,16 @@ def _mock_settings(env: str, database_url: str) -> MagicMock:
     return s
 
 
-def test_backup_database_raises_in_test_env() -> None:
+def test_backup_database_raises_in_test_env():
+    from app.config import get_settings
+    get_settings.cache_clear()
     with pytest.raises(RuntimeError, match="test environment"):
         backup_database()
 
 
-def test_export_tracked_json_raises_in_test_env() -> None:
+def test_export_tracked_json_raises_in_test_env():
+    from app.config import get_settings
+    get_settings.cache_clear()
     with pytest.raises(RuntimeError, match="test environment"):
         export_tracked_json()
 
