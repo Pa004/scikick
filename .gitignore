@@ -1,0 +1,28 @@
+# === Environment ===
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# === Data (regenerable) ===
+data/
+backups/
+
+# === Model artifacts (too large, metrics.json documented in README) ===
+app/models/runs/*
+!app/models/runs/.gitkeep
+
+# === Frontend ===
+frontend/node_modules/
+frontend/dist/
+
+# === SQLite ===
+*.db
+*.db-wal
+*.db-shm
+
+# === Logs ===
+logs/
