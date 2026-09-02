@@ -62,6 +62,24 @@ def _compute_referee_cards(conn: sqlite3.Connection, referee: str, n: int = 30) 
     return row["avg_cards"] if row and row["avg_cards"] else 2.5
 
 
+def _derive_ftr(home_goals: int | None, away_goals: int | None) -> str | None:
+    if home_goals is None or away_goals is None:
+        return None
+    if home_goals > away_goals:
+        return "home"
+    elif home_goals < away_goals:
+        return "away"
+    return "draw"
+
+
+def _derive_season(match_date: str) -> int:
+    try:
+        dt = datetime.strptime(match_date, "%Y-%m-%d")
+        return dt.year if dt.month >= 8 else dt.year - 1
+    except (ValueError, TypeError):
+        return 0
+
+
 def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
     df = _get_fixtures(conn, league)
     if df.empty:
@@ -76,9 +94,9 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
     for _, row in df.iterrows():
         home_id = int(row["home_team_id"])
         away_id = int(row["away_team_id"])
-        match_date = datetime.strptime(row["match_date"], "%Y-%m-%d")
-        hg = int(row["home_score"]) if pd.notna(row["home_score"]) else 0
-        ag = int(row["away_score"]) if pd.notna(row["away_score"]) else 0
+        match_date = row["match_date"]
+        hg = int(row["home_score"]) if pd.notna(row["home_score"]) else None
+        ag = int(row["away_score"]) if pd.notna(row["away_score"]) else None
 
         home_elo = elo.get(home_id)
         away_elo = elo.get(away_id)
@@ -87,12 +105,12 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
         home_form = _compute_form(form_history, home_id)
         away_form = _compute_form(form_history, away_id)
 
-        home_rest = _compute_rest_days(last_match, home_id, match_date)
-        away_rest = _compute_rest_days(last_match, away_id, match_date)
+        home_rest = _compute_rest_days(last_match, home_id, datetime.strptime(match_date, "%Y-%m-%d"))
+        away_rest = _compute_rest_days(last_match, away_id, datetime.strptime(match_date, "%Y-%m-%d"))
 
         h2h_home_wins, h2h_draws = _compute_h2h(h2h, home_id, away_id)
 
-        ftr = row.get("ftr", "")
+        ftr = _derive_ftr(hg, ag)
         if ftr == "home":
             home_pts, away_pts = 3.0, 0.0
         elif ftr == "draw":
@@ -104,8 +122,8 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
             "fixture_id": int(row["id"]),
             "feature_version": "1.0",
             "league": league,
-            "season": 0,
-            "match_date": row["match_date"],
+            "season": _derive_season(match_date),
+            "match_date": match_date,
             "competition_type": row.get("competition_type", "liga"),
             "home_team_id": home_id,
             "away_team_id": away_id,
@@ -125,7 +143,7 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
             "away_xg_missing": 1,
             "target_home_goals": hg,
             "target_away_goals": ag,
-            "target_1x2": ftr if ftr else None,
+            "target_1x2": ftr,
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
 
@@ -134,8 +152,8 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
         form_history.setdefault(home_id, []).append(home_pts)
         form_history.setdefault(away_id, []).append(away_pts)
 
-        last_match[home_id] = match_date
-        last_match[away_id] = match_date
+        last_match[home_id] = datetime.strptime(match_date, "%Y-%m-%d")
+        last_match[away_id] = datetime.strptime(match_date, "%Y-%m-%d")
 
         h2h.append({
             "home_id": home_id,

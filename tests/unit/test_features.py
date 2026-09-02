@@ -68,3 +68,41 @@ def test_persist_features(tmp_path: Path):
     result = conn.execute("SELECT COUNT(*) FROM match_features").fetchone()[0]
     assert result == 6
     conn.close()
+
+
+def test_target_1x2_correct(tmp_path: Path):
+    conn = _setup_db(tmp_path)
+    features = build_features(conn, "E0")
+    expected = ["home", "draw", "home", "away", "away", "draw"]
+    actual = list(features["target_1x2"])
+    assert actual == expected
+    conn.close()
+
+
+def test_target_1x2_not_none(tmp_path: Path):
+    conn = _setup_db(tmp_path)
+    features = build_features(conn, "E0")
+    assert all(v is not None for v in features["target_1x2"])
+    conn.close()
+
+
+def test_form_points_correct(tmp_path: Path):
+    conn = _setup_db(tmp_path)
+    features = build_features(conn, "E0")
+    first = features.iloc[0]
+    assert first["home_form_pts_last_5"] == 0.0
+    assert first["away_form_pts_last_5"] == 0.0
+    second = features.iloc[1]
+    assert second["home_form_pts_last_5"] == 0.0
+    assert second["away_form_pts_last_5"] == 0.0
+    third = features.iloc[2]
+    assert third["home_form_pts_last_5"] == 1.0
+    assert third["away_form_pts_last_5"] == 3.0
+    conn.close()
+
+
+def test_season_derived_from_date(tmp_path: Path):
+    conn = _setup_db(tmp_path)
+    features = build_features(conn, "E0")
+    assert all(features["season"] == 2023)
+    conn.close()
