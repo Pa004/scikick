@@ -24,13 +24,14 @@ def expanding_window(
     df: pd.DataFrame,
     min_train_matches: int = 380,
     gap: int = 0,
+    step: int = 1,
 ) -> list[Fold]:
     matchdays = get_matchday_groups(df)
     if len(matchdays) < 2:
         return []
 
     folds = []
-    for i in range(1, len(matchdays)):
+    for i in range(1, len(matchdays), step):
         train_indices = []
         for j in range(i):
             train_indices.extend(matchdays[j][1])
@@ -44,5 +45,8 @@ def expanding_window(
                 test_idx=test_idx,
                 test_matchdays=[matchdays[i][0]],
             ))
+
+    if len(folds) < 2 and step > 1:
+        return expanding_window(df, min_train_matches, gap, step=1)
 
     return folds
