@@ -41,8 +41,17 @@ def download_csv(league_code: str, start_year: int, dest_dir: str | Path) -> Pat
     dest = Path(dest_dir) / f"{league_code}_{sc}.csv"
     dest.parent.mkdir(parents=True, exist_ok=True)
 
-    df = pd.read_csv(url, encoding="utf-8", encoding_errors="replace")
-    df.to_csv(dest, index=False)
+    if dest.exists() and dest.stat().st_size > 100:
+        return dest
+
+    import subprocess
+    result = subprocess.run(
+        ["curl.exe", "--insecure", "-s", "-o", str(dest), url],
+        capture_output=True, text=True, timeout=30,
+    )
+    if result.returncode != 0 or not dest.exists() or dest.stat().st_size < 100:
+        raise ConnectionError(f"Failed to download {url}: {result.stderr}")
+
     return dest
 
 

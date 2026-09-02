@@ -208,7 +208,7 @@ def train_league(
 
     features_df = features_df.sort_values("match_date").reset_index(drop=True)
 
-    folds = expanding_window(features_df, min_train_matches=min_train_matches)
+    folds = expanding_window(features_df, min_train_matches=min_train_matches, step=20)
     if len(folds) < 2:
         return {"error": f"Not enough folds ({len(folds)})", "league": league}
 
@@ -269,15 +269,19 @@ def train_league(
     ) if all_fixture_ids else False
     vs_market = None
     if has_odds:
-        odds_h = features_df.loc[all_fixture_ids, "avg_home_odds"].values.astype(float)
-        odds_d = features_df.loc[all_fixture_ids, "avg_draw_odds"].values.astype(float)
-        odds_a = features_df.loc[all_fixture_ids, "avg_away_odds"].values.astype(float)
+        valid_ids = [fid for fid in all_fixture_ids if fid in features_df.index]
+        odds_h = features_df.loc[valid_ids, "avg_home_odds"].values.astype(float)
+        odds_d = features_df.loc[valid_ids, "avg_draw_odds"].values.astype(float)
+        odds_a = features_df.loc[valid_ids, "avg_away_odds"].values.astype(float)
         valid = np.isfinite(odds_h) & np.isfinite(odds_d) & np.isfinite(odds_a)
         if valid.sum() > 10:
             from app.models.evaluation import market_implied
+            valid_tgt_idx = [i for i, fid in enumerate(all_fixture_ids) if fid in features_df.index]
+            all_tgts_valid = all_tgts[valid_tgt_idx]
+            all_preds_valid = all_preds[valid_tgt_idx]
             mkt = market_implied(odds_h[valid], odds_d[valid], odds_a[valid])
-            vs_market = evaluate_model(all_tgts[valid], all_preds[valid], "model")
-            mkt_eval = evaluate_model(all_tgts[valid], mkt, "market")
+            vs_market = evaluate_model(all_tgts_valid[valid], all_preds_valid[valid], "model")
+            mkt_eval = evaluate_model(all_tgts_valid[valid], mkt, "market")
             vs_market = {"model": vs_market, "market": mkt_eval}
 
     team_map, n_teams = _build_team_id_map(features_df)

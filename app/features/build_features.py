@@ -54,7 +54,7 @@ def _compute_referee_cards(conn: sqlite3.Connection, referee: str, n: int = 30) 
     if not referee:
         return 2.5
     row = conn.execute(
-        "SELECT AVG(HY + AY) as avg_cards FROM fixtures f "
+        "SELECT AVG(home_yellow + away_yellow) as avg_cards FROM fixtures f "
         "WHERE f.referee = ? AND f.source = 'football_data' "
         "AND f.home_corners IS NOT NULL "
         "ORDER BY f.match_date DESC LIMIT ?",

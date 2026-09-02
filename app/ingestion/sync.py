@@ -176,15 +176,20 @@ def _sync_future_fixtures(conn: sqlite3.Connection, league_code: str) -> int:
 
 def sync_all_leagues(
     league_codes: list[str],
-    start_year: int,
+    n_seasons: int,
     raw_dir: str = "data/raw",
     db_path: str | None = None,
 ) -> list[dict]:
+    from datetime import datetime
+    current_year = datetime.now().year
+    years = [current_year - 2 - i for i in range(n_seasons)]
+
     results = []
     for code in league_codes:
-        try:
-            result = sync_league(code, start_year, raw_dir, db_path)
-            results.append(result)
-        except Exception as e:
-            results.append({"league": code, "error": str(e)})
+        for year in years:
+            try:
+                result = sync_league(code, year, raw_dir, db_path)
+                results.append(result)
+            except Exception as e:
+                results.append({"league": code, "season": year, "error": str(e)})
     return results
