@@ -8,7 +8,7 @@ markers = [
 
 [tool.coverage.run]
 source = ["app"]
-omit = ["app/phase2/*", "app/models/runs/*"]
+omit = ["app/models/runs/*"]
 
 [tool.coverage.report]
 exclude_lines = [
