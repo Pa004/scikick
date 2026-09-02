@@ -189,3 +189,53 @@ def test_stats_by_market(tmp_path: Path):
     assert "by_market" in data
     assert len(data["by_market"]) > 0
     assert any(m["market"] == "1x2" for m in data["by_market"])
+
+
+def test_api_serves_ht_ft_markets(tmp_path: Path):
+    from fastapi.testclient import TestClient
+    from app.api.main import create_app
+
+    db_path = str(tmp_path / "test.db")
+    conn = _setup_db(tmp_path, n_matchdays=20)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    assert "error" not in result, result.get("error")
+
+    fix = conn.execute(
+        "SELECT id FROM fixtures WHERE prediction IS NOT NULL AND status = 'post' LIMIT 1"
+    ).fetchone()
+    conn.close()
+
+    app = create_app()
+    client = TestClient(app)
+    with patch("app.api.routers.predict.get_connection", side_effect=_make_get_conn(db_path)):
+        resp = client.get(f"/api/predict/{fix['id']}")
+    data = resp.json()
+    ht_keys = [k for k in data["probabilities"] if k.startswith("ht_") or k.startswith("ft_result") or k.startswith("both_halves")]
+    assert len(ht_keys) > 0, f"No HT/FT markets in response: {list(data['probabilities'].keys())}"
+
+    with patch("app.api.routers.markets_htft.get_connection", side_effect=_make_get_conn(db_path)):
+        resp_ht = client.get(f"/api/predict/{fix['id']}/first-half")
+    assert resp_ht.status_code == 200
+    assert "markets" in resp_ht.json()
+
+    with patch("app.api.routers.markets_htft.get_connection", side_effect=_make_get_conn(db_path)):
+        resp_combo = client.get(f"/api/predict/{fix['id']}/combo/both-halves")
+    assert resp_combo.status_code == 200
+    assert "markets" in resp_combo.json()
+
+
+def test_train_persists_ht_residual(tmp_path: Path):
+    conn = _setup_db(tmp_path, n_matchdays=20)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    assert "error" not in result, result.get("error")
+
+    rows = conn.execute(
+        "SELECT prediction FROM fixtures WHERE prediction IS NOT NULL AND status = 'post'"
+    ).fetchall()
+    pred = json.loads(rows[0]["prediction"])
+    assert "ht_1x2" in pred["markets"]
+    assert "ft_result_given_ht" in pred["markets"]
+    assert "both_halves" in pred["markets"]
+    ht = pred["markets"]["ht_1x2"]
+    assert abs(ht["home"] + ht["draw"] + ht["away"] - 1.0) < 0.01
+    conn.close()

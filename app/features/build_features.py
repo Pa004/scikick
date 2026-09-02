@@ -172,6 +172,8 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
             "target_away_corners": ac,
             "target_home_yellow": hy,
             "target_away_yellow": ay,
+            "target_home_ht_goals": int(row["ht_home_score"]) if pd.notna(row.get("ht_home_score")) else None,
+            "target_away_ht_goals": int(row["ht_away_score"]) if pd.notna(row.get("ht_away_score")) else None,
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
 

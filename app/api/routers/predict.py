@@ -135,6 +135,10 @@ def _get_prediction(fixture_id: int) -> PredictResponse:
             if key.startswith("corners_") or key.startswith("cards_"):
                 probabilities[key] = probs[key]
 
+        for key in probs:
+            if key.startswith("ht_") or key.startswith("ft_result_given_ht") or key.startswith("both_halves"):
+                probabilities[key] = probs[key]
+
         return PredictResponse(
             fixture_id=fixture_id,
             model_version=model_version,

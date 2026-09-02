@@ -36,6 +36,13 @@ from app.models.count_models import (
     count_matrix,
     derive_all_count_markets,
 )
+from app.models.ht_ft import (
+    HTParams,
+    SecondHalfResiduals,
+    fit_ht_models,
+    joint_ht_ft_matrix,
+    derive_all_ht_ft_markets,
+)
 RUNS_DIR = str(Path(__file__).resolve().parent.parent.parent / "data" / "runs")
 
 
@@ -108,6 +115,8 @@ def _derive_all_markets_for_fixture(
     away_corners_rate: float | None = None,
     home_cards_rate: float | None = None,
     away_cards_rate: float | None = None,
+    ht_params: HTParams | None = None,
+    residuals: SecondHalfResiduals | None = None,
 ) -> dict:
     markets = derive_all_markets(blended_matrix)
     markets.update(derive_all_combined_markets(blended_matrix))
@@ -122,10 +131,9 @@ def _derive_all_markets_for_fixture(
         cards_matrix = predict_count_distribution(home_cards_rate, away_cards_rate, max_count=11)
         markets.update(derive_all_count_markets(cards_matrix, prefix="cards"))
 
-    if dc_params is not None:
+    if dc_params is not None and ht_params is not None and residuals is not None:
         try:
-            from app.models.ht_ft import joint_ht_ft_matrix, derive_all_ht_ft_markets
-            joint = joint_ht_ft_matrix(dc_params)
+            joint = joint_ht_ft_matrix(ht_params, dc_params, residuals)
             markets.update(derive_all_ht_ft_markets(joint))
         except Exception:
             pass
@@ -285,12 +293,14 @@ def train_league(
     corners_params = _fit_count_fold(features_df, "target_home_corners", "target_away_corners")
     cards_params = _fit_count_fold(features_df, "target_home_yellow", "target_away_yellow")
 
+    ht_params, residuals = fit_ht_models(features_df, team_map, n_teams)
+
     all_lgbm_stds_concat = np.concatenate(all_lgbm_stds)
     mean_model_agreement = float(np.mean(np.mean(all_lgbm_stds_concat, axis=1))) if all_lgbm_stds_concat.size > 0 else 0.0
 
     _persist_multi_market_predictions(
         conn, features_df, all_fixture_ids, final_dc_params, optimal_w, league, mean_model_agreement, all_lgbm_stds,
-        corners_params, cards_params,
+        corners_params, cards_params, ht_params, residuals,
     )
 
     run_data = {
@@ -325,6 +335,20 @@ def train_league(
             "home_advantage": cards_params.home_advantage,
             "global_avg": cards_params.global_avg,
         },
+        "ht_params": {
+            "home_attack": ht_params.home_attack,
+            "home_defense": ht_params.home_defense,
+            "away_attack": ht_params.away_attack,
+            "away_defense": ht_params.away_defense,
+            "home_advantage": ht_params.home_advantage,
+            "rho": ht_params.rho,
+        },
+        "residuals": {
+            "winning_multiplier": residuals.winning_multiplier,
+            "drawing_multiplier": residuals.drawing_multiplier,
+            "losing_multiplier": residuals.losing_multiplier,
+            "n_samples": residuals.n_samples,
+        },
     }
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -356,6 +380,8 @@ def _persist_multi_market_predictions(
     all_lgbm_stds: list[np.ndarray],
     corners_params: CountParams | None = None,
     cards_params: CountParams | None = None,
+    ht_params: HTParams | None = None,
+    residuals: SecondHalfResiduals | None = None,
 ) -> int:
     fixtures_info = conn.execute(
         "SELECT f.id, f.home_team_id, f.away_team_id "
@@ -394,6 +420,7 @@ def _persist_multi_market_predictions(
             blended_matrix, dc_params,
             home_corners_rate, away_corners_rate,
             home_cards_rate, away_cards_rate,
+            ht_params, residuals,
         )
 
         fixture_std = all_lgbm_stds[min(std_idx, len(all_lgbm_stds) - 1)]

@@ -23,6 +23,10 @@ from app.models.count_models import (
     CountParams,
     predict_count_rates,
 )
+from app.models.ht_ft import (
+    HTParams,
+    SecondHalfResiduals,
+)
 from app.models.lightgbm_model import (
     LightGBMEnsemble,
     _FEATURE_COLS,
@@ -56,6 +60,28 @@ def _load_count_params(run_data: dict, key: str) -> CountParams | None:
     )
 
 
+def _load_ht_params(run_data: dict) -> tuple[HTParams | None, SecondHalfResiduals | None]:
+    ht_data = run_data.get("ht_params")
+    res_data = run_data.get("residuals")
+    if not ht_data or not res_data:
+        return None, None
+    ht = HTParams(
+        home_attack=ht_data["home_attack"],
+        home_defense=ht_data["home_defense"],
+        away_attack=ht_data["away_attack"],
+        away_defense=ht_data["away_defense"],
+        home_advantage=ht_data["home_advantage"],
+        rho=ht_data["rho"],
+    )
+    res = SecondHalfResiduals(
+        winning_multiplier=res_data["winning_multiplier"],
+        drawing_multiplier=res_data["drawing_multiplier"],
+        losing_multiplier=res_data["losing_multiplier"],
+        n_samples=res_data.get("n_samples", 0),
+    )
+    return ht, res
+
+
 def predict_future(conn: sqlite3.Connection, league: str) -> dict:
     fixtures = conn.execute(
         "SELECT f.id, f.home_team_id, f.away_team_id, "
@@ -87,6 +113,7 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
 
     corners_params = _load_count_params(run_data, "corners_params")
     cards_params = _load_count_params(run_data, "cards_params")
+    ht_params, residuals = _load_ht_params(run_data)
 
     dc_matrix = score_matrix(dc_params)
     dc_probs = probabilities_from_matrix(dc_matrix)
@@ -114,6 +141,7 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
             dc_matrix, dc_params,
             home_corners_rate, away_corners_rate,
             home_cards_rate, away_cards_rate,
+            ht_params, residuals,
         )
 
         prediction = {
