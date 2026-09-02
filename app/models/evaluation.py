@@ -10,7 +10,7 @@ def brier_score(y_true: np.ndarray, y_prob: np.ndarray) -> float:
 
 
 def log_loss_score(y_true: np.ndarray, y_prob: np.ndarray) -> float:
-    return float(log_loss(y_true, y_prob))
+    return float(log_loss(y_true, y_prob, labels=[0, 1, 2]))
 
 
 def accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> float:

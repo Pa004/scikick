@@ -5,7 +5,9 @@ import sys
 
 from app.config import get_settings
 from app.db.migrations import run_migrations
+from app.db.connection import get_connection
 from app.ingestion.sync import sync_league, sync_all_leagues
+from app.models.pipeline import train_league
 
 
 def cmd_sync(args):
@@ -20,8 +22,18 @@ def cmd_sync(args):
 
 
 def cmd_train(args):
-    print(f"Training {args.mode} for {args.league}...")
-    print("Training not yet implemented")
+    settings = get_settings()
+    conn = get_connection()
+    try:
+        result = train_league(conn, args.league, mode=args.mode)
+        if "error" in result:
+            print(f"ERROR: {result['error']}")
+        else:
+            print(f"OK {result['league']}: brier={result['overall_brier']:.4f}, "
+                  f"log_loss={result['overall_log_loss']:.4f}, "
+                  f"folds={result['n_folds']}, samples={result['n_samples']}")
+    finally:
+        conn.close()
 
 
 def main():
