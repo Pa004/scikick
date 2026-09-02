@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.api.routers import predict, fixtures, stats, refresh, market_counts, markets_htft
+from app.api.routers import predict, fixtures, stats, refresh, market_counts, markets_htft, rare_events
 
 
 def create_app() -> FastAPI:
@@ -29,6 +29,7 @@ def create_app() -> FastAPI:
     app.include_router(fixtures.router, prefix="/api", tags=["fixtures"])
     app.include_router(stats.router, prefix="/api", tags=["stats"])
     app.include_router(refresh.router, prefix="/api", tags=["refresh"])
+    app.include_router(rare_events.router, prefix="/api", tags=["predict"])
 
     @app.get("/health")
     def health():
