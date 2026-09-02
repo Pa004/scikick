@@ -71,13 +71,16 @@ def get_stats(league: str | None = None, market: str = "1x2"):
                 "accuracy": round(band_hits / band_total, 4) if band_total > 0 else 0,
             })
 
+        by_league_filter = "WHERE t.market = ?"
+        by_league_params: list = [market]
+
         by_league_rows = conn.execute(
             f"SELECT t.league, COUNT(*) as total, "
             f"SUM(CASE WHEN t.hit = 1 THEN 1 ELSE 0 END) as hits "
-            f"FROM tracked t {base_filter} "
+            f"FROM tracked t {by_league_filter} "
             f"GROUP BY t.league "
             f"ORDER BY total DESC",
-            params,
+            by_league_params,
         ).fetchall()
 
         by_league = []
@@ -91,19 +94,19 @@ def get_stats(league: str | None = None, market: str = "1x2"):
                 "accuracy": round(league_hits / league_total, 4) if league_total > 0 else 0,
             })
 
-        market_filter = "WHERE 1=1"
-        market_params: list = []
+        market_breakdown_filter = "WHERE 1=1"
+        market_breakdown_params: list = []
         if league:
-            market_filter += " AND t.league = ?"
-            market_params.append(league)
+            market_breakdown_filter += " AND t.league = ?"
+            market_breakdown_params.append(league)
 
         by_market_rows = conn.execute(
             f"SELECT t.market, COUNT(*) as total, "
             f"SUM(CASE WHEN t.hit = 1 THEN 1 ELSE 0 END) as hits "
-            f"FROM tracked t {market_filter} "
+            f"FROM tracked t {market_breakdown_filter} "
             f"GROUP BY t.market "
             f"ORDER BY total DESC",
-            market_params,
+            market_breakdown_params,
         ).fetchall()
 
         by_market = []
@@ -126,6 +129,111 @@ def get_stats(league: str | None = None, market: str = "1x2"):
             "by_league": by_league,
             "by_market": by_market,
             "cold_start": total < 30,
+        }
+    finally:
+        conn.close()
+
+
+@router.get("/stats/per-matchday")
+def get_stats_per_matchday(league: str | None = None, market: str = "1x2"):
+    conn = get_connection()
+    try:
+        base_filter = "WHERE t.market = ?"
+        params: list = [market]
+        if league:
+            base_filter += " AND t.league = ?"
+            params.append(league)
+
+        rows = conn.execute(
+            f"SELECT DATE(t.resolved_at) as matchday, "
+            f"COUNT(*) as total, "
+            f"SUM(CASE WHEN t.hit = 1 THEN 1 ELSE 0 END) as hits, "
+            f"AVG(t.confidence) as avg_confidence "
+            f"FROM tracked t {base_filter} "
+            f"GROUP BY DATE(t.resolved_at) "
+            f"ORDER BY DATE(t.resolved_at)",
+            params,
+        ).fetchall()
+
+        result = []
+        for r in rows:
+            total = r["total"]
+            hits = r["hits"] or 0
+            accuracy = round(hits / total, 4) if total > 0 else 0
+            avg_conf = r["avg_confidence"] or 0
+            brier = round((1 - accuracy) ** 2 + (1 - avg_conf) ** 2, 4) if total > 0 else 0
+            result.append({
+                "matchday": r["matchday"],
+                "total": total,
+                "hits": hits,
+                "accuracy": accuracy,
+                "brier": brier,
+            })
+
+        return {
+            "market": market,
+            "league": league,
+            "cold_start": len(result) < 5,
+            "data": result,
+        }
+    finally:
+        conn.close()
+
+
+@router.get("/stats/calibration")
+def get_calibration(league: str | None = None, market: str = "1x2"):
+    conn = get_connection()
+    try:
+        base_filter = "WHERE t.market = ?"
+        params: list = [market]
+        if league:
+            base_filter += " AND t.league = ?"
+            params.append(league)
+
+        rows = conn.execute(
+            f"SELECT t.confidence, t.hit "
+            f"FROM tracked t {base_filter}",
+            params,
+        ).fetchall()
+
+        if len(rows) < 30:
+            return {
+                "market": market,
+                "league": league,
+                "cold_start": True,
+                "message": "Need at least 30 resolved predictions for calibration data",
+                "data": [],
+            }
+
+        bins = [0.0] * 10
+        bin_hits = [0.0] * 10
+        bin_counts = [0] * 10
+
+        for r in rows:
+            conf = r["confidence"]
+            hit = r["hit"] or 0
+            bin_idx = min(int(conf * 10), 9)
+            bins[bin_idx] += conf
+            bin_hits[bin_idx] += hit
+            bin_counts[bin_idx] += 1
+
+        result = []
+        for i in range(10):
+            if bin_counts[i] > 0:
+                avg_predicted = round(bins[i] / bin_counts[i], 4)
+                actual_accuracy = round(bin_hits[i] / bin_counts[i], 4)
+                result.append({
+                    "bin_center": round((i + 0.5) / 10, 2),
+                    "avg_predicted": avg_predicted,
+                    "actual_accuracy": actual_accuracy,
+                    "count": bin_counts[i],
+                })
+
+        return {
+            "market": market,
+            "league": league,
+            "cold_start": False,
+            "data": result,
         }
     finally:
         conn.close()

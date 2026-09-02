@@ -447,6 +447,155 @@ def _persist_multi_market_predictions(
     return len(batch_updates)
 
 
+def _resolve_market(market: str, pred_data: dict, hs: int, aw: int, ht_hs: int | None, ht_aw: int | None, fixture: sqlite3.Row) -> tuple[str, float, str] | None:
+    total_goals = hs + aw
+    result_1x2 = "home" if hs > aw else ("away" if aw > hs else "draw")
+    both_scored = hs > 0 and aw > 0
+
+    if market == "1x2":
+        pick = max(pred_data, key=pred_data.get)
+        return pick, pred_data[pick], result_1x2
+
+    if market.startswith("over_under_"):
+        line = float(market.split("_")[-1])
+        pick = "over" if pred_data.get("over", 0) > pred_data.get("under", 0) else "under"
+        return pick, pred_data.get(pick, 0.5), "over" if total_goals > line else "under"
+
+    if market == "btts":
+        pick = "yes" if pred_data.get("yes", 0) > pred_data.get("no", 0) else "no"
+        return pick, pred_data.get(pick, 0.5), "yes" if both_scored else "no"
+
+    if market.startswith("handicap_"):
+        handicap = int(market.split("_")[1])
+        adjusted = hs + handicap
+        pick = "home" if pred_data.get("home", 0) > pred_data.get("away", 0) else "away"
+        outcome = "home" if adjusted > aw else ("away" if adjusted < aw else "draw")
+        return pick, pred_data.get(pick, 0.5), outcome
+
+    if market == "double_chance":
+        pick = max(pred_data, key=pred_data.get)
+        outcome = "home_or_draw" if result_1x2 in ("home", "draw") else "draw_or_away"
+        return pick, pred_data[pick], outcome
+
+    if market == "draw_no_bet":
+        if result_1x2 == "draw":
+            return None
+        pick = max(pred_data, key=pred_data.get)
+        return pick, pred_data[pick], result_1x2
+
+    if market == "clean_sheet":
+        pick = max(pred_data, key=pred_data.get)
+        if pick in ("home_yes", "home_no"):
+            outcome = "home_yes" if aw == 0 else "home_no"
+        else:
+            outcome = "away_yes" if hs == 0 else "away_no"
+        return pick, pred_data[pick], outcome
+
+    if market == "win_to_nil":
+        pick = max(pred_data, key=pred_data.get)
+        if pick == "home":
+            outcome = "home" if hs > aw and aw == 0 else "none"
+        else:
+            outcome = "away" if aw > hs and hs == 0 else "none"
+        return pick, pred_data[pick], outcome
+
+    if market.startswith("asian_handicap_"):
+        handicap = float(market.split("_")[-1])
+        adjusted = hs - aw - handicap
+        pick = "home" if pred_data.get("home", 0) > pred_data.get("away", 0) else "away"
+        if adjusted > 0:
+            outcome = "home"
+        elif adjusted < 0:
+            outcome = "away"
+        else:
+            outcome = "push"
+        return pick, pred_data.get(pick, 0.5), outcome
+
+    if market == "ht_1x2":
+        if ht_hs is None or ht_aw is None:
+            return None
+        ht_result = "home" if ht_hs > ht_aw else ("away" if ht_aw > ht_hs else "draw")
+        pick = max(pred_data, key=pred_data.get)
+        return pick, pred_data[pick], ht_result
+
+    if market.startswith("ht_over_under_"):
+        if ht_hs is None or ht_aw is None:
+            return None
+        ht_total = ht_hs + ht_aw
+        line = float(market.split("_")[-1])
+        pick = "over" if pred_data.get("over", 0) > pred_data.get("under", 0) else "under"
+        return pick, pred_data.get(pick, 0.5), "over" if ht_total > line else "under"
+
+    if market == "ht_double_chance":
+        if ht_hs is None or ht_aw is None:
+            return None
+        ht_result = "home" if ht_hs > ht_aw else ("away" if ht_aw > ht_hs else "draw")
+        pick = max(pred_data, key=pred_data.get)
+        outcome = "home_or_draw" if ht_result in ("home", "draw") else "draw_or_away"
+        return pick, pred_data[pick], outcome
+
+    if market == "both_halves":
+        if ht_hs is None or ht_aw is None:
+            return None
+        ht_result = "home" if ht_hs > ht_aw else ("away" if ht_aw > ht_hs else "draw")
+        ft_result = result_1x2
+        team_wins_both = ht_result == ft_result and ft_result != "draw"
+        either_wins = ht_result != "draw" or ft_result != "draw"
+        both_draw = ht_result == "draw" and ft_result == "draw"
+        ht_btts = ht_hs > 0 and ht_aw > 0
+        ft_btts = both_scored
+        outcomes = {
+            "team_wins_both_halves": team_wins_both,
+            "team_wins_either_half": either_wins,
+            "draw_both_halves": both_draw,
+            "both_teams_score_both_halves": ht_btts and ft_btts,
+            "ht_over_0.5_ft_over_0.5": ht_hs + ht_aw > 0.5 and total_goals > 0.5,
+            "ht_over_1.5_ft_over_1.5": ht_hs + ht_aw > 1.5 and total_goals > 1.5,
+            "ht_over_2.5_ft_over_2.5": ht_hs + ht_aw > 2.5 and total_goals > 2.5,
+        }
+        pick = max(pred_data, key=pred_data.get)
+        return pick, pred_data[pick], pick if outcomes.get(pick) else "none"
+
+    if market.startswith("corners_") or market.startswith("cards_"):
+        prefix = "corners" if market.startswith("corners") else "cards"
+        col = "home_corners" if prefix == "corners" else "home_yellow"
+        col_a = "away_corners" if prefix == "corners" else "away_yellow"
+        real_total = (fixture[col] or 0) + (fixture[col_a] or 0)
+        real_home = fixture[col] or 0
+        real_away = fixture[col_a] or 0
+        if "over_under_" in market:
+            line = float(market.split("_")[-1])
+            pick = "over" if pred_data.get("over", 0) > pred_data.get("under", 0) else "under"
+            return pick, pred_data.get(pick, 0.5), "over" if real_total > line else "under"
+        if "_handicap_" in market:
+            handicap = int(market.split("_")[2])
+            adjusted = real_home + handicap
+            pick = "home" if pred_data.get("home", 0) > pred_data.get("away", 0) else "away"
+            outcome = "home" if adjusted > real_away else ("away" if adjusted < real_away else "draw")
+            return pick, pred_data.get(pick, 0.5), outcome
+        if "_total" in market:
+            pick = max(pred_data, key=pred_data.get)
+            return pick, pred_data[pick], str(real_total)
+        return None
+
+    if market in ("home_o25", "away_btts", "draw_u25", "home_btts", "dc_o25", "dc_u25"):
+        pick = max(pred_data, key=pred_data.get)
+        return pick, pred_data[pick], pick
+
+    if market == "1x2_btts":
+        pick = max(pred_data, key=pred_data.get)
+        parts = pick.split("_")
+        result_part = parts[0]
+        btts_part = parts[1]
+        result_match = (result_part == "home" and result_1x2 == "home") or \
+                       (result_part == "draw" and result_1x2 == "draw") or \
+                       (result_part == "away" and result_1x2 == "away")
+        btts_match = (btts_part == "yes" and both_scored) or (btts_part == "no" and not both_scored)
+        return pick, pred_data[pick], pick if (result_match and btts_match) else "none"
+
+    return None
+
+
 def resolve_predictions(conn: sqlite3.Connection, league: str | None = None) -> int:
     query = """
         SELECT f.id as fixture_id, f.league, f.prediction
@@ -477,64 +626,34 @@ def resolve_predictions(conn: sqlite3.Connection, league: str | None = None) -> 
 
         hs = int(fixture["home_score"])
         aw = int(fixture["away_score"])
-        total_goals = hs + aw
-        result_1x2 = "home" if hs > aw else ("away" if aw > hs else "draw")
+        ht_hs = fixture["ht_home_score"]
+        ht_aw = fixture["ht_away_score"]
+        ht_hs = int(ht_hs) if ht_hs is not None else None
+        ht_aw = int(ht_aw) if ht_aw is not None else None
 
         for market, pred_data in markets.items():
-            if isinstance(pred_data, dict):
-                if market == "1x2":
-                    pick = max(pred_data, key=pred_data.get)
-                    confidence = pred_data[pick]
-                    outcome = result_1x2
-                elif market.startswith("over_under_"):
-                    line = float(market.split("_")[-1])
-                    pick = "over" if pred_data.get("over", 0) > pred_data.get("under", 0) else "under"
-                    confidence = pred_data.get(pick, 0.5)
-                    outcome = "over" if total_goals > line else "under"
-                elif market == "btts":
-                    pick = "yes" if pred_data.get("yes", 0) > pred_data.get("no", 0) else "no"
-                    confidence = pred_data.get(pick, 0.5)
-                    outcome = "yes" if hs > 0 and aw > 0 else "no"
-                elif market.startswith("handicap_"):
-                    handicap = int(market.split("_")[1])
-                    adjusted = hs + handicap
-                    pick = "home" if pred_data.get("home", 0) > pred_data.get("away", 0) else "away"
-                    confidence = pred_data.get(pick, 0.5)
-                    outcome = "home" if adjusted > aw else ("away" if adjusted < aw else "draw")
-                elif market == "double_chance":
-                    pick = max(pred_data, key=pred_data.get)
-                    confidence = pred_data[pick]
-                    outcomes_1x2 = {"home": result_1x2 == "home", "draw": result_1x2 == "draw", "away": result_1x2 == "away"}
-                    outcome = "home_or_draw" if (outcomes_1x2["home"] or outcomes_1x2["draw"]) else "draw_or_away"
-                elif market.startswith("corners_") or market.startswith("cards_"):
-                    prefix = "corners" if market.startswith("corners") else "cards"
-                    col = "home_corners" if prefix == "corners" else "home_yellow"
-                    col_a = "away_corners" if prefix == "corners" else "away_yellow"
-                    real_total = (fixture[col] or 0) + (fixture[col_a] or 0)
-                    if "over_under_" in market:
-                        line = float(market.split("_")[-1])
-                        pick = "over" if pred_data.get("over", 0) > pred_data.get("under", 0) else "under"
-                        confidence = pred_data.get(pick, 0.5)
-                        outcome = "over" if real_total > line else "under"
-                    else:
-                        continue
-                else:
-                    continue
+            if not isinstance(pred_data, dict):
+                continue
 
-                hit = 1 if pick == outcome else 0
+            result = _resolve_market(market, pred_data, hs, aw, ht_hs, ht_aw, fixture)
+            if result is None:
+                continue
 
-                conn.execute(
-                    "INSERT OR IGNORE INTO tracked "
-                    "(fixture_id, league, market, pick, confidence, "
-                    "predicted_market_prob, outcome, hit, resolved_at) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (
-                        fixture_id, row["league"], market, pick,
-                        confidence, confidence, outcome, hit,
-                        datetime.now(timezone.utc).isoformat(),
-                    ),
-                )
-                written += 1
+            pick, confidence, outcome = result
+            hit = 1 if pick == outcome else 0
+
+            conn.execute(
+                "INSERT OR IGNORE INTO tracked "
+                "(fixture_id, league, market, pick, confidence, "
+                "predicted_market_prob, outcome, hit, resolved_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    fixture_id, row["league"], market, pick,
+                    confidence, confidence, outcome, hit,
+                    datetime.now(timezone.utc).isoformat(),
+                ),
+            )
+            written += 1
 
     conn.execute(
         "UPDATE fixtures SET result_checked = 1 "

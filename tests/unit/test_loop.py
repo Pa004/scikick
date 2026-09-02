@@ -239,3 +239,108 @@ def test_train_persists_ht_residual(tmp_path: Path):
     ht = pred["markets"]["ht_1x2"]
     assert abs(ht["home"] + ht["draw"] + ht["away"] - 1.0) < 0.01
     conn.close()
+
+
+def test_resolve_expanded_markets(tmp_path: Path):
+    conn = _setup_db(tmp_path, n_matchdays=20)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    assert "error" not in result, result.get("error")
+
+    count = resolve_predictions(conn, "E0")
+    assert count > 0
+
+    tracked = conn.execute(
+        "SELECT market, COUNT(*) as cnt FROM tracked WHERE league = 'E0' GROUP BY market"
+    ).fetchall()
+    market_counts = {r["market"]: r["cnt"] for r in tracked}
+
+    assert "1x2" in market_counts
+    assert "btts" in market_counts or "over_under_2.5" in market_counts
+    assert "double_chance" in market_counts or "ht_1x2" in market_counts
+
+    new_markets = ["draw_no_bet", "clean_sheet", "win_to_nil", "ht_1x2",
+                    "ht_over_under_0.5", "ht_double_chance", "both_halves",
+                    "home_btts", "dc_o25", "dc_u25", "1x2_btts"]
+    found_new = [m for m in new_markets if m in market_counts]
+    assert len(found_new) >= 3, f"Expected at least 3 new markets, found: {found_new}"
+    conn.close()
+
+
+def test_resolve_corners_cards_handicap(tmp_path: Path):
+    conn = _setup_db(tmp_path, n_matchdays=20)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    assert "error" not in result, result.get("error")
+
+    resolve_predictions(conn, "E0")
+
+    tracked = conn.execute(
+        "SELECT market, COUNT(*) as cnt FROM tracked WHERE league = 'E0' GROUP BY market"
+    ).fetchall()
+    market_counts = {r["market"]: r["cnt"] for r in tracked}
+
+    corners_markets = [k for k in market_counts if k.startswith("corners_")]
+    cards_markets = [k for k in market_counts if k.startswith("cards_")]
+    assert len(corners_markets) >= 2, f"Expected corners markets, found: {corners_markets}"
+    assert len(cards_markets) >= 2, f"Expected cards markets, found: {cards_markets}"
+    conn.close()
+
+
+def test_stats_per_matchday(tmp_path: Path):
+    from fastapi.testclient import TestClient
+    from app.api.main import create_app
+
+    db_path = str(tmp_path / "test.db")
+    conn = _setup_db(tmp_path, n_matchdays=20)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    assert "error" not in result, result.get("error")
+    resolve_predictions(conn, "E0")
+    conn.close()
+
+    app = create_app()
+    client = TestClient(app)
+    with patch("app.api.routers.stats.get_connection", side_effect=_make_get_conn(db_path)):
+        resp = client.get("/api/stats/per-matchday?market=1x2")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "data" in data
+    assert "cold_start" in data
+    assert "market" in data
+    assert data["market"] == "1x2"
+
+
+def test_stats_calibration(tmp_path: Path):
+    from fastapi.testclient import TestClient
+    from app.api.main import create_app
+
+    db_path = str(tmp_path / "test.db")
+    conn = _setup_db(tmp_path, n_matchdays=20)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    assert "error" not in result, result.get("error")
+    resolve_predictions(conn, "E0")
+    conn.close()
+
+    app = create_app()
+    client = TestClient(app)
+    with patch("app.api.routers.stats.get_connection", side_effect=_make_get_conn(db_path)):
+        resp = client.get("/api/stats/calibration?market=1x2")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "data" in data
+    assert "cold_start" in data
+    assert "market" in data
+
+
+def test_combined_markets_in_prediction(tmp_path: Path):
+    conn = _setup_db(tmp_path, n_matchdays=20)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    assert "error" not in result, result.get("error")
+
+    rows = conn.execute(
+        "SELECT prediction FROM fixtures WHERE prediction IS NOT NULL AND status = 'post'"
+    ).fetchall()
+    pred = json.loads(rows[0]["prediction"])
+
+    combined_keys = ["home_btts", "dc_o25", "dc_u25", "1x2_btts"]
+    found = [k for k in combined_keys if k in pred["markets"]]
+    assert len(found) >= 2, f"Expected at least 2 new combined markets, found: {found}"
+    conn.close()
