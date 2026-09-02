@@ -54,13 +54,17 @@ def _get_prediction(fixture_id: int) -> PredictResponse:
         model_agreement = pred.get("model_agreement", 0.0)
         model_version = pred.get("model_version", "unknown")
 
-        probabilities = {
-            "1x2": MarketProb(
-                home=probs.get("home", 0),
-                draw=probs.get("draw", 0),
-                away=probs.get("away", 0),
-            ),
-        }
+        probabilities: dict = {}
+
+        if "1x2" in probs:
+            p = probs["1x2"]
+            probabilities["1x2"] = MarketProb(
+                home=p.get("home", 0), draw=p.get("draw", 0), away=p.get("away", 0),
+            )
+        elif "home" in probs and "draw" in probs and "away" in probs:
+            probabilities["1x2"] = MarketProb(
+                home=probs["home"], draw=probs["draw"], away=probs["away"],
+            )
 
         if "double_chance" in probs:
             dc = probs["double_chance"]
@@ -70,23 +74,62 @@ def _get_prediction(fixture_id: int) -> PredictResponse:
                 home_or_away=dc.get("home_or_away", 0),
             )
 
-        if "over_under_2.5" in probs:
-            ou = probs["over_under_2.5"]
-            probabilities["over_under_2.5"] = OverUnder(
-                over=ou.get("over", 0),
-                under=ou.get("under", 0),
-            )
+        for key in ("over_under_0.5", "over_under_1.5", "over_under_2.5", "over_under_3.5", "over_under_4.5"):
+            if key in probs:
+                ou = probs[key]
+                probabilities[key] = OverUnder(over=ou.get("over", 0), under=ou.get("under", 0))
 
         if "btts" in probs:
             btts = probs["btts"]
-            probabilities["btts"] = BTTS(
-                yes=btts.get("yes", 0),
-                no=btts.get("no", 0),
+            probabilities["btts"] = BTTS(yes=btts.get("yes", 0), no=btts.get("no", 0))
+
+        for key in ("handicap_-2", "handicap_-1", "handicap_+1", "handicap_+2"):
+            if key in probs:
+                h = probs[key]
+                probabilities[key] = MarketProb(
+                    home=h.get("home", 0), draw=h.get("draw", 0), away=h.get("away", 0),
+                )
+
+        for key in ("asian_handicap_-0.5", "asian_handicap_+0.5"):
+            if key in probs:
+                ah = probs[key]
+                probabilities[key] = MarketProb(
+                    home=ah.get("home", 0), draw=ah.get("draw", 0), away=ah.get("away", 0),
+                )
+
+        if "draw_no_bet" in probs:
+            dnb = probs["draw_no_bet"]
+            probabilities["draw_no_bet"] = MarketProb(
+                home=dnb.get("home", 0), draw=0, away=dnb.get("away", 0),
             )
 
-        for key in probs:
-            if key not in ("home", "draw", "away", "double_chance", "over_under_2.5", "btts"):
-                probabilities[key] = probs[key]
+        if "win_to_nil" in probs:
+            wtn = probs["win_to_nil"]
+            probabilities["win_to_nil"] = MarketProb(
+                home=wtn.get("home", 0), draw=0, away=wtn.get("away", 0),
+            )
+
+        if "clean_sheet" in probs:
+            cs = probs["clean_sheet"]
+            probabilities["clean_sheet"] = {
+                "home_yes": cs.get("home_yes", 0), "home_no": cs.get("home_no", 0),
+                "away_yes": cs.get("away_yes", 0), "away_no": cs.get("away_no", 0),
+            }
+
+        if "exact_score" in probs:
+            probabilities["exact_score"] = probs["exact_score"]
+
+        if "total_goals" in probs:
+            probabilities["total_goals"] = probs["total_goals"]
+
+        if "goal_bands" in probs:
+            probabilities["goal_bands"] = probs["goal_bands"]
+
+        if "odd_even" in probs:
+            probabilities["odd_even"] = probs["odd_even"]
+
+        if "highest_scoring_half" in probs:
+            probabilities["highest_scoring_half"] = probs["highest_scoring_half"]
 
         return PredictResponse(
             fixture_id=fixture_id,
