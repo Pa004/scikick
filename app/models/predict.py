@@ -19,6 +19,10 @@ from app.models.dixon_coles import (
     score_matrix,
     probabilities_from_matrix,
 )
+from app.models.count_models import (
+    CountParams,
+    predict_count_rates,
+)
 from app.models.lightgbm_model import (
     LightGBMEnsemble,
     _FEATURE_COLS,
@@ -38,6 +42,18 @@ def _load_latest_run(league: str) -> dict | None:
     if not run_files:
         return None
     return json.loads(run_files[0].read_text(encoding="utf-8"))
+
+
+def _load_count_params(run_data: dict, key: str) -> CountParams | None:
+    data = run_data.get(key)
+    if not data:
+        return None
+    return CountParams(
+        team_attack={int(k): v for k, v in data.get("team_attack", {}).items()},
+        team_defense={int(k): v for k, v in data.get("team_defense", {}).items()},
+        home_advantage=data.get("home_advantage", 0.0),
+        global_avg=data.get("global_avg", 5.0),
+    )
 
 
 def predict_future(conn: sqlite3.Connection, league: str) -> dict:
@@ -69,12 +85,36 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
     )
     w = run_data.get("blend_weight_dc", 0.5)
 
+    corners_params = _load_count_params(run_data, "corners_params")
+    cards_params = _load_count_params(run_data, "cards_params")
+
     dc_matrix = score_matrix(dc_params)
     dc_probs = probabilities_from_matrix(dc_matrix)
 
     batch_updates = []
     for fix in fixtures:
-        markets = _derive_all_markets_for_fixture(dc_matrix, dc_params)
+        home_team_id = fix["home_team_id"]
+        away_team_id = fix["away_team_id"]
+
+        home_corners_rate = None
+        away_corners_rate = None
+        home_cards_rate = None
+        away_cards_rate = None
+
+        if corners_params:
+            home_corners_rate, away_corners_rate = predict_count_rates(
+                corners_params, home_team_id, away_team_id
+            )
+        if cards_params:
+            home_cards_rate, away_cards_rate = predict_count_rates(
+                cards_params, home_team_id, away_team_id
+            )
+
+        markets = _derive_all_markets_for_fixture(
+            dc_matrix, dc_params,
+            home_corners_rate, away_corners_rate,
+            home_cards_rate, away_cards_rate,
+        )
 
         prediction = {
             "markets": markets,

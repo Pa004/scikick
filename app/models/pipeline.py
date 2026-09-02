@@ -29,6 +29,13 @@ from app.models.evaluation import brier_score, log_loss_score, accuracy, evaluat
 from app.models.walkforward import expanding_window, Fold
 from app.models.markets import derive_all_markets
 from app.models.combined import derive_all_combined_markets
+from app.models.count_models import (
+    CountParams,
+    fit_count_poisson,
+    predict_count_rates,
+    count_matrix,
+    derive_all_count_markets,
+)
 RUNS_DIR = str(Path(__file__).resolve().parent.parent.parent / "data" / "runs")
 
 
@@ -46,6 +53,24 @@ def _fit_dc_fold(train_df: pd.DataFrame) -> DixonColesParams:
         away_team_ids=train_df["away_team_id"].values,
         home_goals=train_df["target_home_goals"].values,
         away_goals=train_df["target_away_goals"].values,
+        n_teams=n_teams,
+        team_id_to_idx=team_map,
+    )
+
+
+def _fit_count_fold(
+    train_df: pd.DataFrame,
+    target_home_col: str,
+    target_away_col: str,
+) -> CountParams:
+    team_map, n_teams = _build_team_id_map(train_df)
+    home_counts = train_df[target_home_col].fillna(0).values.astype(float)
+    away_counts = train_df[target_away_col].fillna(0).values.astype(float)
+    return fit_count_poisson(
+        home_team_ids=train_df["home_team_id"].values,
+        away_team_ids=train_df["away_team_id"].values,
+        home_counts=home_counts,
+        away_counts=away_counts,
         n_teams=n_teams,
         team_id_to_idx=team_map,
     )
@@ -257,11 +282,15 @@ def train_league(
         team_id_to_idx=team_map,
     )
 
+    corners_params = _fit_count_fold(features_df, "target_home_corners", "target_away_corners")
+    cards_params = _fit_count_fold(features_df, "target_home_yellow", "target_away_yellow")
+
     all_lgbm_stds_concat = np.concatenate(all_lgbm_stds)
     mean_model_agreement = float(np.mean(np.mean(all_lgbm_stds_concat, axis=1))) if all_lgbm_stds_concat.size > 0 else 0.0
 
     _persist_multi_market_predictions(
         conn, features_df, all_fixture_ids, final_dc_params, optimal_w, league, mean_model_agreement, all_lgbm_stds,
+        corners_params, cards_params,
     )
 
     run_data = {
@@ -283,6 +312,18 @@ def train_league(
             "away_defense": final_dc_params.away_defense,
             "home_advantage": final_dc_params.home_advantage,
             "rho": final_dc_params.rho,
+        },
+        "corners_params": {
+            "team_attack": {str(k): v for k, v in corners_params.team_attack.items()},
+            "team_defense": {str(k): v for k, v in corners_params.team_defense.items()},
+            "home_advantage": corners_params.home_advantage,
+            "global_avg": corners_params.global_avg,
+        },
+        "cards_params": {
+            "team_attack": {str(k): v for k, v in cards_params.team_attack.items()},
+            "team_defense": {str(k): v for k, v in cards_params.team_defense.items()},
+            "home_advantage": cards_params.home_advantage,
+            "global_avg": cards_params.global_avg,
         },
     }
 
@@ -313,10 +354,11 @@ def _persist_multi_market_predictions(
     league: str,
     model_agreement: float,
     all_lgbm_stds: list[np.ndarray],
+    corners_params: CountParams | None = None,
+    cards_params: CountParams | None = None,
 ) -> int:
     fixtures_info = conn.execute(
-        "SELECT f.id, f.home_score, f.away_score, f.ht_home_score, f.ht_away_score, "
-        "f.home_corners, f.away_corners, f.home_yellow, f.away_yellow "
+        "SELECT f.id, f.home_team_id, f.away_team_id "
         "FROM fixtures f WHERE f.id IN ({})".format(",".join("?" * len(fixture_ids))),
         fixture_ids,
     ).fetchall()
@@ -331,10 +373,22 @@ def _persist_multi_market_predictions(
         blended_matrix = dc_matrix
 
         info = fixtures_map.get(fid, {})
-        home_corners_rate = float(info["home_corners"]) if info.get("home_corners") is not None else None
-        away_corners_rate = float(info["away_corners"]) if info.get("away_corners") is not None else None
-        home_cards_rate = float(info["home_yellow"]) if info.get("home_yellow") is not None else None
-        away_cards_rate = float(info["away_yellow"]) if info.get("away_yellow") is not None else None
+        home_team_id = info.get("home_team_id")
+        away_team_id = info.get("away_team_id")
+
+        home_corners_rate = None
+        away_corners_rate = None
+        home_cards_rate = None
+        away_cards_rate = None
+
+        if corners_params and home_team_id and away_team_id:
+            home_corners_rate, away_corners_rate = predict_count_rates(
+                corners_params, home_team_id, away_team_id
+            )
+        if cards_params and home_team_id and away_team_id:
+            home_cards_rate, away_cards_rate = predict_count_rates(
+                cards_params, home_team_id, away_team_id
+            )
 
         markets = _derive_all_markets_for_fixture(
             blended_matrix, dc_params,

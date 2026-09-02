@@ -12,7 +12,8 @@ def _get_fixtures(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
     query = """
         SELECT f.id, f.match_date, f.league, f.home_team_id, f.away_team_id,
                f.home_score, f.away_score, f.ht_home_score, f.ht_away_score,
-               f.competition_type, f.status
+               f.home_corners, f.away_corners, f.home_yellow, f.away_yellow,
+               f.referee, f.competition_type, f.status
         FROM fixtures f
         WHERE f.league = ? AND f.status = 'post'
         ORDER BY f.match_date ASC
@@ -54,12 +55,19 @@ def _compute_referee_cards(conn: sqlite3.Connection, referee: str, n: int = 30) 
         return 2.5
     row = conn.execute(
         "SELECT AVG(HY + AY) as avg_cards FROM fixtures f "
-        "WHERE f.source = 'football_data' "
-        "AND EXISTS (SELECT 1 FROM team_aliases ta WHERE ta.canonical_team_id IN (f.home_team_id, f.away_team_id)) "
-        "LIMIT ?",
-        (n,),
+        "WHERE f.referee = ? AND f.source = 'football_data' "
+        "AND f.home_corners IS NOT NULL "
+        "ORDER BY f.match_date DESC LIMIT ?",
+        (referee, n),
     ).fetchone()
     return row["avg_cards"] if row and row["avg_cards"] else 2.5
+
+
+def _rolling_avg(history: list[float], n: int) -> float:
+    recent = history[-n:]
+    if not recent:
+        return 0.0
+    return sum(recent) / len(recent)
 
 
 def _derive_ftr(home_goals: int | None, away_goals: int | None) -> str | None:
@@ -90,6 +98,9 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
     last_match: dict[int, datetime] = {}
     h2h: list[dict] = []
 
+    corners_history: dict[int, list[float]] = {t: [] for t in df["home_team_id"].unique()}
+    yellow_history: dict[int, list[float]] = {t: [] for t in df["home_team_id"].unique()}
+
     feature_rows = []
     for _, row in df.iterrows():
         home_id = int(row["home_team_id"])
@@ -110,17 +121,22 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
 
         h2h_home_wins, h2h_draws = _compute_h2h(h2h, home_id, away_id)
 
-        ftr = _derive_ftr(hg, ag)
-        if ftr == "home":
-            home_pts, away_pts = 3.0, 0.0
-        elif ftr == "draw":
-            home_pts, away_pts = 1.0, 1.0
-        else:
-            home_pts, away_pts = 0.0, 3.0
+        hc = int(row["home_corners"]) if pd.notna(row.get("home_corners")) else 0
+        ac = int(row["away_corners"]) if pd.notna(row.get("away_corners")) else 0
+        hy = int(row["home_yellow"]) if pd.notna(row.get("home_yellow")) else 0
+        ay = int(row["away_yellow"]) if pd.notna(row.get("away_yellow")) else 0
+        referee = str(row["referee"]) if pd.notna(row.get("referee")) else None
+
+        referee_cards = _compute_referee_cards(conn, referee)
+
+        home_corners = corners_history.get(home_id, [])
+        away_corners = corners_history.get(away_id, [])
+        home_yellow = yellow_history.get(home_id, [])
+        away_yellow = yellow_history.get(away_id, [])
 
         feature_rows.append({
             "fixture_id": int(row["id"]),
-            "feature_version": "1.0",
+            "feature_version": "2.0",
             "league": league,
             "season": _derive_season(match_date),
             "match_date": match_date,
@@ -136,21 +152,37 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
             "away_rest_days": round(away_rest, 1),
             "h2h_home_wins_last_5": round(h2h_home_wins, 3),
             "h2h_draws_last_5": round(h2h_draws, 3),
-            "referee_cards_avg": 2.5,
+            "referee_cards_avg": round(referee_cards, 3),
             "home_xg_last5_avg": None,
             "away_xg_last5_avg": None,
             "home_xg_missing": 1,
             "away_xg_missing": 1,
+            "home_corners_avg_last3": round(_rolling_avg(home_corners, 3), 2),
+            "home_corners_avg_last5": round(_rolling_avg(home_corners, 5), 2),
+            "away_corners_avg_last3": round(_rolling_avg(away_corners, 3), 2),
+            "away_corners_avg_last5": round(_rolling_avg(away_corners, 5), 2),
+            "home_yellow_avg_last3": round(_rolling_avg(home_yellow, 3), 2),
+            "home_yellow_avg_last5": round(_rolling_avg(home_yellow, 5), 2),
+            "away_yellow_avg_last3": round(_rolling_avg(away_yellow, 3), 2),
+            "away_yellow_avg_last5": round(_rolling_avg(away_yellow, 5), 2),
             "target_home_goals": hg,
             "target_away_goals": ag,
-            "target_1x2": ftr,
+            "target_1x2": _derive_ftr(hg, ag),
+            "target_home_corners": hc,
+            "target_away_corners": ac,
+            "target_home_yellow": hy,
+            "target_away_yellow": ay,
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
 
         elo.update(home_id, away_id, hg, ag)
 
-        form_history.setdefault(home_id, []).append(home_pts)
-        form_history.setdefault(away_id, []).append(away_pts)
+        form_history.setdefault(home_id, []).append(
+            3.0 if _derive_ftr(hg, ag) == "home" else (1.0 if _derive_ftr(hg, ag) == "draw" else 0.0)
+        )
+        form_history.setdefault(away_id, []).append(
+            3.0 if _derive_ftr(hg, ag) == "away" else (1.0 if _derive_ftr(hg, ag) == "draw" else 0.0)
+        )
 
         last_match[home_id] = datetime.strptime(match_date, "%Y-%m-%d")
         last_match[away_id] = datetime.strptime(match_date, "%Y-%m-%d")
@@ -161,6 +193,11 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
             "home_goals": hg,
             "away_goals": ag,
         })
+
+        corners_history.setdefault(home_id, []).append(hc)
+        corners_history.setdefault(away_id, []).append(ac)
+        yellow_history.setdefault(home_id, []).append(hy)
+        yellow_history.setdefault(away_id, []).append(ay)
 
     return pd.DataFrame(feature_rows)
 

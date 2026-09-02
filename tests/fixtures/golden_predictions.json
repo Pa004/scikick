@@ -10,7 +10,39 @@
       "1x2_away": 0.238,
       "btts_yes": 0.7834,
       "ou25_over": 0.5546,
-      "model_agreement": 0.0235
+      "model_agreement": 0.0235,
+      "corners_over_under_8.5": {
+        "over": 0.9715,
+        "under": 0.0285
+      },
+      "corners_over_under_9.5": {
+        "over": 0.9453,
+        "under": 0.0547
+      },
+      "corners_over_under_10.5": {
+        "over": 0.9046,
+        "under": 0.0954
+      },
+      "corners_over_under_11.5": {
+        "over": 0.8472,
+        "under": 0.1528
+      },
+      "cards_over_under_8.5": {
+        "over": 0.2061,
+        "under": 0.7939
+      },
+      "cards_over_under_9.5": {
+        "over": 0.1209,
+        "under": 0.8791
+      },
+      "cards_over_under_10.5": {
+        "over": 0.0656,
+        "under": 0.9344
+      },
+      "cards_over_under_11.5": {
+        "over": 0.033,
+        "under": 0.967
+      }
     },
     "82": {
       "1x2_home": 0.3479,
@@ -18,7 +50,39 @@
       "1x2_away": 0.238,
       "btts_yes": 0.7834,
       "ou25_over": 0.5546,
-      "model_agreement": 0.0248
+      "model_agreement": 0.0248,
+      "corners_over_under_8.5": {
+        "over": 0.9743,
+        "under": 0.0257
+      },
+      "corners_over_under_9.5": {
+        "over": 0.9502,
+        "under": 0.0498
+      },
+      "corners_over_under_10.5": {
+        "over": 0.9123,
+        "under": 0.0877
+      },
+      "corners_over_under_11.5": {
+        "over": 0.8581,
+        "under": 0.1419
+      },
+      "cards_over_under_8.5": {
+        "over": 0.2072,
+        "under": 0.7928
+      },
+      "cards_over_under_9.5": {
+        "over": 0.1217,
+        "under": 0.8783
+      },
+      "cards_over_under_10.5": {
+        "over": 0.0661,
+        "under": 0.9339
+      },
+      "cards_over_under_11.5": {
+        "over": 0.0333,
+        "under": 0.9667
+      }
     },
     "83": {
       "1x2_home": 0.3479,
@@ -26,7 +90,39 @@
       "1x2_away": 0.238,
       "btts_yes": 0.7834,
       "ou25_over": 0.5546,
-      "model_agreement": 0.0306
+      "model_agreement": 0.0306,
+      "corners_over_under_8.5": {
+        "over": 0.9223,
+        "under": 0.0777
+      },
+      "corners_over_under_9.5": {
+        "over": 0.8667,
+        "under": 0.1333
+      },
+      "corners_over_under_10.5": {
+        "over": 0.7914,
+        "under": 0.2086
+      },
+      "corners_over_under_11.5": {
+        "over": 0.6988,
+        "under": 0.3012
+      },
+      "cards_over_under_8.5": {
+        "over": 0.0764,
+        "under": 0.9236
+      },
+      "cards_over_under_9.5": {
+        "over": 0.0365,
+        "under": 0.9635
+      },
+      "cards_over_under_10.5": {
+        "over": 0.016,
+        "under": 0.984
+      },
+      "cards_over_under_11.5": {
+        "over": 0.0065,
+        "under": 0.9935
+      }
     },
     "84": {
       "1x2_home": 0.3479,
@@ -34,7 +130,39 @@
       "1x2_away": 0.238,
       "btts_yes": 0.7834,
       "ou25_over": 0.5546,
-      "model_agreement": 0.0311
+      "model_agreement": 0.0311,
+      "corners_over_under_8.5": {
+        "over": 0.9383,
+        "under": 0.0617
+      },
+      "corners_over_under_9.5": {
+        "over": 0.8912,
+        "under": 0.1088
+      },
+      "corners_over_under_10.5": {
+        "over": 0.8252,
+        "under": 0.1748
+      },
+      "corners_over_under_11.5": {
+        "over": 0.741,
+        "under": 0.259
+      },
+      "cards_over_under_8.5": {
+        "over": 0.0536,
+        "under": 0.9464
+      },
+      "cards_over_under_9.5": {
+        "over": 0.0239,
+        "under": 0.9761
+      },
+      "cards_over_under_10.5": {
+        "over": 0.0098,
+        "under": 0.9902
+      },
+      "cards_over_under_11.5": {
+        "over": 0.0037,
+        "under": 0.9963
+      }
     },
     "85": {
       "1x2_home": 0.3479,
@@ -42,7 +170,39 @@
       "1x2_away": 0.238,
       "btts_yes": 0.7834,
       "ou25_over": 0.5546,
-      "model_agreement": 0.0311
+      "model_agreement": 0.0311,
+      "corners_over_under_8.5": {
+        "over": 0.9723,
+        "under": 0.0277
+      },
+      "corners_over_under_9.5": {
+        "over": 0.9467,
+        "under": 0.0533
+      },
+      "corners_over_under_10.5": {
+        "over": 0.9069,
+        "under": 0.0931
+      },
+      "corners_over_under_11.5": {
+        "over": 0.8504,
+        "under": 0.1496
+      },
+      "cards_over_under_8.5": {
+        "over": 0.1368,
+        "under": 0.8632
+      },
+      "cards_over_under_9.5": {
+        "over": 0.0734,
+        "under": 0.9266
+      },
+      "cards_over_under_10.5": {
+        "over": 0.0363,
+        "under": 0.9637
+      },
+      "cards_over_under_11.5": {
+        "over": 0.0166,
+        "under": 0.9834
+      }
     }
   }
 }

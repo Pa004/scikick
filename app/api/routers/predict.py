@@ -131,6 +131,10 @@ def _get_prediction(fixture_id: int) -> PredictResponse:
         if "highest_scoring_half" in probs:
             probabilities["highest_scoring_half"] = probs["highest_scoring_half"]
 
+        for key in probs:
+            if key.startswith("corners_") or key.startswith("cards_"):
+                probabilities[key] = probs[key]
+
         return PredictResponse(
             fixture_id=fixture_id,
             model_version=model_version,

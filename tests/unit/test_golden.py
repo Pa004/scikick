@@ -133,4 +133,11 @@ def test_golden_predictions_regression(tmp_path: Path):
             f"Fixture {fid} ou25_over drifted"
         )
 
+        for key in g:
+            if key.startswith("corners_over_under_") or key.startswith("cards_over_under_"):
+                assert key in pred["markets"], f"Fixture {fid} missing {key}"
+                assert abs(pred["markets"][key]["over"] - g[key]["over"]) < TOLERANCE, (
+                    f"Fixture {fid} {key} drifted"
+                )
+
     conn.close()
