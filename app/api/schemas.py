@@ -29,9 +29,17 @@ class BTTS(BaseModel):
     no: float
 
 
+class TopFeature(BaseModel):
+    feature: str
+    value: float
+    shap_importance: float
+
+
 class PredictResponse(BaseModel):
     fixture_id: int
     model_version: str
     model_agreement: float
     probabilities: dict[str, MarketProb | DoubleChance | OverUnder | BTTS | dict]
+    probable_score: dict[str, int] | None = None
+    top_features: list[TopFeature] | None = None
     market_odds: dict[str, MarketProb] | None = None

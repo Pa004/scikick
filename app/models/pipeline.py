@@ -6,6 +6,8 @@ import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
 
+import joblib
+
 import numpy as np
 import pandas as pd
 
@@ -299,6 +301,8 @@ def train_league(
 
     ht_params, residuals = fit_ht_models(features_df, team_map, n_teams)
 
+    final_lgbm_ensemble = train_lightgbm(features_df)
+
     all_lgbm_stds_concat = np.concatenate(all_lgbm_stds)
     mean_model_agreement = float(np.mean(np.mean(all_lgbm_stds_concat, axis=1))) if all_lgbm_stds_concat.size > 0 else 0.0
 
@@ -360,6 +364,9 @@ def train_league(
     run_dir.mkdir(parents=True, exist_ok=True)
     run_file = run_dir / f"pipeline_{mode}_{ts}.json"
     run_file.write_text(json.dumps(run_data, indent=2, default=str), encoding="utf-8")
+
+    ensemble_file = run_dir / f"ensemble_{ts}.joblib"
+    joblib.dump(final_lgbm_ensemble.models, ensemble_file)
 
     return {
         "league": league,

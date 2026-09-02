@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
+import joblib
+import numpy as np
 from fastapi import APIRouter, HTTPException
 
 from app.db.connection import get_connection
@@ -12,9 +15,65 @@ from app.api.schemas import (
     DoubleChance,
     OverUnder,
     BTTS,
+    TopFeature,
 )
+from app.models.explain import build_explainer, top_features
+from app.models.lightgbm_model import _FEATURE_COLS
 
 router = APIRouter()
+
+_RUNS_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "runs"
+
+
+def _load_latest_ensemble(league: str):
+    run_dir = _RUNS_DIR / league
+    if not run_dir.exists():
+        return None
+    ensemble_files = sorted(run_dir.glob("ensemble_*.joblib"))
+    if not ensemble_files:
+        return None
+    try:
+        return joblib.load(ensemble_files[-1])
+    except Exception:
+        return None
+
+
+def _get_feature_row(conn, fixture_id: int, league: str, home_team_id: int, away_team_id: int):
+    feat_row = conn.execute(
+        "SELECT * FROM match_features WHERE fixture_id = ?",
+        (fixture_id,),
+    ).fetchone()
+    if not feat_row:
+        return None
+    return {col: feat_row[col] for col in feat_row.keys() if col in _FEATURE_COLS}
+
+
+def _get_probable_score(probs: dict) -> dict[str, int] | None:
+    exact = probs.get("exact_score", {})
+    if not exact:
+        return None
+    best = max(exact.items(), key=lambda kv: kv[1])
+    score_str = best[0]
+    parts = score_str.split("-")
+    if len(parts) == 2:
+        try:
+            return {"home": int(parts[0]), "away": int(parts[1])}
+        except ValueError:
+            return None
+    return None
+
+
+def _compute_top_features(league: str, feature_row: dict) -> list[TopFeature] | None:
+    ensemble = _load_latest_ensemble(league)
+    if not ensemble or not feature_row:
+        return None
+    try:
+        explainer = build_explainer(ensemble)
+        X_row = np.array([[feature_row.get(f, 0.0) for f in _FEATURE_COLS]], dtype=float)
+        raw = top_features(explainer, X_row, _FEATURE_COLS, n=5)
+        return [TopFeature(**f) for f in raw]
+    except Exception:
+        return None
 
 
 @router.post("/predict", response_model=PredictResponse)
@@ -139,11 +198,16 @@ def _get_prediction(fixture_id: int) -> PredictResponse:
             if key.startswith("ht_") or key.startswith("ft_result_given_ht") or key.startswith("both_halves"):
                 probabilities[key] = probs[key]
 
+        feature_row = _get_feature_row(conn, fixture_id, row["league"], row["home_team_id"], row["away_team_id"])
+        top_feats = _compute_top_features(row["league"], feature_row)
+
         return PredictResponse(
             fixture_id=fixture_id,
             model_version=model_version,
             model_agreement=model_agreement,
             probabilities=probabilities,
+            probable_score=_get_probable_score(probs),
+            top_features=top_feats,
         )
     finally:
         conn.close()
