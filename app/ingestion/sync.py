@@ -88,15 +88,30 @@ def sync_league(
             ftag = int(row["FTAG"]) if pd.notna(row.get("FTAG")) else None
             status = "post" if row.get("ftr") else "pre"
 
+            hc = int(row["HC"]) if pd.notna(row.get("HC")) else None
+            ac = int(row["AC"]) if pd.notna(row.get("AC")) else None
+            hy = int(row["HY"]) if pd.notna(row.get("HY")) else None
+            ay = int(row["AY"]) if pd.notna(row.get("AY")) else None
+            hr = int(row["HR"]) if pd.notna(row.get("HR")) else None
+            ar = int(row["AR"]) if pd.notna(row.get("AR")) else None
+            ref = str(row["Referee"]) if pd.notna(row.get("Referee")) else None
+            max_h = float(row["MaxH"]) if pd.notna(row.get("MaxH")) else None
+            max_d = float(row["MaxD"]) if pd.notna(row.get("MaxD")) else None
+            max_a = float(row["MaxA"]) if pd.notna(row.get("MaxA")) else None
+
             conn.execute(
                 "INSERT OR IGNORE INTO fixtures "
                 "(league, match_date, home_team_id, away_team_id, competition_type, "
                 "status, home_score, away_score, ht_home_score, ht_away_score, "
+                "home_corners, away_corners, home_yellow, away_yellow, home_red, away_red, "
+                "referee, avg_home_odds, avg_draw_odds, avg_away_odds, "
                 "result_checked, source, source_fixture_id) "
-                "VALUES (?, ?, ?, ?, 'liga', ?, ?, ?, ?, ?, 0, 'football_data', ?)",
+                "VALUES (?, ?, ?, ?, 'liga', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                "0, 'football_data', ?)",
                 (
                     league_code, row["match_date"], home_id, away_id,
                     status, fthg, ftag, ht_home, ht_away,
+                    hc, ac, hy, ay, hr, ar, ref, max_h, max_d, max_a,
                     f"{league_code}_{row['match_date']}_{home_id}_{away_id}",
                 ),
             )
