@@ -53,6 +53,9 @@ def derive_count_handicap(matrix: np.ndarray, handicap: int = -2) -> dict:
             new_i = i + handicap
             if 0 <= new_i < matrix.shape[0]:
                 adjusted[new_i, j] += matrix[i, j]
+    total = adjusted.sum()
+    if total < 1e-15:
+        return {"home": 0.33, "draw": 0.34, "away": 0.33}
     from app.models.dixon_coles import probabilities_from_matrix
     return probabilities_from_matrix(adjusted)
 

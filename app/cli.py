@@ -7,7 +7,8 @@ from app.config import get_settings
 from app.db.migrations import run_migrations
 from app.db.connection import get_connection
 from app.ingestion.sync import sync_league, sync_all_leagues
-from app.models.pipeline import train_league
+from app.models.pipeline import train_league, resolve_predictions
+from app.models.predict import predict_future
 
 
 def cmd_sync(args):
@@ -36,6 +37,27 @@ def cmd_train(args):
         conn.close()
 
 
+def cmd_predict(args):
+    conn = get_connection()
+    try:
+        result = predict_future(conn, args.league)
+        if "error" in result:
+            print(f"ERROR: {result['error']}")
+        else:
+            print(f"OK {result['league']}: {result['predicted']} fixtures predicted")
+    finally:
+        conn.close()
+
+
+def cmd_resolve(args):
+    conn = get_connection()
+    try:
+        count = resolve_predictions(conn, args.league)
+        print(f"Resolved {count} market predictions")
+    finally:
+        conn.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description="SciKick CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -49,6 +71,14 @@ def main():
     train_parser.add_argument("--league", type=str, required=True, help="League code")
     train_parser.add_argument("--mode", type=str, default="complete", choices=["complete", "light"])
     train_parser.set_defaults(func=cmd_train)
+
+    predict_parser = subparsers.add_parser("predict", help="Predict future fixtures")
+    predict_parser.add_argument("--league", type=str, required=True, help="League code")
+    predict_parser.set_defaults(func=cmd_predict)
+
+    resolve_parser = subparsers.add_parser("resolve", help="Resolve played predictions")
+    resolve_parser.add_argument("--league", type=str, default=None, help="League code (optional)")
+    resolve_parser.set_defaults(func=cmd_resolve)
 
     args = parser.parse_args()
     args.func(args)

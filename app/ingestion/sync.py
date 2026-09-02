@@ -14,6 +14,7 @@ from app.ingestion.adapters.football_data import (
     parse_dates_utc,
     map_results,
 )
+from app.ingestion.adapters.api_football import fetch_fixtures as fetch_future_fixtures
 from app.ingestion.validation import validate_all
 
 
@@ -117,9 +118,21 @@ def sync_league(
             )
             inserted += 1
 
+        _sync_future_fixtures(conn, league_code)
+
         conn.commit()
     finally:
         conn.close()
+
+    try:
+        from app.ingestion.xg_enricher import enrich_xg_for_fixtures
+        conn_xg = get_connection(db_path)
+        try:
+            enrich_xg_for_fixtures(conn_xg, league_code)
+        finally:
+            conn_xg.close()
+    except Exception:
+        pass
 
     return {
         "league": league_code,
@@ -133,6 +146,32 @@ def sync_league(
             "errors": validation.errors,
         },
     }
+
+
+def _sync_future_fixtures(conn: sqlite3.Connection, league_code: str) -> int:
+    future_fixtures = fetch_future_fixtures(league_code)
+    inserted = 0
+    for fix in future_fixtures:
+        home_name = fix.get("home_team")
+        away_name = fix.get("away_team")
+        match_date = fix.get("date", "")[:10]
+        if not home_name or not away_name or not match_date:
+            continue
+
+        home_id = _resolve_team(conn, home_name)
+        away_id = _resolve_team(conn, away_name)
+        source_id = f"api_football_{fix.get('api_fixture_id', '')}"
+
+        conn.execute(
+            "INSERT OR IGNORE INTO fixtures "
+            "(league, match_date, home_team_id, away_team_id, competition_type, "
+            "status, result_checked, source, source_fixture_id) "
+            "VALUES (?, ?, ?, ?, 'liga', 'pre', 0, 'api_football', ?)",
+            (league_code, match_date, home_id, away_id, source_id),
+        )
+        inserted += 1
+
+    return inserted
 
 
 def sync_all_leagues(

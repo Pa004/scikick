@@ -1,0 +1,48 @@
+{
+  "overall_brier": 0.6584838035398586,
+  "blend_weight": 0.8,
+  "n_folds": 4,
+  "n_samples": 20,
+  "fixtures": {
+    "81": {
+      "1x2_home": 0.3479,
+      "1x2_draw": 0.414,
+      "1x2_away": 0.238,
+      "btts_yes": 0.7834,
+      "ou25_over": 0.5546,
+      "model_agreement": 0.0235
+    },
+    "82": {
+      "1x2_home": 0.3479,
+      "1x2_draw": 0.414,
+      "1x2_away": 0.238,
+      "btts_yes": 0.7834,
+      "ou25_over": 0.5546,
+      "model_agreement": 0.0248
+    },
+    "83": {
+      "1x2_home": 0.3479,
+      "1x2_draw": 0.414,
+      "1x2_away": 0.238,
+      "btts_yes": 0.7834,
+      "ou25_over": 0.5546,
+      "model_agreement": 0.0306
+    },
+    "84": {
+      "1x2_home": 0.3479,
+      "1x2_draw": 0.414,
+      "1x2_away": 0.238,
+      "btts_yes": 0.7834,
+      "ou25_over": 0.5546,
+      "model_agreement": 0.0311
+    },
+    "85": {
+      "1x2_home": 0.3479,
+      "1x2_draw": 0.414,
+      "1x2_away": 0.238,
+      "btts_yes": 0.7834,
+      "ou25_over": 0.5546,
+      "model_agreement": 0.0311
+    }
+  }
+}

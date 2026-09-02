@@ -50,10 +50,10 @@ def _get_prediction(fixture_id: int) -> PredictResponse:
             )
 
         pred = json.loads(row["prediction"])
-        probs = pred.get("probabilities", {})
         model_agreement = pred.get("model_agreement", 0.0)
         model_version = pred.get("model_version", "unknown")
 
+        probs = pred.get("markets", pred.get("probabilities", {}))
         probabilities: dict = {}
 
         if "1x2" in probs:

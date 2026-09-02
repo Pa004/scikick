@@ -26,12 +26,17 @@ def get_stats(league: str | None = None, market: str = "1x2"):
         ).fetchone()
 
         if not overall or overall["total"] == 0:
+            all_markets = conn.execute(
+                "SELECT DISTINCT market FROM tracked" + (" WHERE league = ?" if league else ""),
+                [league] if league else [],
+            ).fetchall()
             return {
                 "total_predictions": 0,
                 "accuracy": 0,
                 "avg_confidence": 0,
                 "by_confidence_band": [],
                 "by_league": [],
+                "by_market": [{"market": m["market"], "total": 0, "accuracy": 0, "cold_start": True} for m in all_markets],
                 "cold_start": True,
                 "message": "Insufficient data for evaluation (need at least 30 resolved predictions)",
             }
@@ -86,12 +91,40 @@ def get_stats(league: str | None = None, market: str = "1x2"):
                 "accuracy": round(league_hits / league_total, 4) if league_total > 0 else 0,
             })
 
+        market_filter = "WHERE 1=1"
+        market_params: list = []
+        if league:
+            market_filter += " AND t.league = ?"
+            market_params.append(league)
+
+        by_market_rows = conn.execute(
+            f"SELECT t.market, COUNT(*) as total, "
+            f"SUM(CASE WHEN t.hit = 1 THEN 1 ELSE 0 END) as hits "
+            f"FROM tracked t {market_filter} "
+            f"GROUP BY t.market "
+            f"ORDER BY total DESC",
+            market_params,
+        ).fetchall()
+
+        by_market = []
+        for mr in by_market_rows:
+            market_total = mr["total"]
+            market_hits = mr["hits"] or 0
+            by_market.append({
+                "market": mr["market"],
+                "total": market_total,
+                "hits": market_hits,
+                "accuracy": round(market_hits / market_total, 4) if market_total > 0 else 0,
+                "cold_start": market_total < 30,
+            })
+
         return {
             "total_predictions": total,
             "accuracy": round(hits / total, 4) if total > 0 else 0,
             "avg_confidence": round(avg_confidence, 4),
             "by_confidence_band": by_confidence,
             "by_league": by_league,
+            "by_market": by_market,
             "cold_start": total < 30,
         }
     finally:
