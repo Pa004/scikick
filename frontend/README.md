@@ -1,32 +1,50 @@
-# React + TypeScript + Vite
+# SciKick Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + TypeScript + Vite dashboard for the [SciKick](../README.md) probability engine. Visualizes fixtures, per-match predictions across ~70 markets, and player-level goalscorer probabilities served by the FastAPI backend.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 19** + TypeScript
+- **Vite 8** (dev server + build)
+- **Recharts** — probability visualizations
+- **Oxlint** — linting
+- **Vitest + Testing Library** — unit tests
 
-## React Compiler
+## Scripts
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm run dev       # dev server → http://localhost:5173
+npm run build     # type-check + production build
+npm run lint      # oxlint
+npm test          # vitest
+npm run preview   # preview the production build
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Features
+
+- **Fixtures feed** — scrollable list of matches with date, teams, and final score, filterable by league
+- **Match prediction panel** — select any fixture to see the predicted probability for the current market, the most-likely score line, the underlying model/agreement, and the top contributing features (e.g. Elo, form)
+- **~70 markets** — switch the active market (1x2, double chance, over/under, handicap, BTTS, corners, cards, HT/FT, and more) from a dropdown
+- **Goalscorer tab** — player-level anytime-scorer probabilities (xG90 + position + minutes); projects lineups from historical starters when confirmed lineups are unavailable
+- **Stats panel** — model training/calibration status (shows once fixtures have been evaluated)
+
+## API
+
+The dashboard talks to the SciKick backend, which by default runs at `http://localhost:8000`. Key endpoints:
+
+- `GET /api/fixtures` — upcoming/recent fixtures
+- `GET /api/predict/{fixture_id}?market=...` — prediction for a fixture/market
+- `GET /api/predict/scorer/{fixture_id}` — goalscorer probabilities
+- `GET /api/stats` — calibration / model status
+
+Point the app at a different backend via the Vite dev server proxy or the API base setting in [`src/api.ts`](src/api.ts).
+
+## Getting started
+
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+Make sure the backend is running first (see the [root README](../README.md#quick-start)).

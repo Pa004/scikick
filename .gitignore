@@ -26,3 +26,6 @@ frontend/dist/
 
 # === Logs ===
 logs/
+
+# === Playwright MCP artifacts ===
+.playwright-mcp/
