@@ -1,13 +1,15 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from 'recharts'
 import type { MatchdayStats } from '../types'
+import { useLanguage } from '../i18n'
 
 interface MatchdayChartProps {
   data: MatchdayStats[]
 }
 
 export default function MatchdayChart({ data }: MatchdayChartProps) {
+  const { t } = useLanguage()
   if (data.length === 0) {
-    return <p style={{ color: '#999' }}>No matchday data available.</p>
+    return <p style={{ color: '#999' }}>{t('noMatchdayData')}</p>
   }
 
   const chartData = data.map(d => ({
@@ -26,11 +28,11 @@ export default function MatchdayChart({ data }: MatchdayChartProps) {
           <Tooltip
             formatter={(value, name) => [
               name === 'brier' ? Number(value).toFixed(3) : `${value}%`,
-              name === 'brier' ? 'Brier Score' : 'Accuracy',
+              name === 'brier' ? t('brierScore') : t('accuracyPct'),
             ]}
           />
-          <ReferenceLine y={0.25} stroke="#e74c3c" strokeDasharray="5 5" label={{ value: 'baseline', fontSize: 10 }} />
-          <Line type="monotone" dataKey="brier" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name="Brier Score" />
+          <ReferenceLine y={0.25} stroke="#e74c3c" strokeDasharray="5 5" label={{ value: t('baseline'), fontSize: 10 }} />
+          <Line type="monotone" dataKey="brier" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name={t('brierScore')} />
         </LineChart>
       </ResponsiveContainer>
     </div>

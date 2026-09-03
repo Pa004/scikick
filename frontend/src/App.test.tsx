@@ -1,6 +1,15 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { LanguageProvider } from './i18n'
 import App from './App'
+
+function renderApp() {
+  return render(
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>,
+  )
+}
 
 const mockFixtures = [
   { id: 1, date: '2025-08-17', home: 'Arsenal', away: 'Chelsea', status: 'post', home_score: 2, away_score: 1, prediction: { markets: {} }, league: 'E0' },
@@ -37,24 +46,24 @@ beforeEach(() => {
 
 describe('App', () => {
   it('renders SciKick heading', () => {
-    render(<App />)
+    renderApp()
     expect(screen.getByText('SciKick')).toBeDefined()
   })
 
   it('shows loading state', () => {
-    render(<App />)
+    renderApp()
     expect(screen.getByText('Loading...')).toBeDefined()
   })
 
   it('renders fixtures after loading', async () => {
-    render(<App />)
+    renderApp()
     const arsenal = await screen.findByText(/Arsenal/)
     expect(arsenal).toBeDefined()
     expect(screen.getByText(/Liverpool/)).toBeDefined()
   })
 
   it('shows stats when no fixture selected', async () => {
-    render(<App />)
+    renderApp()
     await screen.findByText(/Arsenal/)
     expect(screen.getAllByText('150').length).toBeGreaterThan(0)
     expect(screen.getAllByText('62.0%').length).toBeGreaterThan(0)
