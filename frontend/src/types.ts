@@ -15,6 +15,8 @@ export interface Prediction {
   model_version: string
   model_agreement: number
   probabilities: Record<string, Record<string, number>>
+  probable_score: { home: number; away: number } | null
+  top_features: { feature: string; value: number; shap_importance: number }[] | null
 }
 
 export interface ConfidenceBand {
@@ -76,4 +78,21 @@ export interface CalibrationData {
   league: string | null
   cold_start: boolean
   data: CalibrationBin[]
+}
+
+export interface ScorerPlayer {
+  player_id: number
+  name: string
+  team: string
+  position: string
+  xg90: number
+  min_expected: number
+  prob_anytime: number
+  home_away: string
+}
+
+export interface ScorerPrediction {
+  fixture_id: number
+  data_quality: string
+  scorers: ScorerPlayer[]
 }

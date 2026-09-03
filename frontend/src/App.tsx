@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData } from './types'
-import { fetchFixtures, fetchPrediction, fetchStats, fetchMatchdayStats, fetchCalibration } from './api'
+import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction } from './types'
+import { fetchFixtures, fetchPrediction, fetchStats, fetchMatchdayStats, fetchCalibration, fetchScorer } from './api'
 import PredictionPanel from './components/PredictionPanel'
+import ScorerPanel from './components/ScorerPanel'
 import StatsDashboard from './components/StatsDashboard'
 
 const LEAGUES = [
@@ -13,11 +14,15 @@ const LEAGUES = [
   { code: 'F1', label: 'Ligue 1' },
 ]
 
+type ViewTab = 'match' | 'scorer'
+
 function App() {
   const [fixtures, setFixtures] = useState<Fixture[]>([])
   const [selectedMarket, setSelectedMarket] = useState('1x2')
   const [selectedFixture, setSelectedFixture] = useState<number | null>(null)
   const [prediction, setPrediction] = useState<Prediction | null>(null)
+  const [scorer, setScorer] = useState<ScorerPrediction | null>(null)
+  const [activeTab, setActiveTab] = useState<ViewTab>('match')
   const [stats, setStats] = useState<Stats | null>(null)
   const [matchdayData, setMatchdayData] = useState<MatchdayData | null>(null)
   const [calibrationData, setCalibrationData] = useState<CalibrationData | null>(null)
@@ -51,10 +56,25 @@ function App() {
       fetchPrediction(selectedFixture)
         .then(data => setPrediction(data))
         .catch(() => setPrediction(null))
+      fetchScorer(selectedFixture)
+        .then(data => setScorer(data))
+        .catch(() => setScorer(null))
     } else {
       setPrediction(null)
+      setScorer(null)
     }
   }, [selectedFixture])
+
+  const tabStyle = (tab: ViewTab) => ({
+    padding: '0.5rem 1rem',
+    cursor: 'pointer' as const,
+    border: 'none',
+    borderBottom: activeTab === tab ? '2px solid #3b82f6' : '2px solid transparent',
+    background: 'transparent',
+    color: activeTab === tab ? '#3b82f6' : '#666',
+    fontWeight: activeTab === tab ? 500 : 400,
+    fontSize: '0.9rem',
+  })
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'Inter, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
@@ -121,11 +141,23 @@ function App() {
 
           <div>
             {selectedFixture && prediction ? (
-              <PredictionPanel
-                prediction={prediction}
-                selectedMarket={selectedMarket}
-                onMarketChange={setSelectedMarket}
-              />
+              <div>
+                <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid #e5e7eb', marginBottom: '1rem' }}>
+                  <button style={tabStyle('match')} onClick={() => setActiveTab('match')}>Match</button>
+                  <button style={tabStyle('scorer')} onClick={() => setActiveTab('scorer')}>Goalscorer</button>
+                </div>
+                {activeTab === 'match' ? (
+                  <PredictionPanel
+                    prediction={prediction}
+                    selectedMarket={selectedMarket}
+                    onMarketChange={setSelectedMarket}
+                  />
+                ) : scorer ? (
+                  <ScorerPanel scorer={scorer} />
+                ) : (
+                  <p style={{ color: '#999' }}>Loading scorer data...</p>
+                )}
+              </div>
             ) : stats ? (
               <StatsDashboard
                 stats={stats}
