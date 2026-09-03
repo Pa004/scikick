@@ -1,22 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction } from './types'
 import { fetchFixtures, fetchPrediction, fetchStats, fetchMatchdayStats, fetchCalibration, fetchScorer } from './api'
+import { useLanguage } from './i18n'
 import PredictionPanel from './components/PredictionPanel'
 import ScorerPanel from './components/ScorerPanel'
 import StatsDashboard from './components/StatsDashboard'
+import { LanguageSelector } from './components/LanguageSelector'
 
 const LEAGUES = [
-  { code: '', label: 'All Leagues' },
-  { code: 'E0', label: 'Premier League' },
-  { code: 'SP1', label: 'La Liga' },
-  { code: 'D1', label: 'Bundesliga' },
-  { code: 'I1', label: 'Serie A' },
-  { code: 'F1', label: 'Ligue 1' },
-]
+  { code: '', labelKey: 'allLeagues' },
+  { code: 'E0', labelKey: 'premierLeague' },
+  { code: 'SP1', labelKey: 'laLiga' },
+  { code: 'D1', labelKey: 'bundesliga' },
+  { code: 'I1', labelKey: 'serieA' },
+  { code: 'F1', labelKey: 'ligue1' },
+] as const
 
 type ViewTab = 'match' | 'scorer'
 
+const accent = '#3b82f6'
+
 function App() {
+  const { t } = useLanguage()
   const [fixtures, setFixtures] = useState<Fixture[]>([])
   const [selectedMarket, setSelectedMarket] = useState('1x2')
   const [selectedFixture, setSelectedFixture] = useState<number | null>(null)
@@ -26,115 +31,212 @@ function App() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [matchdayData, setMatchdayData] = useState<MatchdayData | null>(null)
   const [calibrationData, setCalibrationData] = useState<CalibrationData | null>(null)
+  const [league, setLeague] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [league, setLeague] = useState('')
+
+  const leagueRequestId = useRef(0)
 
   useEffect(() => {
-    setLoading(true)
-    setError(null)
+    const requestId = ++leagueRequestId.current
+
     fetchFixtures(league || undefined)
-      .then(data => { setFixtures(data); setLoading(false) })
-      .catch(() => { setError('Backend not running. Start with: uvicorn app.api.main:app --reload'); setLoading(false) })
+      .then(data => {
+        if (requestId !== leagueRequestId.current) return
+        setFixtures(data)
+        setLoading(false)
+      })
+      .catch(() => {
+        if (requestId !== leagueRequestId.current) return
+        setLoading(false)
+        setError('backendError')
+      })
 
     fetchStats(selectedMarket, league || undefined)
-      .then(data => setStats(data))
+      .then(data => {
+        if (requestId !== leagueRequestId.current) return
+        setStats(data)
+      })
+      .catch(() => {})
+
+    fetchMatchdayStats(selectedMarket, league || undefined)
+      .then(data => {
+        if (requestId !== leagueRequestId.current) return
+        setMatchdayData(data)
+      })
+      .catch(() => {})
+
+    fetchCalibration(selectedMarket, league || undefined)
+      .then(data => {
+        if (requestId !== leagueRequestId.current) return
+        setCalibrationData(data)
+      })
       .catch(() => {})
   }, [league, selectedMarket])
 
   useEffect(() => {
-    fetchMatchdayStats(selectedMarket, league || undefined)
-      .then(data => setMatchdayData(data))
-      .catch(() => {})
-    fetchCalibration(selectedMarket, league || undefined)
-      .then(data => setCalibrationData(data))
-      .catch(() => {})
-  }, [selectedMarket, league])
+    if (!selectedFixture) return
+    let active = true
+    fetchPrediction(selectedFixture)
+      .then(data => {
+        if (active) setPrediction(data)
+      })
+      .catch(() => {
+        if (active) setPrediction(null)
+      })
+    fetchScorer(selectedFixture)
+      .then(data => {
+        if (active) setScorer(data)
+      })
+      .catch(() => {
+        if (active) setScorer(null)
+      })
+    return () => {
+      active = false
+    }
+  }, [selectedFixture])
 
-  useEffect(() => {
-    if (selectedFixture) {
-      fetchPrediction(selectedFixture)
-        .then(data => setPrediction(data))
-        .catch(() => setPrediction(null))
-      fetchScorer(selectedFixture)
-        .then(data => setScorer(data))
-        .catch(() => setScorer(null))
-    } else {
+  const resetLeagueData = () => {
+    setFixtures([])
+    setPrediction(null)
+    setScorer(null)
+    setStats(null)
+    setMatchdayData(null)
+    setCalibrationData(null)
+    setLoading(true)
+    setError(null)
+  }
+
+  const handleLeagueChange = (value: string) => {
+    setLeague(value)
+    setSelectedFixture(null)
+    resetLeagueData()
+  }
+
+  const handleMarketChange = (market: string) => {
+    setSelectedMarket(market)
+    resetLeagueData()
+  }
+
+  const handleFixtureChange = (id: number | null) => {
+    setSelectedFixture(id)
+    if (!id) {
       setPrediction(null)
       setScorer(null)
     }
-  }, [selectedFixture])
+  }
 
   const tabStyle = (tab: ViewTab) => ({
     padding: '0.5rem 1rem',
     cursor: 'pointer' as const,
     border: 'none',
-    borderBottom: activeTab === tab ? '2px solid #3b82f6' : '2px solid transparent',
+    borderBottom: activeTab === tab ? `2px solid ${accent}` : '2px solid transparent',
     background: 'transparent',
-    color: activeTab === tab ? '#3b82f6' : '#666',
+    color: activeTab === tab ? accent : '#666',
     fontWeight: activeTab === tab ? 500 : 400,
     fontSize: '0.9rem',
   })
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'Inter, sans-serif', maxWidth: '1200px', margin: '0 auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <header
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '1rem',
+          flexWrap: 'wrap',
+          marginBottom: '2rem',
+        }}
+      >
         <div>
-          <h1 style={{ color: '#1a1a2e', margin: 0 }}>SciKick</h1>
-          <p style={{ color: '#666', margin: 0 }}>Football Probability Estimation Engine</p>
+          <h1>SciKick</h1>
+          <p style={{ color: '#666', margin: 0 }}>{t('tagline')}</p>
         </div>
-        <select
-          value={league}
-          onChange={e => { setLeague(e.target.value); setSelectedFixture(null) }}
-          style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
-        >
-          {LEAGUES.map(l => (
-            <option key={l.code} value={l.code}>{l.label}</option>
-          ))}
-        </select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <label htmlFor="league-select" style={{ fontSize: '0.75rem', color: '#666' }}>
+              {t('league')}
+            </label>
+            <select
+              id="league-select"
+              value={league}
+              onChange={e => handleLeagueChange(e.target.value)}
+              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+            >
+              {LEAGUES.map(l => (
+                <option key={l.code} value={l.code}>
+                  {t(l.labelKey)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <LanguageSelector />
+        </div>
       </header>
 
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: '#e74c3c', background: '#fde8e8', padding: '1rem', borderRadius: '8px' }}>{error}</p>}
+      {error && (
+        <p
+          role="alert"
+          style={{ color: '#e74c3c', background: '#fde8e8', padding: '1rem', borderRadius: '8px' }}
+        >
+          {t(error as 'backendError')}
+        </p>
+      )}
 
-      {!loading && !error && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+      {!error && (
+        <div className="app-grid">
           <div>
-            <h2 style={{ color: '#333', marginBottom: '1rem' }}>Fixtures</h2>
-            {fixtures.length === 0 ? (
-              <p>No fixtures found. Run sync first.</p>
+            <h2 style={{ color: '#333', marginBottom: '1rem' }}>{t('fixtures')}</h2>
+            {loading ? (
+              <p>{t('loading')}</p>
+            ) : fixtures.length === 0 ? (
+              <p>{t('noFixtures')}</p>
             ) : (
               <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                {fixtures.map(f => (
-                  <div
-                    key={f.id}
-                    onClick={() => setSelectedFixture(f.id === selectedFixture ? null : f.id)}
-                    style={{
-                      padding: '0.75rem',
-                      borderBottom: '1px solid #f0f0f0',
-                      cursor: 'pointer',
-                      background: selectedFixture === f.id ? '#f0f4ff' : 'transparent',
-                      borderRadius: '4px',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <div style={{ fontSize: '0.85rem', color: '#666' }}>{f.date} · {f.league}</div>
-                        <div style={{ fontWeight: 500 }}>
-                          {f.home} vs {f.away}
-                          {f.home_score !== null && (
-                            <span style={{ marginLeft: '0.5rem', color: '#333' }}>
-                              {f.home_score} - {f.away_score}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {f.prediction && (
-                        <span style={{ fontSize: '0.75rem', color: '#3b82f6' }}>predicted</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                {fixtures.map(f => {
+                  const isActive = selectedFixture === f.id
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => handleFixtureChange(isActive ? null : f.id)}
+                      aria-pressed={isActive}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '0.75rem',
+                        border: 'none',
+                        borderBottom: '1px solid #f0f0f0',
+                        cursor: 'pointer',
+                        background: isActive ? '#f0f4ff' : 'transparent',
+                        borderRadius: '4px',
+                        font: 'inherit',
+                        color: 'inherit',
+                      }}
+                    >
+                      <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>
+                          <span style={{ display: 'block', fontSize: '0.85rem', color: '#666' }}>
+                            {f.date} · {f.league}
+                          </span>
+                          <span style={{ fontWeight: 500 }}>
+                            {f.home} vs {f.away}
+                            {f.home_score !== null && (
+                              <span style={{ marginLeft: '0.5rem', color: '#333' }}>
+                                {f.home_score} - {f.away_score}
+                              </span>
+                            )}
+                          </span>
+                        </span>
+                        {f.prediction != null && (
+                          <span style={{ fontSize: '0.75rem', color: accent }}>{t('predicted')}</span>
+                        )}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -142,20 +244,24 @@ function App() {
           <div>
             {selectedFixture && prediction ? (
               <div>
-                <div style={{ display: 'flex', gap: '0', borderBottom: '1px solid #e5e7eb', marginBottom: '1rem' }}>
-                  <button style={tabStyle('match')} onClick={() => setActiveTab('match')}>Match</button>
-                  <button style={tabStyle('scorer')} onClick={() => setActiveTab('scorer')}>Goalscorer</button>
+                <div role="tablist" style={{ display: 'flex', gap: '0', borderBottom: '1px solid #e5e7eb', marginBottom: '1rem' }}>
+                  <button role="tab" aria-selected={activeTab === 'match'} style={tabStyle('match')} onClick={() => setActiveTab('match')}>
+                    {t('match')}
+                  </button>
+                  <button role="tab" aria-selected={activeTab === 'scorer'} style={tabStyle('scorer')} onClick={() => setActiveTab('scorer')}>
+                    {t('goalscorer')}
+                  </button>
                 </div>
                 {activeTab === 'match' ? (
                   <PredictionPanel
                     prediction={prediction}
                     selectedMarket={selectedMarket}
-                    onMarketChange={setSelectedMarket}
+                    onMarketChange={handleMarketChange}
                   />
                 ) : scorer ? (
                   <ScorerPanel scorer={scorer} />
                 ) : (
-                  <p style={{ color: '#999' }}>Loading scorer data...</p>
+                  <p style={{ color: '#666' }}>{t('loadingScorer')}</p>
                 )}
               </div>
             ) : stats ? (
@@ -166,7 +272,7 @@ function App() {
                 selectedMarket={selectedMarket}
               />
             ) : (
-              <p style={{ color: '#999' }}>Select a fixture to see predictions.</p>
+              <p style={{ color: '#666' }}>{t('selectFixture')}</p>
             )}
           </div>
         </div>

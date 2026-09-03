@@ -110,6 +110,13 @@ npm run build
 
 CI runs the backend suite and the frontend lint/test/build on every push and pull request (`.github/workflows/ci.yml`).
 
+## UI
+
+- **Languages**: EN/ES toggle in the header (persisted in `localStorage`, defaults from `navigator.language`). All strings via the `i18n` context (`frontend/src/i18n/`).
+- **Fonts** (self-hosted via `@fontsource`): `Space Grotesk` (display/headings), `Geist` (body/UI), `Geist Mono` (data/stats).
+- **Design tokens**: CSS variables in `frontend/src/index.css` (`--accent`, `--surface`, `--border`, `--radius`, `--shadow-*`). Desktop is a two-column grid that collapses to a single column below 1024px.
+- **Accessibility**: fixture rows are keyboard-operable buttons, inputs carry labels, errors use `role="alert"`, and text colors meet WCAG contrast.
+
 ## Known limitations
 
 - **Transfer windows**: the model does not capture mid-season roster changes.
