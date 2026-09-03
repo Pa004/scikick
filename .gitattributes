@@ -1,0 +1,22 @@
+* text=auto
+
+*.py    text
+*.tsx   text
+*.ts    text eol=lf
+*.json  text
+*.js    text
+*.css   text
+*.html  text
+*.svg   text
+*.sql   text
+*.md    text
+*.yml   text
+*.toml  text
+*.txt   text
+*.conf  text
+*.example text
+*.dockerignore text
+*.gitignore text
+*.gitkeep text
+
+*.png   binary
