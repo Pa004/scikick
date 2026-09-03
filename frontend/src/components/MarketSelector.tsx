@@ -14,7 +14,7 @@ export default function MarketSelector({ selected, onChange, availableMarkets }:
     <select
       value={selected}
       onChange={e => onChange(e.target.value)}
-      style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+      className="select-dark"
     >
       {Object.entries(MARKET_CATEGORIES).map(([category, markets]) => {
         const key = category as MarketCategoryKey

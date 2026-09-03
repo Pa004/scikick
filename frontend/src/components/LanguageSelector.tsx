@@ -15,27 +15,14 @@ export function LanguageSelector() {
     <div
       role="group"
       aria-label="Language"
-      style={{
-        display: 'inline-flex',
-        border: '1px solid #e5e7eb',
-        borderRadius: 999,
-        overflow: 'hidden',
-      }}
+      className="pill"
     >
       {OPTIONS.map(({ value, label }) => {
         const isActive = value === locale
         const common: ButtonProps = {
           onClick: () => setLocale(value),
           'aria-pressed': isActive,
-          style: {
-            border: 'none',
-            background: isActive ? '#3b82f6' : 'transparent',
-            color: isActive ? '#fff' : '#666',
-            padding: '4px 14px',
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: 'pointer',
-          },
+          className: `pill-btn ${isActive ? 'pill-btn-active' : ''}`,
         }
         return (
           <button key={value} {...common}>

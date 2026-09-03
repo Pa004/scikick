@@ -18,8 +18,6 @@ const LEAGUES = [
 
 type ViewTab = 'match' | 'scorer'
 
-const accent = '#3b82f6'
-
 function App() {
   const { t } = useLanguage()
   const [fixtures, setFixtures] = useState<Fixture[]>([])
@@ -126,20 +124,10 @@ function App() {
     }
   }
 
-  const tabStyle = (tab: ViewTab) => ({
-    padding: '0.5rem 1rem',
-    cursor: 'pointer' as const,
-    border: 'none',
-    borderBottom: activeTab === tab ? `2px solid ${accent}` : '2px solid transparent',
-    background: 'transparent',
-    color: activeTab === tab ? accent : '#666',
-    fontWeight: activeTab === tab ? 500 : 400,
-    fontSize: '0.9rem',
-  })
-
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <header
+        className="animate-fade-in"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -147,22 +135,24 @@ function App() {
           gap: '1rem',
           flexWrap: 'wrap',
           marginBottom: '2rem',
+          paddingBottom: '1.5rem',
+          borderBottom: '1px solid var(--border)',
         }}
       >
         <div>
-          <h1>SciKick</h1>
-          <p style={{ color: '#666', margin: 0 }}>{t('tagline')}</p>
+          <h1 className="gradient-text" style={{ fontSize: '2rem', letterSpacing: '-0.03em' }}>SciKick</h1>
+          <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{t('tagline')}</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <label htmlFor="league-select" style={{ fontSize: '0.75rem', color: '#666' }}>
+            <label htmlFor="league-select" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               {t('league')}
             </label>
             <select
               id="league-select"
               value={league}
               onChange={e => handleLeagueChange(e.target.value)}
-              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+              className="select-dark"
             >
               {LEAGUES.map(l => (
                 <option key={l.code} value={l.code}>
@@ -176,62 +166,59 @@ function App() {
       </header>
 
       {error && (
-        <p
+        <div
           role="alert"
-          style={{ color: '#e74c3c', background: '#fde8e8', padding: '1rem', borderRadius: '8px' }}
+          className="animate-fade-in"
+          style={{
+            color: 'var(--danger)',
+            background: 'var(--danger-bg)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            padding: '1rem 1.25rem',
+            borderRadius: 'var(--radius)',
+            marginBottom: '1.5rem',
+          }}
         >
           {t(error as 'backendError')}
-        </p>
+        </div>
       )}
 
       {!error && (
         <div className="app-grid">
           <div>
-            <h2 style={{ color: '#333', marginBottom: '1rem' }}>{t('fixtures')}</h2>
+            <h2 style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '1.1rem' }}>{t('fixtures')}</h2>
             {loading ? (
-              <p>{t('loading')}</p>
+              <p style={{ color: 'var(--text-muted)' }}>{t('loading')}</p>
             ) : fixtures.length === 0 ? (
-              <p>{t('noFixtures')}</p>
+              <p style={{ color: 'var(--text-muted)' }}>{t('noFixtures')}</p>
             ) : (
               <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                {fixtures.map(f => {
+                {fixtures.map((f, i) => {
                   const isActive = selectedFixture === f.id
+                  const staggerClass = i < 10 ? `stagger-${i + 1}` : ''
                   return (
                     <button
                       key={f.id}
                       type="button"
                       onClick={() => handleFixtureChange(isActive ? null : f.id)}
                       aria-pressed={isActive}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        textAlign: 'left',
-                        padding: '0.75rem',
-                        border: 'none',
-                        borderBottom: '1px solid #f0f0f0',
-                        cursor: 'pointer',
-                        background: isActive ? '#f0f4ff' : 'transparent',
-                        borderRadius: '4px',
-                        font: 'inherit',
-                        color: 'inherit',
-                      }}
+                      className={`fixture-item animate-fade-in-up ${staggerClass}`}
                     >
                       <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>
-                          <span style={{ display: 'block', fontSize: '0.85rem', color: '#666' }}>
+                          <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                             {f.date} · {f.league}
                           </span>
                           <span style={{ fontWeight: 500 }}>
                             {f.home} vs {f.away}
                             {f.home_score !== null && (
-                              <span style={{ marginLeft: '0.5rem', color: '#333' }}>
+                              <span style={{ marginLeft: '0.5rem', color: 'var(--text-secondary)' }}>
                                 {f.home_score} - {f.away_score}
                               </span>
                             )}
                           </span>
                         </span>
                         {f.prediction != null && (
-                          <span style={{ fontSize: '0.75rem', color: accent }}>{t('predicted')}</span>
+                          <span className="badge badge-accent" style={{ fontSize: '0.7rem' }}>{t('predicted')}</span>
                         )}
                       </span>
                     </button>
@@ -243,12 +230,44 @@ function App() {
 
           <div>
             {selectedFixture && prediction ? (
-              <div>
-                <div role="tablist" style={{ display: 'flex', gap: '0', borderBottom: '1px solid #e5e7eb', marginBottom: '1rem' }}>
-                  <button role="tab" aria-selected={activeTab === 'match'} style={tabStyle('match')} onClick={() => setActiveTab('match')}>
+              <div className="animate-fade-in">
+                <div role="tablist" style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)', marginBottom: '1rem' }}>
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'match'}
+                    className={activeTab === 'match' ? 'tab-active' : ''}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      cursor: 'pointer',
+                      border: 'none',
+                      borderBottom: activeTab === 'match' ? 'none' : '2px solid transparent',
+                      background: 'transparent',
+                      color: activeTab === 'match' ? undefined : 'var(--text-muted)',
+                      fontWeight: activeTab === 'match' ? 500 : 400,
+                      fontSize: '0.9rem',
+                      position: 'relative',
+                    }}
+                    onClick={() => setActiveTab('match')}
+                  >
                     {t('match')}
                   </button>
-                  <button role="tab" aria-selected={activeTab === 'scorer'} style={tabStyle('scorer')} onClick={() => setActiveTab('scorer')}>
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'scorer'}
+                    className={activeTab === 'scorer' ? 'tab-active' : ''}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      cursor: 'pointer',
+                      border: 'none',
+                      borderBottom: activeTab === 'scorer' ? 'none' : '2px solid transparent',
+                      background: 'transparent',
+                      color: activeTab === 'scorer' ? undefined : 'var(--text-muted)',
+                      fontWeight: activeTab === 'scorer' ? 500 : 400,
+                      fontSize: '0.9rem',
+                      position: 'relative',
+                    }}
+                    onClick={() => setActiveTab('scorer')}
+                  >
                     {t('goalscorer')}
                   </button>
                 </div>
@@ -261,18 +280,20 @@ function App() {
                 ) : scorer ? (
                   <ScorerPanel scorer={scorer} />
                 ) : (
-                  <p style={{ color: '#666' }}>{t('loadingScorer')}</p>
+                  <p style={{ color: 'var(--text-muted)' }}>{t('loadingScorer')}</p>
                 )}
               </div>
             ) : stats ? (
-              <StatsDashboard
-                stats={stats}
-                matchdayData={matchdayData}
-                calibrationData={calibrationData}
-                selectedMarket={selectedMarket}
-              />
+              <div className="animate-fade-in">
+                <StatsDashboard
+                  stats={stats}
+                  matchdayData={matchdayData}
+                  calibrationData={calibrationData}
+                  selectedMarket={selectedMarket}
+                />
+              </div>
             ) : (
-              <p style={{ color: '#666' }}>{t('selectFixture')}</p>
+              <p style={{ color: 'var(--text-muted)' }}>{t('selectFixture')}</p>
             )}
           </div>
         </div>
