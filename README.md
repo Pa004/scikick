@@ -20,6 +20,10 @@ Goalscorer view (player-level anytime scorer probabilities):
 
 ![SciKick goalscorer](docs/screenshots/goalscorer.png)
 
+ES/EN language toggle (persisted via localStorage):
+
+![SciKick ES](docs/screenshots/dashboard-es.png)
+
 ## Why it exists
 
 Most football "probability" tools are opaque black boxes. SciKick is the opposite: every estimate comes from a reproducible pipeline — Elo ratings, team form, xG enrichment, and a Dixon-Coles score matrix — and is **calibrated and reported** so the probabilities mean what they claim. Built for data people who want to *understand* a model, not just stare at it.
