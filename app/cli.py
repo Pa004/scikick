@@ -58,6 +58,20 @@ def cmd_resolve(args):
         conn.close()
 
 
+def cmd_scorer_ingest(args):
+    from app.players.ingest import ingest_league_players
+    conn = get_connection()
+    try:
+        result = ingest_league_players(conn, args.league)
+        if "error" in result:
+            print(f"ERROR: {result['error']}")
+        else:
+            print(f"OK {result['league']}: {result['players_inserted']} players, "
+                  f"{result['fixtures_processed']} fixture-player records")
+    finally:
+        conn.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description="SciKick CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -79,6 +93,10 @@ def main():
     resolve_parser = subparsers.add_parser("resolve", help="Resolve played predictions")
     resolve_parser.add_argument("--league", type=str, default=None, help="League code (optional)")
     resolve_parser.set_defaults(func=cmd_resolve)
+
+    scorer_parser = subparsers.add_parser("scorer-ingest", help="Ingest player xG data from Understat")
+    scorer_parser.add_argument("--league", type=str, required=True, help="League code")
+    scorer_parser.set_defaults(func=cmd_scorer_ingest)
 
     args = parser.parse_args()
     args.func(args)

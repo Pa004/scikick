@@ -85,3 +85,72 @@ def fetch_league_xg(league_slug: str) -> list[dict]:
         return data
     except Exception:
         return []
+
+
+def fetch_match_player_xg(match_id: int) -> list[dict] | None:
+    try:
+        resp = httpx.get(
+            UNDERSTAT_MATCH_URL.format(match_id),
+            headers=_HEADERS,
+            timeout=15,
+        )
+        resp.raise_for_status()
+        shots = _extract_json(resp.text, "shotsData")
+        if not shots:
+            return None
+
+        players: dict[str, dict] = {}
+        for shot in shots:
+            player = shot.get("player", "")
+            if not player:
+                continue
+            key = f"{player}_{shot.get('h_a', '')}"
+            if key not in players:
+                players[key] = {
+                    "player": player,
+                    "player_id": shot.get("player_id", ""),
+                    "team": "",
+                    "h_a": shot.get("h_a"),
+                    "xg_total": 0.0,
+                    "shots": 0,
+                }
+            players[key]["xg_total"] += float(shot.get("xG", 0))
+            players[key]["shots"] += 1
+
+        result = []
+        for rec in players.values():
+            result.append(rec)
+        return result
+    except Exception:
+        return None
+
+
+def fetch_league_players_stats(league_slug: str) -> list[dict]:
+    try:
+        resp = httpx.get(
+            UNDERSTAT_LEAGUE_URL.format(league_slug),
+            headers=_HEADERS,
+            timeout=15,
+        )
+        resp.raise_for_status()
+        players_data = _extract_json(resp.text, "playersData")
+        if not players_data:
+            return []
+
+        result = []
+        for p in players_data:
+            result.append({
+                "player_id": str(p.get("id", "")),
+                "name": p.get("player_name", ""),
+                "team": p.get("team_title", ""),
+                "position": p.get("position", ""),
+                "games": int(p.get("games", 0)),
+                "minutes": int(p.get("time", 0)),
+                "goals": int(p.get("goals", 0)),
+                "assists": int(p.get("assists", 0)),
+                "xg": float(p.get("xG", 0)),
+                "npxg": float(p.get("npxG", 0)),
+            })
+        return result
+    except Exception:
+        return []
