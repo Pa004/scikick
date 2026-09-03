@@ -13,11 +13,11 @@ from app.ingestion.adapters.understat import (
 from app.db.connection import get_connection
 
 UNDERSTAT_SLUG_MAP = {
-    "E0": "premier-league",
-    "SP1": "la-liga",
+    "E0": "epl",
+    "SP1": "la_liga",
     "D1": "bundesliga",
-    "I1": "serie-a",
-    "F1": "ligue-1",
+    "I1": "serie_a",
+    "F1": "ligue_1",
 }
 
 _MIN_MATCH_MINUTES = 450

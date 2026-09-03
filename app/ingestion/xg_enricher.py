@@ -9,11 +9,11 @@ from app.ingestion.adapters.understat import fetch_league_xg
 
 
 UNDERSTAT_SLUG_MAP = {
-    "E0": "premier-league",
-    "SP1": "la-liga",
+    "E0": "epl",
+    "SP1": "la_liga",
     "D1": "bundesliga",
-    "I1": "serie-a",
-    "F1": "ligue-1",
+    "I1": "serie_a",
+    "F1": "ligue_1",
 }
 
 
