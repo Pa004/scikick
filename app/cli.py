@@ -72,6 +72,23 @@ def cmd_scorer_ingest(args):
         conn.close()
 
 
+def cmd_scorer_lineups(args):
+    from app.players.lineups import ingest_lineups_for_upcoming
+    conn = get_connection()
+    try:
+        leagues = args.league.split(",") if args.league else get_settings().leagues_initial.split(",")
+        for league in leagues:
+            result = ingest_lineups_for_upcoming(conn, league, args.hours)
+            if "error" in result:
+                print(f"ERROR {league}: {result['error']}")
+            elif result.get("skipped"):
+                print(f"SKIPPED {league}: {result['skipped']}")
+            else:
+                print(f"OK {league}: {result['fixtures_updated']} fixtures lineups ingested")
+    finally:
+        conn.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description="SciKick CLI")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -97,6 +114,11 @@ def main():
     scorer_parser = subparsers.add_parser("scorer-ingest", help="Ingest player xG data from Understat")
     scorer_parser.add_argument("--league", type=str, required=True, help="League code")
     scorer_parser.set_defaults(func=cmd_scorer_ingest)
+
+    lineup_parser = subparsers.add_parser("scorer-lineups", help="Ingest lineups from API-Football for upcoming fixtures")
+    lineup_parser.add_argument("--league", type=str, default=None, help="League codes (comma-separated)")
+    lineup_parser.add_argument("--hours", type=int, default=24, help="Look-ahead window in hours")
+    lineup_parser.set_defaults(func=cmd_scorer_lineups)
 
     args = parser.parse_args()
     args.func(args)

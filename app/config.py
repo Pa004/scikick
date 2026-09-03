@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     leagues_initial: str = "E0"
     scheduler_sync_hour: int = 6
     scheduler_retrain_day: str = "sunday"
+    scheduler_lineups_hour: int = 5
+    scheduler_lineups_minute: int = 30
     env: str = "production"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
