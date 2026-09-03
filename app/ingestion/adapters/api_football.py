@@ -64,3 +64,41 @@ def fetch_fixtures(league_code: str, season: int | None = None) -> list[dict]:
         return fixtures
     except Exception:
         return []
+
+
+def fetch_lineups(api_fixture_id: int) -> list[dict] | None:
+    settings = get_settings()
+    if not settings.api_football_key:
+        return None
+
+    try:
+        resp = httpx.get(
+            f"{API_FOOTBALL_BASE}/fixtures/lineups",
+            headers=_get_headers(),
+            params={"fixture": api_fixture_id},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+
+        players = []
+        for team_data in data.get("response", []):
+            for xi in team_data.get("startXI", []):
+                p = xi.get("player", {})
+                players.append({
+                    "player_id_api": p.get("id"),
+                    "name": p.get("name", ""),
+                    "position": p.get("pos", ""),
+                    "status": "starting",
+                })
+            for sub in team_data.get("substitutes", []):
+                p = sub.get("player", {})
+                players.append({
+                    "player_id_api": p.get("id"),
+                    "name": p.get("name", ""),
+                    "position": p.get("pos", ""),
+                    "status": "sub",
+                })
+        return players if players else None
+    except Exception:
+        return None

@@ -43,3 +43,20 @@ class PredictResponse(BaseModel):
     probable_score: dict[str, int] | None = None
     top_features: list[TopFeature] | None = None
     market_odds: dict[str, MarketProb] | None = None
+
+
+class ScorerPlayer(BaseModel):
+    player_id: int
+    name: str
+    team: str
+    position: str
+    xg90: float
+    min_expected: float
+    prob_anytime: float
+    home_away: str
+
+
+class ScorerPrediction(BaseModel):
+    fixture_id: int
+    data_quality: str
+    scorers: list[ScorerPlayer]
