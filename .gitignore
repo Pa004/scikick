@@ -12,8 +12,11 @@ data/
 backups/
 
 # === Model artifacts (too large, metrics.json documented in README) ===
+# Ignore generated run artifacts but keep the manager source code.
 app/models/runs/*
 !app/models/runs/.gitkeep
+!app/models/runs/manager.py
+!app/models/runs/__init__.py
 
 # === Frontend ===
 frontend/node_modules/
