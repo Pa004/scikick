@@ -3,22 +3,18 @@ import { useLanguage } from '../i18n'
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 
-const barStyle = (prob: number): React.CSSProperties => ({
-  background: `linear-gradient(90deg, #3b82f6 ${prob * 100}%, #f0f4ff ${prob * 100}%)`,
-  borderRadius: '4px',
-  padding: '0.5rem 0.75rem',
-  marginBottom: '0.25rem',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  fontSize: '0.9rem',
-})
-
 function ProbBar({ label, prob }: { label: string; prob: number }) {
+  const isFavorite = prob > 0.5
   return (
-    <div style={barStyle(prob)}>
-      <span style={{ fontWeight: 500 }}>{label}</span>
-      <span style={{ color: prob > 0.5 ? '#1a1a2e' : '#666' }}>{formatProb(prob)}</span>
+    <div
+      className={`prob-bar ${isFavorite ? 'prob-bar-favorite' : ''}`}
+      style={{ position: 'relative', overflow: 'hidden' }}
+    >
+      <div className="prob-bar-fill" style={{ width: `${prob * 100}%` }} />
+      <span style={{ fontWeight: 500, position: 'relative', zIndex: 1 }}>{label}</span>
+      <span style={{ color: isFavorite ? 'var(--accent)' : 'var(--text-secondary)', fontWeight: isFavorite ? 600 : 400, position: 'relative', zIndex: 1 }}>
+        {formatProb(prob)}
+      </span>
     </div>
   )
 }
@@ -87,13 +83,22 @@ function MarketRendererInner({ market, data }: { market: string; data: Record<st
   const totalGoals = () => {
     const chartData = Object.entries(data).map(([k, v]) => ({ goals: k, probability: +(v * 100).toFixed(1) }))
     return (
-      <div style={{ height: '150px' }}>
+      <div style={{ height: '180px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
-            <XAxis dataKey="goals" fontSize={12} />
-            <YAxis fontSize={12} />
-            <Tooltip formatter={(value) => `${value}%`} />
-            <Bar dataKey="probability" fill="#3b82f6" />
+            <defs>
+              <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+                <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="goals" fontSize={12} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
+            <YAxis fontSize={12} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
+            <Tooltip
+              contentStyle={{ background: '#1a2238', border: '1px solid #2a3350', borderRadius: '8px', color: '#e2e8f0' }}
+              formatter={(value) => `${value}%`}
+            />
+            <Bar dataKey="probability" fill="url(#barGrad)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -122,15 +127,19 @@ function MarketRendererInner({ market, data }: { market: string; data: Record<st
   const combined = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
       {Object.entries(data).map(([k, v]) => (
-        <div key={k} style={{ background: '#f9f9f9', padding: '0.5rem', borderRadius: '4px', fontSize: '0.85rem' }}>
-          <div style={{ color: '#666', marginBottom: '0.25rem' }}>{k.replace(/_/g, ' ')}</div>
-          <div style={{ fontWeight: 600 }}>{formatProb(v)}</div>
+        <div key={k} className="card-flat" style={{ padding: '0.625rem', fontSize: '0.85rem' }}>
+          <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>{k.replace(/_/g, ' ')}</div>
+          <div style={{ fontWeight: 600, color: 'var(--text)' }}>{formatProb(v)}</div>
         </div>
       ))}
     </div>
   )
 
-  const fallback = () => <pre style={{ fontSize: '0.75rem', background: '#f9f9f9', padding: '0.75rem', borderRadius: '4px', overflow: 'auto' }}>{JSON.stringify(data, null, 2)}</pre>
+  const fallback = () => (
+    <pre className="card-flat" style={{ fontSize: '0.75rem', padding: '0.75rem', overflow: 'auto' }}>
+      {JSON.stringify(data, null, 2)}
+    </pre>
+  )
 
   const isCorners = market.startsWith('corners_')
   const isCards = market.startsWith('cards_')
@@ -176,6 +185,6 @@ function MarketRendererInner({ market, data }: { market: string; data: Record<st
 
 export default function MarketRenderer({ market, probabilities }: { market: string; probabilities: Record<string, Record<string, number>> }) {
   const data = probabilities[market]
-  if (!data) return <span style={{ color: '#666' }}>N/A</span>
+  if (!data) return <span style={{ color: 'var(--text-muted)' }}>N/A</span>
   return <MarketRendererInner market={market} data={data} />
 }
