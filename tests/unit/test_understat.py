@@ -1,37 +1,156 @@
 import json
 import sqlite3
+from datetime import datetime
 
 import pytest
 
 from app.ingestion.adapters.understat import (
-    _extract_json,
     fetch_match_xg,
-    fetch_team_xg_history,
+    fetch_match_player_xg,
     fetch_league_xg,
+    fetch_league_players_stats,
 )
 from app.ingestion.xg_enricher import _match_xg_to_fixtures, enrich_xg_for_fixtures
 from app.db.migrations import run_migrations
 
 
-def test_extract_json():
-    html = 'var shotsData = JSON.parse(\'{"key": "value"}\');'
-    result = _extract_json(html, "shotsData")
-    assert result == {"key": "value"}
+def _mock_get(payload):
+    class _Resp:
+        @staticmethod
+        def raise_for_status():
+            pass
+
+        @staticmethod
+        def json():
+            return payload
+
+    class _MockGet:
+        def __call__(self, *args, **kwargs):
+            return _Resp()
+
+    return _MockGet()
 
 
-def test_extract_json_not_found():
-    html = "var otherData = 123;"
-    result = _extract_json(html, "shotsData")
-    assert result is None
+def test_fetch_league_xg_extracts_dates(monkeypatch):
+    from app.ingestion.adapters import understat
+
+    payload = {
+        "teams": [],
+        "players": [],
+        "dates": [
+            {
+                "h": {"title": "Arsenal"},
+                "a": {"title": "Chelsea"},
+                "datetime": "2023-08-12 15:00:00",
+                "xG": {"h": "1.5", "a": "0.8"},
+            }
+        ],
+    }
+    monkeypatch.setattr(understat.httpx, "get", _mock_get(payload))
+    result = fetch_league_xg("epl")
+    assert len(result) == 1
+    assert result[0]["h"]["title"] == "Arsenal"
+    assert result[0]["xG"]["h"] == "1.5"
 
 
-@pytest.mark.slow
-def test_fetch_match_xg_real():
+def test_fetch_league_xg_returns_empty_on_error(monkeypatch):
+    from app.ingestion.adapters import understat
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("network")
+
+    monkeypatch.setattr(understat.httpx, "get", boom)
+    assert fetch_league_xg("epl") == []
+
+
+def test_fetch_league_players_stats_maps_fields(monkeypatch):
+    from app.ingestion.adapters import understat
+
+    payload = {
+        "players": [
+            {
+                "id": "8260",
+                "player_name": "Erling Haaland",
+                "team_title": "Manchester City",
+                "position": "F S",
+                "games": 35,
+                "time": 2979,
+                "goals": 27,
+                "assists": 8,
+                "xG": "28.79",
+                "npxG": "25.75",
+            }
+        ],
+        "dates": [],
+    }
+    monkeypatch.setattr(understat.httpx, "get", _mock_get(payload))
+    result = fetch_league_players_stats("epl")
+    assert len(result) == 1
+    p = result[0]
+    assert p["player_id"] == "8260"
+    assert p["name"] == "Erling Haaland"
+    assert p["team"] == "Manchester City"
+    assert p["minutes"] == 2979
+    assert p["npxg"] == 25.75
+    assert p["xg"] == 28.79
+
+
+def test_fetch_match_xg_flattens_shots(monkeypatch):
+    from app.ingestion.adapters import understat
+
+    payload = {
+        "shots": {
+            "h": [{"player": "A", "h_a": "h", "xG": "1.2"}, {"player": "B", "h_a": "h", "xG": "0.5"}],
+            "a": [{"player": "C", "h_a": "a", "xG": "0.7"}],
+        }
+    }
+    monkeypatch.setattr(understat.httpx, "get", _mock_get(payload))
     result = fetch_match_xg(1)
-    if result:
-        assert "home_xg" in result
-        assert "away_xg" in result
-        assert result["home_xg"] >= 0
+    assert result == {"home_xg": 1.7, "away_xg": 0.7}
+
+
+def test_fetch_match_xg_returns_none_on_error(monkeypatch):
+    from app.ingestion.adapters import understat
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("network")
+
+    monkeypatch.setattr(understat.httpx, "get", boom)
+    assert fetch_match_xg(1) is None
+
+
+def test_fetch_match_player_xg_groups_by_player(monkeypatch):
+    from app.ingestion.adapters import understat
+
+    payload = {
+        "shots": {
+            "h": [
+                {"player": "A", "player_id": "1", "h_a": "h", "xG": "0.6"},
+                {"player": "A", "player_id": "1", "h_a": "h", "xG": "0.4"},
+            ],
+            "a": [{"player": "C", "player_id": "3", "h_a": "a", "xG": "0.2"}],
+        }
+    }
+    monkeypatch.setattr(understat.httpx, "get", _mock_get(payload))
+    result = fetch_match_player_xg(1)
+    assert result is not None
+    by_name = {r["player"]: r for r in result}
+    assert by_name["A"]["xg_total"] == 1.0
+    assert by_name["A"]["shots"] == 2
+    assert by_name["C"]["xg_total"] == 0.2
+    assert by_name["C"]["h_a"] == "a"
+
+
+def test_resolve_season_tracks_current_year(monkeypatch):
+    from app.ingestion.adapters import understat
+
+    class _FakeNow(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime(2026, 9, 3)
+
+    monkeypatch.setattr(understat, "datetime", _FakeNow)
+    assert understat._resolve_season() == 2025
 
 
 def test_match_xg_exact_date():
