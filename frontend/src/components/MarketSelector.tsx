@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useLanguage, marketCategoryLabel } from '../i18n'
+import { getMarketLabel } from '../utils/marketLabels'
 import { MARKET_CATEGORIES, type MarketCategoryKey } from './marketCategories'
 
 interface MarketSelectorProps {
@@ -17,7 +18,7 @@ function findCategory(market: string, available?: string[]): MarketCategoryKey |
 }
 
 export default function MarketSelector({ selected, onChange, availableMarkets }: MarketSelectorProps) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   // Derived state (React-endorsed "previous render info" pattern):
   // manual toggles persist, but programmatic market changes re-open their group.
   const [nav, setNav] = useState(() => ({
@@ -64,7 +65,7 @@ export default function MarketSelector({ selected, onChange, availableMarkets }:
                     onClick={() => onChange(m)}
                     className={`market-option${m === selected ? ' market-option-active' : ''}`}
                   >
-                    {m.replace(/_/g, ' ')}
+                    {getMarketLabel(m, locale)}
                   </button>
                 ))}
               </div>

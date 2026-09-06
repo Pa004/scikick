@@ -3,6 +3,7 @@ import { useLanguage } from '../i18n'
 import { useDisplayMode, type DisplayMode } from '../hooks/useDisplayMode'
 import { useMovement } from '../hooks/useMovement'
 import { formatDecimal } from '../utils/odds'
+import { getMarketLabel, getOutcomeLabel } from '../utils/marketLabels'
 import {
   getTeamForm,
   getHeadToHead,
@@ -102,27 +103,9 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
   )
 }
 
-function comboLegLabel(market: string, outcome: string, label: (key: 'home' | 'draw' | 'away' | 'over' | 'under') => string): string {
-  if (market === '1x2') return label(outcome as 'home' | 'draw' | 'away')
-  if (market === 'over_under_2.5') return `${label(outcome as 'over' | 'under')} 2.5`
-  return outcome === 'yes' ? 'BTTS Yes' : 'BTTS No'
-}
-
-function comboMarketLabel(market: string): string {
-  if (market === '1x2') return '1X2'
-  if (market === 'over_under_2.5') return 'O/U 2.5'
-  return 'BTTS'
-}
-
 function SuperCombo({ probabilities, mode }: { probabilities: Record<string, Record<string, number>>; mode: DisplayMode }) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const combo = getSuperCombo(probabilities)
-  const outcomeLabel = (key: 'home' | 'draw' | 'away' | 'over' | 'under') => {
-    if (key === 'home') return t('home')
-    if (key === 'draw') return t('draw')
-    if (key === 'away') return t('away')
-    return key === 'over' ? t('over') : t('under')
-  }
 
   return (
     <div className="card-flat" style={{ padding: '1rem', marginBottom: '1rem' }}>
@@ -137,9 +120,9 @@ function SuperCombo({ probabilities, mode }: { probabilities: Record<string, Rec
             {combo.legs.map(leg => (
               <div key={leg.market} className="card-flat" style={{ padding: '0.625rem', fontSize: '0.85rem' }}>
                 <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
-                  {comboMarketLabel(leg.market)}
+                  {getMarketLabel(leg.market, locale)}
                 </div>
-                <div style={{ fontWeight: 600 }}>{comboLegLabel(leg.market, leg.outcome, outcomeLabel)}</div>
+                <div style={{ fontWeight: 600 }}>{getOutcomeLabel(leg.market, leg.outcome, locale)}</div>
                 <div style={{ fontWeight: 600, color: 'var(--accent)' }}>
                   {mode === 'odds' ? formatDecimal(leg.prob) : formatProb(leg.prob)}
                 </div>
@@ -172,7 +155,7 @@ interface PredictionPanelProps {
 }
 
 export default function PredictionPanel({ prediction, selectedMarket, onMarketChange, home, away, fixtures }: PredictionPanelProps) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [mode, setMode] = useDisplayMode()
   const moves = useMovement(prediction.fixture_id, selectedMarket, prediction.probabilities[selectedMarket])
   const availableMarkets = Object.keys(prediction.probabilities)
@@ -209,7 +192,7 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
 
       <div className="card-flat" style={{ padding: '1rem', marginBottom: '1rem' }}>
         <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>
-          {selectedMarket.replace(/_/g, ' ')}
+          {getMarketLabel(selectedMarket, locale)}
         </h3>
         <MarketRenderer market={selectedMarket} probabilities={prediction.probabilities} mode={mode} moves={moves} />
       </div>
