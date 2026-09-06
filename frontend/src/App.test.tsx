@@ -12,7 +12,7 @@ function renderApp() {
 }
 
 const mockFixtures = [
-  { id: 1, date: '2025-08-17', home: 'Arsenal', away: 'Chelsea', status: 'post', home_score: 2, away_score: 1, prediction: { markets: {} }, league: 'E0' },
+  { id: 1, date: '2025-08-17', home: 'Arsenal', away: 'Chelsea', status: 'post', home_score: 2, away_score: 1, prediction: { probabilities: { home: 0.6, draw: 0.25, away: 0.15 } }, league: 'E0' },
   { id: 2, date: '2025-08-17', home: 'Liverpool', away: 'Man City', status: 'pre', home_score: null, away_score: null, prediction: null, league: 'E0' },
 ]
 
@@ -85,5 +85,13 @@ describe('App', () => {
     await screen.findAllByText(/Arsenal/)
     fireEvent.click(screen.getByRole('tab', { name: 'La Liga' }))
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(expect.stringContaining('league=SP1'))
+  })
+
+  it('shows pick of the day and selects it on click', async () => {
+    renderApp()
+    await screen.findByText('Pick of the Day')
+    fireEvent.click(screen.getByRole('button', { name: /Pick of the Day/ }))
+    await screen.findByText('Model Combo')
+    expect(screen.getByText('Match Center')).toBeDefined()
   })
 })

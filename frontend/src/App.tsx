@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction } from './types'
 import { fetchFixtures, fetchPrediction, fetchStats, fetchMatchdayStats, fetchCalibration, fetchScorer } from './api'
 import { useLanguage } from './i18n'
+import { selectPickOfDay } from './utils/matchCenter'
 import PredictionPanel from './components/PredictionPanel'
 import ScorerPanel from './components/ScorerPanel'
 import StatsDashboard from './components/StatsDashboard'
@@ -174,6 +175,37 @@ function App() {
       setScorer(null)
     }
   }
+
+  const renderPickOfDay = () => {
+    const pick = selectPickOfDay(visibleFixtures)
+    if (!pick) {
+      return (
+        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>{t('pickOfDayEmpty')}</p>
+      )
+    }
+    const label = pick.outcome === 'home' ? t('home') : pick.outcome === 'draw' ? t('draw') : t('away')
+    return (
+      <button
+        type="button"
+        onClick={() => handleFixtureChange(pick.fixtureId)}
+        className="card-flat pick-day"
+        style={{ padding: '1rem', marginBottom: '1rem' }}
+      >
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.25rem' }}>
+          {t('pickOfDay')}
+        </div>
+        <div style={{ fontWeight: 600 }}>
+          {pick.home} vs {pick.away}
+          <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}> · {pick.league}</span>
+        </div>
+        <span className="badge badge-accent" style={{ marginTop: '0.375rem', display: 'inline-block' }}>
+          {label} {(pick.prob * 100).toFixed(1)}%
+        </span>
+      </button>
+    )
+  }
+
+  const selected = fixtures.find(f => f.id === selectedFixture)
 
   const handleOddsClick = (id: number) => {
     handleFixtureChange(id)
@@ -406,6 +438,9 @@ function App() {
                     prediction={prediction}
                     selectedMarket={selectedMarket}
                     onMarketChange={handleMarketChange}
+                    home={selected?.home ?? ''}
+                    away={selected?.away ?? ''}
+                    fixtures={fixtures}
                   />
                 ) : scorer ? (
                   <ScorerPanel scorer={scorer} />
@@ -415,6 +450,7 @@ function App() {
               </div>
             ) : stats ? (
               <div className="animate-fade-in">
+                {renderPickOfDay()}
                 <StatsDashboard
                   stats={stats}
                   matchdayData={matchdayData}
