@@ -676,6 +676,55 @@ select {
 .stagger-9 { animation-delay: 0.27s; }
 .stagger-10 { animation-delay: 0.30s; }
 
+/* ── Scorer grid ────────────────────────────────────── */
+.scorer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.scorer-controls .search-input {
+  flex: 1 1 160px;
+}
+
+.th-sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+}
+
+.th-sortable:hover {
+  color: var(--text);
+}
+
+.sort-indicator {
+  color: var(--accent);
+  margin-left: 0.25rem;
+  font-size: 0.7rem;
+}
+
+.expander-btn {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+/* ── Trust block ──────────────────────────────────────── */
+.trust-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 /* ── Reduced motion ───────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
