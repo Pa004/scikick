@@ -5,6 +5,74 @@ import MatchdayChart from './MatchdayChart'
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 
+// Thresholds calibrated to the backend's approximate matchday Brier
+// (range 0-2), not the classic 0-1 probabilistic Brier.
+const BRIER_EXCELLENT_MAX = 0.1
+const BRIER_REASONABLE_MAX = 0.3
+const CALIBRATION_TOLERANCE = 0.1
+
+function fill(template: string, vars: Record<string, string | number>): string {
+  let out = template
+  for (const [k, v] of Object.entries(vars)) out = out.replace(`{${k}}`, String(v))
+  return out
+}
+
+function meanBrier(matchdayData: MatchdayData | null): number | null {
+  if (!matchdayData || matchdayData.cold_start || matchdayData.data.length === 0) return null
+  const sum = matchdayData.data.reduce((acc, d) => acc + d.brier, 0)
+  return sum / matchdayData.data.length
+}
+
+function calibrationSummary(calibrationData: CalibrationData | null): { good: number; total: number; n: number } | null {
+  if (!calibrationData || calibrationData.cold_start || calibrationData.data.length === 0) return null
+  const bins = calibrationData.data.filter(b => b.count > 0)
+  const good = bins.filter(b => Math.abs(b.avg_predicted - b.actual_accuracy) <= CALIBRATION_TOLERANCE).length
+  return { good, total: bins.length, n: bins.reduce((acc, b) => acc + b.count, 0) }
+}
+
+function TrustBlock({ stats, matchdayData, calibrationData }: StatsDashboardProps) {
+  const { t } = useLanguage()
+  const brier = meanBrier(matchdayData)
+  const cal = calibrationSummary(calibrationData)
+  const reading = brier === null ? null : brier <= BRIER_EXCELLENT_MAX
+    ? { key: 'trustBrierExcellent' as const, badge: 'badge-success' }
+    : brier <= BRIER_REASONABLE_MAX
+      ? { key: 'trustBrierReasonable' as const, badge: 'badge-warning' }
+      : { key: 'trustBrierWeak' as const, badge: 'badge-danger' }
+
+  return (
+    <div className="trust-block">
+      <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>
+        {t('trustTitle')}
+      </h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.85rem' }}>
+        <div>
+          <span style={{ color: 'var(--text-secondary)' }}>Brier: </span>
+          {reading ? (
+            <>
+              <span style={{ fontWeight: 600 }}>{brier?.toFixed(3)}</span>
+              {' '}
+              <span className={`badge ${reading.badge}`}>{t(reading.key)}</span>
+            </>
+          ) : (
+            <span style={{ color: 'var(--text-muted)' }}>{t('trustBrierNoData')}</span>
+          )}
+        </div>
+        <div>
+          {cal ? (
+            <span>{fill(t('trustCalibration'), { good: cal.good, total: cal.total })}</span>
+          ) : (
+            <span style={{ color: 'var(--text-muted)' }}>{t('trustCalibrationPending')}</span>
+          )}
+        </div>
+        <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+          {fill(t('trustSample'), { n: stats.total_predictions, m: cal?.n ?? 0 })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 interface StatsDashboardProps {
   stats: Stats
   matchdayData: MatchdayData | null
@@ -33,6 +101,8 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
         <StatCard value={formatProb(stats.accuracy)} label={t('accuracy')} />
         <StatCard value={formatProb(stats.avg_confidence)} label={t('avgConfidence')} />
       </div>
+
+      <TrustBlock stats={stats} matchdayData={matchdayData} calibrationData={calibrationData} selectedMarket={selectedMarket} />
 
       <Section title={`Brier Score by Matchday — ${selectedMarket}`}>
         {matchdayData && !matchdayData.cold_start ? (
