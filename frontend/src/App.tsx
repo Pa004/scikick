@@ -443,7 +443,7 @@ function App() {
                     fixtures={fixtures}
                   />
                 ) : scorer ? (
-                  <ScorerPanel scorer={scorer} />
+                  <ScorerPanel key={scorer.fixture_id} scorer={scorer} />
                 ) : (
                   <p style={{ color: 'var(--text-muted)' }}>{t('loadingScorer')}</p>
                 )}
