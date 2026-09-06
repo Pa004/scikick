@@ -1,51 +1,67 @@
 # SciKick
 
-**Calibrated football probability estimation using classical ML** — LightGBM ensembles + Dixon-Coles.
+**Calibrated football probability estimation with classical ML** — LightGBM ensembles + an in-house Dixon-Coles implementation.
 
-SciKick is an **analytical instrument**, not a betting tool. It turns match history into honest, well-calibrated probability estimates across ~70 markets, with full calibration reporting so you can trust (and audit) every number it produces.
+SciKick is an **analytical instrument, not a betting tool**. It converts match history into honest, well-calibrated probability estimates across ~70 markets. Every number is auditable, from input features to calibration curves.
 
 ![CI](https://github.com/Pa004/scikick/actions/workflows/ci.yml/badge.svg)
 
-## Screenshots
+![SciKick fixtures grid](docs/screenshots/fixtures.png)
 
-Fixtures feed with league filter and a live prediction panel:
+## What it does
+
+- **Honest probabilities**: every estimate is calibrated (isotonic regression, Platt below 500 samples) and reported with Brier scores, so a "60%" means 60%.
+- **~70 markets**: 1X2, over/under, BTTS, handicaps, exact score, half-time, corners, cards, combined markets, plus player-level anytime scorer.
+- **Auditable by design**: model agreement, top SHAP-style features, and reliability curves ship with every prediction.
+- **Runs anywhere**: CPU-only Python backend + SQLite, dependency-free React frontend. No GPU, no cloud required.
+
+## How it works
+
+```
+CSVs / APIs ──▶ ingestion ──▶ features ──▶ models ──▶ calibration ──▶ API ──▶ UI
+football-data   adapters      Elo, form,   3 motors    isotonic /    FastAPI   React
+.co.uk,           (Understat,  xG, match   + scorer    Platt         + SQLite  dashboard
+Understat,        API-Football) features    module      auto-recal
+API-Football
+```
+
+- **Motor 1** — Dixon-Coles score matrix (own `scipy.optimize` implementation): 1X2, double chance, over/under, BTTS, handicaps, exact score, goal bands, odd/even, clean sheet, win to nil, draw no bet.
+- **Motor 2** — half-time + count models: HT/FT, HT 1X2, HT over/under, corners and cards, combined markets.
+- **Motor 4** — rare events (penalty, own goal) as league-average constants.
+- **Goalscorer** — player-level anytime scorer from Understat xG90, position shrink, and minutes estimates; optional API-Football lineups.
+- **Retraining** — two levels: `light` (weekly, tuned params) and `complete` (monthly or on degradation: full Optuna tuning + blend-weight recalibration, auto-triggered past 15% Brier drift). A standalone APScheduler runs daily sync and model jobs.
+
+## The interface
+
+A dark, data-dense dashboard (EN/ES, keyboard-operable, WCAG-aware) built with React + TypeScript + Recharts and zero animation dependencies:
+
+- **Bookmaker-style fixtures grid** with 1X2 probability columns, inline search, league tabs, and featured rails.
+- **Probability/decimal toggle** (display format only) with movement indicators against last-seen values.
+- **Match center**: form badges, head-to-head, momentum bars, and a display-only model combo card.
+- **Pick of the day** and a **calibration trust block** (Brier reading, reliability count, sample size).
+- **Sortable scorer grid** in the player-props tradition.
 
 ![SciKick dashboard](docs/screenshots/dashboard.png)
 
-Match list with per-fixture probability view:
-
-![SciKick fixtures](docs/screenshots/fixtures.png)
-
-Goalscorer view (player-level anytime scorer probabilities):
-
 ![SciKick goalscorer](docs/screenshots/goalscorer.png)
 
-ES/EN language toggle (persisted via localStorage):
+![SciKick in Spanish](docs/screenshots/dashboard-es.png)
 
-![SciKick ES](docs/screenshots/dashboard-es.png)
+## Engineering highlights
 
-## Why it exists
+- **Reproducible pipeline**: Elo ratings, team form, xG enrichment, and score matrices versioned per model run (`app/models/runs/`).
+- **Race-safe UI**: request-id guards on every fetch; localStorage-persisted preferences (locale, display mode, last-seen snapshots).
+- **Tested**: 41 backend test files (pytest) + 60 frontend tests across 11 files (vitest); `oxlint` + `tsc` + `vite build` green on every PR via CI.
+- **Self-hosted fonts, CSS design tokens, tabular numerals for data** (`frontend/src/index.css`).
 
-Most football "probability" tools are opaque black boxes. SciKick is the opposite: every estimate comes from a reproducible pipeline — Elo ratings, team form, xG enrichment, and a Dixon-Coles score matrix — and is **calibrated and reported** so the probabilities mean what they claim. Built for data people who want to *understand* a model, not just stare at it.
+## Quality metrics
 
-## Stack
-
-- **Backend**: Python 3.13, FastAPI, SQLite (WAL mode), APScheduler
-- **ML**: LightGBM (5-seed ensemble), Dixon-Coles (own implementation via `scipy.optimize`), Logistic Regression baseline
-- **Calibration**: Isotonic regression (default), Platt scaling (< 500 samples)
-- **Frontend**: React + TypeScript + Vite + Recharts
-- **CPU-only**: runs fine on a quiet laptop (no GPU required)
-
-## Features
-
-- **~70 markets** across 3 statistical motors plus a player-level scorer module:
-  - **Motor 1** — Dixon-Coles score matrix: 1x2, double chance, over/under, BTTS, asian/general handicap, exact score, goal bands, odd/even, clean sheet, win to nil, draw no bet
-  - **Motor 2** — half-time + count models: HT/FT, HT 1x2, HT over/under, corners & cards over/under, combined markets
-  - **Motor 4** — rare events: penalty, own goal (league-average constants)
-  - **Goalscorer** — player-level anytime scorer: xG90 from Understat + position shrink + minutes estimate; lineups from API-Football (optional, improves accuracy)
-- **Calibrated probabilities**: Brier score + reliability reporting; auto-recalibrates via isotonic regression (Platt below 500 samples)
-- **Two retrain levels**: `light` (weekly, tuned params) and `complete` (monthly or on degradation: full Optuna tuning + blend-weight recalibration; auto-triggered when Brier degrades >15%)
-- **Standalone scheduler**: daily sync + model jobs via APScheduler, no dev magic
+| Area | Status |
+|---|---|
+| Backend tests | 41 files, pytest, CI green |
+| Frontend tests | 60 tests / 11 files, vitest, CI green |
+| Lint / types / build | `oxlint` clean, `tsc` strict, `vite build` OK |
+| Model accuracy / Brier | Reported per league in the dashboard trust block — retrain to reproduce (`python -m app.cli train --league E0 --mode complete`) |
 
 ## Quick start
 
@@ -90,7 +106,7 @@ app/
   phase2/         — HT/FT residual multiplier (Fase 2)
   scheduler.py    — APScheduler jobs (sync, retrain, lineups)
 frontend/
-  src/            — React + TypeScript dashboard (fixtures, match, goalscorer)
+  src/            — React + TypeScript dashboard: components, hooks, utils, i18n
 migrations/       — numbered SQL files applied via PRAGMA user_version
 ```
 
@@ -114,13 +130,6 @@ npm run build
 
 CI runs the backend suite and the frontend lint/test/build on every push and pull request (`.github/workflows/ci.yml`).
 
-## UI
-
-- **Languages**: EN/ES toggle in the header (persisted in `localStorage`, defaults from `navigator.language`). All strings via the `i18n` context (`frontend/src/i18n/`).
-- **Fonts** (self-hosted via `@fontsource`): `Space Grotesk` (display/headings), `Geist` (body/UI), `Geist Mono` (data/stats).
-- **Design tokens**: CSS variables in `frontend/src/index.css` (`--accent`, `--surface`, `--border`, `--radius`, `--shadow-*`). Desktop is a two-column grid that collapses to a single column below 1024px.
-- **Accessibility**: fixture rows are keyboard-operable buttons, inputs carry labels, errors use `role="alert"`, and text colors meet WCAG contrast.
-
 ## Known limitations
 
 - **Transfer windows**: the model does not capture mid-season roster changes.
@@ -128,6 +137,12 @@ CI runs the backend suite and the frontend lint/test/build on every push and pul
 - **Rare events**: per-team penalty/own-goal data is not available from the source, so league-average constants are used.
 - **In-play markets** (Motor 3): excluded — requires real-time event simulation and timestamped event data.
 - **Goalscorer**: players need ≥450 min in Understat; confirmed lineups need an API-Football key (free tier, 100 req/day shared budget).
+
+## Roadmap
+
+- Per-team form/H2H API (client-side derivation works today from loaded fixtures).
+- Full text alternatives for charts (screen-reader data tables).
+- Non-color favorite indicator for 1X2 cells.
 
 ## License
 
