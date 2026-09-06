@@ -1,9 +1,27 @@
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
 import { useLanguage } from '../i18n'
+import { formatDecimal } from '../utils/odds'
+import type { DisplayMode } from '../hooks/useDisplayMode'
+import type { MoveDirection } from '../hooks/useMovement'
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 
-function ProbBar({ label, prob }: { label: string; prob: number }) {
+function MoveArrow({ move }: { move: MoveDirection }) {
+  const { t } = useLanguage()
+  if (move === 'flat') return null
+  const up = move === 'up'
+  return (
+    <span
+      aria-label={up ? t('oddsUp') : t('oddsDown')}
+      className={`move-flash ${up ? 'move-up' : 'move-down'}`}
+      style={{ fontSize: '0.75rem', marginLeft: '0.375rem' }}
+    >
+      <span aria-hidden="true">{up ? '▲' : '▼'}</span>
+    </span>
+  )
+}
+
+function ProbBar({ label, prob, mode, move }: { label: string; prob: number; mode: DisplayMode; move: MoveDirection }) {
   const isFavorite = prob > 0.5
   return (
     <div
@@ -13,43 +31,55 @@ function ProbBar({ label, prob }: { label: string; prob: number }) {
       <div className="prob-bar-fill" style={{ width: `${prob * 100}%` }} />
       <span style={{ fontWeight: 500, position: 'relative', zIndex: 1 }}>{label}</span>
       <span style={{ color: isFavorite ? 'var(--accent)' : 'var(--text-secondary)', fontWeight: isFavorite ? 600 : 400, position: 'relative', zIndex: 1 }}>
-        {formatProb(prob)}
+        {mode === 'odds' ? formatDecimal(prob) : formatProb(prob)}
+        <MoveArrow move={move} />
       </span>
     </div>
   )
 }
 
-function MarketRendererInner({ market, data }: { market: string; data: Record<string, number> }) {
+interface InnerProps {
+  market: string
+  data: Record<string, number>
+  mode: DisplayMode
+  moves: Record<string, MoveDirection>
+}
+
+function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   const { t } = useLanguage()
+  const bar = (key: string, label: string, prob: number) => (
+    <ProbBar label={label} prob={prob} mode={mode} move={moves[key] ?? 'flat'} />
+  )
+
   const threeWay = (labels: { home: string; draw: string; away: string }) => (
     <div>
-      {data.home !== undefined && <ProbBar label={labels.home} prob={data.home} />}
-      {data.draw !== undefined && <ProbBar label={labels.draw} prob={data.draw} />}
-      {data.away !== undefined && <ProbBar label={labels.away} prob={data.away} />}
+      {data.home !== undefined && bar('home', labels.home, data.home)}
+      {data.draw !== undefined && bar('draw', labels.draw, data.draw)}
+      {data.away !== undefined && bar('away', labels.away, data.away)}
     </div>
   )
 
   const overUnder = () => (
     <div>
-      <ProbBar label={t('over')} prob={data.over ?? 0} />
-      <ProbBar label={t('under')} prob={data.under ?? 0} />
+      {bar('over', t('over'), data.over ?? 0)}
+      {bar('under', t('under'), data.under ?? 0)}
     </div>
   )
 
   const twoWay = (labels: { [key: string]: string }) => (
     <div>
       {Object.keys(data).map(k => (
-        <ProbBar key={k} label={labels[k] ?? k} prob={data[k]} />
+        <ProbBar key={k} label={labels[k] ?? k} prob={data[k]} mode={mode} move={moves[k] ?? 'flat'} />
       ))}
     </div>
   )
 
   const cleanSheet = () => (
     <div>
-      <ProbBar label="Home CS Yes" prob={data.home_yes ?? 0} />
-      <ProbBar label="Home CS No" prob={data.home_no ?? 0} />
-      <ProbBar label="Away CS Yes" prob={data.away_yes ?? 0} />
-      <ProbBar label="Away CS No" prob={data.away_no ?? 0} />
+      {bar('home_yes', 'Home CS Yes', data.home_yes ?? 0)}
+      {bar('home_no', 'Home CS No', data.home_no ?? 0)}
+      {bar('away_yes', 'Away CS Yes', data.away_yes ?? 0)}
+      {bar('away_no', 'Away CS No', data.away_no ?? 0)}
     </div>
   )
 
@@ -58,7 +88,7 @@ function MarketRendererInner({ market, data }: { market: string; data: Record<st
     return (
       <div>
         {Object.entries(data).map(([k, v]) => (
-          <ProbBar key={k} label={labels[k] ?? k} prob={v} />
+          <ProbBar key={k} label={labels[k] ?? k} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
         ))}
       </div>
     )
@@ -73,9 +103,9 @@ function MarketRendererInner({ market, data }: { market: string; data: Record<st
     return (
       <div>
         {sorted.map(([k, v]) => (
-          <ProbBar key={k} label={k} prob={v} />
+          <ProbBar key={k} label={k} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
         ))}
-        {otherProb > 0 && <ProbBar label={t('other')} prob={otherProb} />}
+        {otherProb > 0 && bar('other', t('other'), otherProb)}
       </div>
     )
   }
@@ -118,7 +148,7 @@ function MarketRendererInner({ market, data }: { market: string; data: Record<st
     return (
       <div>
         {Object.entries(data).map(([k, v]) => (
-          <ProbBar key={k} label={labels[k] ?? k} prob={v} />
+          <ProbBar key={k} label={labels[k] ?? k} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
         ))}
       </div>
     )
@@ -129,7 +159,10 @@ function MarketRendererInner({ market, data }: { market: string; data: Record<st
       {Object.entries(data).map(([k, v]) => (
         <div key={k} className="card-flat" style={{ padding: '0.625rem', fontSize: '0.85rem' }}>
           <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>{k.replace(/_/g, ' ')}</div>
-          <div style={{ fontWeight: 600, color: 'var(--text)' }}>{formatProb(v)}</div>
+          <div style={{ fontWeight: 600, color: 'var(--text)' }}>
+            {mode === 'odds' ? formatDecimal(v) : formatProb(v)}
+            <MoveArrow move={moves[k] ?? 'flat'} />
+          </div>
         </div>
       ))}
     </div>
@@ -183,8 +216,15 @@ function MarketRendererInner({ market, data }: { market: string; data: Record<st
   return fallback()
 }
 
-export default function MarketRenderer({ market, probabilities }: { market: string; probabilities: Record<string, Record<string, number>> }) {
+interface MarketRendererProps {
+  market: string
+  probabilities: Record<string, Record<string, number>>
+  mode?: DisplayMode
+  moves?: Record<string, MoveDirection>
+}
+
+export default function MarketRenderer({ market, probabilities, mode = 'prob', moves = {} }: MarketRendererProps) {
   const data = probabilities[market]
   if (!data) return <span style={{ color: 'var(--text-muted)' }}>N/A</span>
-  return <MarketRendererInner market={market} data={data} />
+  return <MarketRendererInner market={market} data={data} mode={mode} moves={moves} />
 }

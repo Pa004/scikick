@@ -348,6 +348,241 @@ select {
   color: #fff !important;
 }
 
+/* ── Fixtures board: search, league tabs, 1X2 grid, rails ── */
+.search-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.search-input:hover { border-color: var(--text-muted); }
+.search-input:focus { border-color: var(--accent); outline: none; }
+.search-input::placeholder { color: var(--text-muted); }
+
+.league-tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.league-tab {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.league-tab:hover {
+  color: var(--text-secondary);
+  border-color: var(--text-muted);
+}
+
+.league-tab[aria-selected="true"] {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+}
+
+.fixtures-grid {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.fixtures-header {
+  display: grid;
+  grid-template-columns: 1fr 64px 64px 64px;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.fixtures-header > span {
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+}
+
+.fixtures-header > span:first-child {
+  text-align: left;
+}
+
+.fixture-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 64px 64px 64px;
+  align-items: stretch;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+.fixture-row-grid:last-child {
+  border-bottom: none;
+}
+
+.fixture-row-grid:hover {
+  background: var(--surface-hover);
+}
+
+.fixture-row-grid[data-active="true"] {
+  background: var(--accent-soft);
+}
+
+.row-main {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.odds-cell {
+  border: none;
+  border-left: 1px solid var(--border);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  padding: 0.5rem 0.25rem;
+}
+
+.odds-cell:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.odds-cell:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.odds-cell-fav {
+  color: var(--accent-hover);
+  font-weight: 700;
+}
+
+.rail-title {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.rail-title:first-child {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .fixtures-header,
+  .fixture-row-grid {
+    grid-template-columns: 1fr 52px 52px 52px;
+  }
+
+  .odds-cell {
+    font-size: 0.75rem;
+  }
+}
+
+/* ── Market groups (accordion) ──────────────────────── */
+.market-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.market-group {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.market-group-header {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 0.625rem 0.875rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.15s ease;
+}
+
+.market-group-header:hover {
+  background: var(--surface-hover);
+}
+
+.market-group-chevron {
+  display: inline-block;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.market-group-header[aria-expanded="true"] .market-group-chevron {
+  transform: rotate(180deg);
+}
+
+.market-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0 0.875rem 0.875rem;
+}
+
+.market-option {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.market-option:hover {
+  color: var(--text-secondary);
+  border-color: var(--text-muted);
+}
+
+.market-option-active {
+  background: var(--accent-gradient);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ── Movement indicators ──────────────────────────────── */
+.move-up { color: var(--success); }
+.move-down { color: var(--danger); }
+.move-flash { animation: fadeIn 0.4s ease both; }
+
 /* ── Animations ───────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; }

@@ -1,7 +1,10 @@
 import type { Prediction } from '../types'
 import { useLanguage } from '../i18n'
+import { useDisplayMode } from '../hooks/useDisplayMode'
+import { useMovement } from '../hooks/useMovement'
 import MarketRenderer from './MarketRenderer'
 import MarketSelector from './MarketSelector'
+import DisplayModeToggle from './DisplayModeToggle'
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 
@@ -13,6 +16,8 @@ interface PredictionPanelProps {
 
 export default function PredictionPanel({ prediction, selectedMarket, onMarketChange }: PredictionPanelProps) {
   const { t } = useLanguage()
+  const [mode, setMode] = useDisplayMode()
+  const moves = useMovement(prediction.fixture_id, selectedMarket, prediction.probabilities[selectedMarket])
   const availableMarkets = Object.keys(prediction.probabilities)
 
   return (
@@ -38,15 +43,18 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
         )}
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
-        <MarketSelector selected={selectedMarket} onChange={onMarketChange} availableMarkets={availableMarkets} />
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
+        <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+          <MarketSelector selected={selectedMarket} onChange={onMarketChange} availableMarkets={availableMarkets} />
+        </div>
+        <DisplayModeToggle mode={mode} onChange={setMode} />
       </div>
 
       <div className="card-flat" style={{ padding: '1rem', marginBottom: '1rem' }}>
         <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>
           {selectedMarket.replace(/_/g, ' ')}
         </h3>
-        <MarketRenderer market={selectedMarket} probabilities={prediction.probabilities} />
+        <MarketRenderer market={selectedMarket} probabilities={prediction.probabilities} mode={mode} moves={moves} />
       </div>
 
       {prediction.top_features && prediction.top_features.length > 0 && (
