@@ -23,13 +23,7 @@ export default function MatchdayChart({ data }: MatchdayChartProps) {
   return (
     <div className="card-flat" style={{ padding: '0.75rem', height: '280px' }}>
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
-          <defs>
-            <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#8b5cf6" />
-            </linearGradient>
-          </defs>
+          <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#2a3350" />
           <XAxis dataKey="date" fontSize={11} angle={-45} textAnchor="end" height={50} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
           <YAxis fontSize={12} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
@@ -41,7 +35,7 @@ export default function MatchdayChart({ data }: MatchdayChartProps) {
             ]}
           />
           <ReferenceLine y={0.25} stroke="#ef4444" strokeDasharray="5 5" label={{ value: t('baseline'), fontSize: 10, fill: '#94a3b8' }} />
-          <Line type="monotone" dataKey="brier" stroke="url(#lineGrad)" strokeWidth={2.5} dot={{ r: 3, fill: '#3b82f6', stroke: '#8b5cf6' }} name={t('brierScore')} />
+          <Line type="monotone" dataKey="brier" stroke="var(--accent)" strokeWidth={2.5} dot={{ r: 3, fill: '#a3e635' }} name={t('brierScore')} />
         </LineChart>
       </ResponsiveContainer>
     </div>

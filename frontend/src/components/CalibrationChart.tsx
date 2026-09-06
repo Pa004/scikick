@@ -23,13 +23,7 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
   return (
     <div className="card-flat" style={{ padding: '0.75rem', height: '280px' }}>
       <ResponsiveContainer width="100%" height="100%">
-        <ScatterChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
-          <defs>
-            <linearGradient id="scatterGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#8b5cf6" />
-            </linearGradient>
-          </defs>
+          <ScatterChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#2a3350" />
           <XAxis
             type="number"
@@ -64,7 +58,7 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
             strokeDasharray="5 5"
             name={t('perfect')}
           />
-          <Scatter data={chartData} fill="url(#scatterGrad)" />
+          <Scatter data={chartData} fill="var(--accent)" />
         </ScatterChart>
       </ResponsiveContainer>
     </div>

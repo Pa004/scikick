@@ -1,7 +1,6 @@
 import type { Stats, MatchdayData, CalibrationData } from '../types'
 import { useLanguage } from '../i18n'
 import { useCountUp } from '../hooks/useCountUp'
-import { handleSpotlightMove } from '../utils/spotlight'
 import CalibrationChart from './CalibrationChart'
 import MatchdayChart from './MatchdayChart'
 
@@ -43,7 +42,7 @@ function TrustBlock({ stats, matchdayData, calibrationData }: StatsDashboardProp
       : { key: 'trustBrierWeak' as const, badge: 'badge-danger' }
 
   return (
-    <div className="trust-block spotlight-card" onMouseMove={handleSpotlightMove}>
+    <div className="trust-block">
       <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>
         {t('trustTitle')}
       </h3>
@@ -181,7 +180,7 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
 function StatCard({ value, label, format }: { value: number; label: string; format: (v: number) => string }) {
   const animated = useCountUp(value)
   return (
-    <div className="stat-card spotlight-card" onMouseMove={handleSpotlightMove}>
+    <div className="stat-card">
       <div className="stat-card-value">{format(animated)}</div>
       <div className="stat-card-label">{label}</div>
     </div>
