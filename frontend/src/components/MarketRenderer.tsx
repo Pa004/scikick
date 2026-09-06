@@ -1,6 +1,7 @@
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
 import { useLanguage } from '../i18n'
 import { formatDecimal } from '../utils/odds'
+import { getOutcomeLabel } from '../utils/marketLabels'
 import type { DisplayMode } from '../hooks/useDisplayMode'
 import type { MoveDirection } from '../hooks/useMovement'
 
@@ -46,54 +47,39 @@ interface InnerProps {
   moves: Record<string, MoveDirection>
 }
 
+function isNestedGroups(data: Record<string, number>): boolean {
+  const first = Object.values(data)[0]
+  return typeof first === 'object' && first !== null
+}
+
 function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
-  const { t } = useLanguage()
-  const bar = (key: string, label: string, prob: number) => (
-    <ProbBar label={label} prob={prob} mode={mode} move={moves[key] ?? 'flat'} />
+  const { locale } = useLanguage()
+  const bar = (key: string, prob: number, label?: string) => (
+    <ProbBar label={label ?? getOutcomeLabel(market, key, locale)} prob={prob} mode={mode} move={moves[key] ?? 'flat'} />
   )
 
-  const threeWay = (labels: { home: string; draw: string; away: string }) => (
+  const threeWay = () => (
     <div>
-      {data.home !== undefined && bar('home', labels.home, data.home)}
-      {data.draw !== undefined && bar('draw', labels.draw, data.draw)}
-      {data.away !== undefined && bar('away', labels.away, data.away)}
+      {data.home !== undefined && bar('home', data.home)}
+      {data.draw !== undefined && bar('draw', data.draw)}
+      {data.away !== undefined && bar('away', data.away)}
     </div>
   )
 
   const overUnder = () => (
     <div>
-      {bar('over', t('over'), data.over ?? 0)}
-      {bar('under', t('under'), data.under ?? 0)}
+      {bar('over', data.over ?? 0)}
+      {bar('under', data.under ?? 0)}
     </div>
   )
 
-  const twoWay = (labels: { [key: string]: string }) => (
+  const entries = () => (
     <div>
-      {Object.keys(data).map(k => (
-        <ProbBar key={k} label={labels[k] ?? k} prob={data[k]} mode={mode} move={moves[k] ?? 'flat'} />
+      {Object.entries(data).map(([k, v]) => (
+        <ProbBar key={k} label={getOutcomeLabel(market, k, locale)} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
       ))}
     </div>
   )
-
-  const cleanSheet = () => (
-    <div>
-      {bar('home_yes', 'Home CS Yes', data.home_yes ?? 0)}
-      {bar('home_no', 'Home CS No', data.home_no ?? 0)}
-      {bar('away_yes', 'Away CS Yes', data.away_yes ?? 0)}
-      {bar('away_no', 'Away CS No', data.away_no ?? 0)}
-    </div>
-  )
-
-  const goalBands = () => {
-    const labels: { [key: string]: string } = { '0': '0 goals', '1-2': '1-2 goals', '3-4': '3-4 goals', '5+': '5+ goals' }
-    return (
-      <div>
-        {Object.entries(data).map(([k, v]) => (
-          <ProbBar key={k} label={labels[k] ?? k} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
-        ))}
-      </div>
-    )
-  }
 
   const exactScore = () => {
     const sorted = Object.entries(data)
@@ -104,12 +90,35 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
     return (
       <div>
         {sorted.map(([k, v]) => (
-          <ProbBar key={k} label={k} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
+          <ProbBar key={k} label={getOutcomeLabel(market, k, locale)} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
         ))}
-        {otherProb > 0 && bar('other', t('other'), otherProb)}
+        {otherProb > 0 && bar('other', otherProb)}
       </div>
     )
   }
+
+  const htGroups = (nested: Record<string, Record<string, number>>) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {Object.entries(nested).map(([k, group]) => (
+        <div key={k}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+            {getOutcomeLabel(market, k, locale)}
+          </div>
+          {['home', 'draw', 'away']
+            .filter(o => typeof group[o] === 'number')
+            .map(o => (
+              <ProbBar
+                key={o}
+                label={getOutcomeLabel('1x2', o, locale)}
+                prob={group[o]}
+                mode={mode}
+                move={moves[`${k}.${o}`] ?? 'flat'}
+              />
+            ))}
+        </div>
+      ))}
+    </div>
+  )
 
   const totalGoals = () => {
     const chartData = Object.entries(data).map(([k, v]) => ({ goals: k, probability: +(v * 100).toFixed(1) }))
@@ -130,30 +139,11 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
     )
   }
 
-  const bothHalves = () => {
-    const labels: { [key: string]: string } = {
-      'team_wins_both_halves': 'Team Wins Both',
-      'team_wins_either_half': 'Team Wins Either',
-      'draw_both_halves': 'Draw Both Halves',
-      'both_teams_score_both_halves': 'BTTS Both Halves',
-      'ht_over_0.5_ft_over_0.5': 'HT O0.5 + FT O0.5',
-      'ht_over_1.5_ft_over_1.5': 'HT O1.5 + FT O1.5',
-      'ht_over_2.5_ft_over_2.5': 'HT O2.5 + FT O2.5',
-    }
-    return (
-      <div>
-        {Object.entries(data).map(([k, v]) => (
-          <ProbBar key={k} label={labels[k] ?? k} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
-        ))}
-      </div>
-    )
-  }
-
   const combined = () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
       {Object.entries(data).map(([k, v]) => (
         <div key={k} className="card-flat" style={{ padding: '0.625rem', fontSize: '0.85rem' }}>
-          <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>{k.replace(/_/g, ' ')}</div>
+          <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>{getOutcomeLabel(market, k, locale)}</div>
           <div style={{ fontWeight: 600, color: 'var(--text)' }}>
             {mode === 'odds' ? formatDecimal(v) : formatProb(v)}
             <MoveArrow move={moves[k] ?? 'flat'} />
@@ -172,8 +162,13 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   const isCorners = market.startsWith('corners_')
   const isCards = market.startsWith('cards_')
 
+  if (market === 'ft_result_given_ht') {
+    if (!isNestedGroups(data)) return fallback()
+    return htGroups(data as unknown as Record<string, Record<string, number>>)
+  }
+
   if (['1x2', 'draw_no_bet', 'double_chance', 'win_to_nil', 'ht_1x2', 'ht_double_chance'].includes(market)) {
-    return threeWay({ home: t('home'), draw: t('draw'), away: t('away') })
+    return threeWay()
   }
 
   if (market.startsWith('over_under_') && !isCorners && !isCards) {
@@ -181,25 +176,23 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   }
 
   if (market === 'btts' || market === 'odd_even') {
-    const bttsLabels: { [key: string]: string } = { yes: 'Yes (BTTS)', no: 'No' }
-    const oddEvenLabels: { [key: string]: string } = { odd: 'Odd', even: 'Even' }
-    return twoWay(market === 'btts' ? bttsLabels : oddEvenLabels)
+    return entries()
   }
 
   if (market.startsWith('handicap_') || market.startsWith('asian_handicap_')) {
-    return threeWay({ home: t('home'), draw: t('draw'), away: t('away') })
+    return threeWay()
   }
 
-  if (market === 'clean_sheet') return cleanSheet()
-  if (market === 'goal_bands') return goalBands()
+  if (market === 'clean_sheet') return entries()
+  if (market === 'goal_bands') return entries()
   if (market === 'exact_score') return exactScore()
   if (market === 'total_goals') return totalGoals()
-  if (market === 'both_halves') return bothHalves()
-  if (market === 'ft_result_given_ht') return fallback()
+  if (market === 'both_halves') return entries()
+  if (market === 'highest_scoring_half') return entries()
 
   if (isCorners || isCards) {
     if (market.includes('over_under_')) return overUnder()
-    if (market.includes('handicap_')) return threeWay({ home: t('home'), draw: t('draw'), away: t('away') })
+    if (market.includes('handicap_')) return threeWay()
     if (market.includes('total')) return totalGoals()
     return fallback()
   }

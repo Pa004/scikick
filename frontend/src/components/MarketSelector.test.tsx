@@ -31,20 +31,20 @@ describe('MarketSelector', () => {
 
   it('opens the group containing the selected market by default', () => {
     renderSelector('ht_1x2')
-    expect(regionHidden('double chance')).toBe(true)
+    expect(regionHidden('Double chance')).toBe(true)
   })
 
   it('keeps one group open at a time', () => {
     renderSelector()
-    expect(regionHidden('double chance')).toBe(false)
+    expect(regionHidden('Double chance')).toBe(false)
     fireEvent.click(screen.getByText('Goals'))
-    expect(regionHidden('double chance')).toBe(true)
-    expect(regionHidden('over under 2.5')).toBe(false)
+    expect(regionHidden('Double chance')).toBe(true)
+    expect(regionHidden('Over / Under 2.5 goals')).toBe(false)
   })
 
   it('calls onChange with the market key', () => {
     const onChange = renderSelector()
-    fireEvent.click(screen.getByText('double chance'))
+    fireEvent.click(screen.getByText('Double chance'))
     expect(onChange).toHaveBeenCalledWith('double_chance')
   })
 })

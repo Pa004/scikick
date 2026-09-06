@@ -48,11 +48,11 @@ describe('ScorerPanel', () => {
 
   it('toggles sort direction on header click', () => {
     renderPanel()
-    const th = screen.getByRole('columnheader', { name: /Prob/ })
+    const th = screen.getByRole('columnheader', { name: /prob/i })
     expect(th.getAttribute('aria-sort')).toBe('descending')
     const firstBefore = within(screen.getAllByRole('row')[1]).getByText(/Player/).textContent
-    fireEvent.click(screen.getByRole('button', { name: /Sort by Prob/ }))
-    expect(screen.getByRole('columnheader', { name: /Prob/ }).getAttribute('aria-sort')).toBe('ascending')
+    fireEvent.click(screen.getByRole('button', { name: /Sort by.*prob/i }))
+    expect(screen.getByRole('columnheader', { name: /prob/i }).getAttribute('aria-sort')).toBe('ascending')
     const firstAfter = within(screen.getAllByRole('row')[1]).getByText(/Player/).textContent
     expect(firstAfter).not.toBe(firstBefore)
   })
