@@ -52,7 +52,7 @@ describe('App', () => {
 
   it('shows loading state', () => {
     renderApp()
-    expect(screen.getByText('Loading...')).toBeDefined()
+    expect(screen.getByRole('status', { name: 'Loading...' })).toBeDefined()
   })
 
   it('renders fixtures after loading', async () => {
@@ -83,7 +83,7 @@ describe('App', () => {
   it('switches league via tabs', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('tab', { name: 'La Liga' }))
+    fireEvent.click(screen.getByRole('button', { name: 'La Liga' }))
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(expect.stringContaining('league=SP1'))
   })
 

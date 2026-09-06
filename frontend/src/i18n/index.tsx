@@ -109,6 +109,8 @@ const DICTIONARIES = {
     trustCalibration: '{good} of {total} ranges within 10 pts of perfect calibration.',
     trustCalibrationPending: 'Calibration still pending — check back after 30 resolved predictions.',
     trustSample: 'Based on {n} resolved predictions (calibration n={m}).',
+    disclaimer: 'SciKick is an analytical instrument — probabilities for research, not betting advice.',
+    language: 'Language',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -214,6 +216,8 @@ const DICTIONARIES = {
     trustCalibration: '{good} de {total} rangos a menos de 10 pts de la calibración perfecta.',
     trustCalibrationPending: 'Calibración pendiente — vuelve tras 30 predicciones resueltas.',
     trustSample: 'Basado en {n} predicciones resueltas (n={m} en calibración).',
+    disclaimer: 'SciKick es un instrumento analítico — probabilidades para investigación, no consejo de apuestas.',
+    language: 'Idioma',
   },
 } as const
 

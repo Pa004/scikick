@@ -124,13 +124,13 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
 
       {stats.by_market.length > 0 && (
         <Section title={t('byMarket')}>
-          <div className="card-flat" style={{ overflowX: 'auto', padding: '0.5rem' }}>
+          <div className="card-flat" tabIndex={0} role="region" aria-label={t('byMarket')} style={{ overflowX: 'auto', padding: '0.5rem' }}>
             <table className="table-dark">
               <thead>
                 <tr>
-                  <th>{t('market')}</th>
-                  <th style={{ textAlign: 'right' }}>{t('total')}</th>
-                  <th style={{ textAlign: 'right' }}>{t('accuracy')}</th>
+                  <th scope="col">{t('market')}</th>
+                  <th scope="col" style={{ textAlign: 'right' }}>{t('total')}</th>
+                  <th scope="col" style={{ textAlign: 'right' }}>{t('accuracy')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -152,13 +152,13 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
 
       {stats.by_league.length > 1 && (
         <Section title={t('byLeague')}>
-          <div className="card-flat" style={{ overflowX: 'auto', padding: '0.5rem' }}>
+          <div className="card-flat" tabIndex={0} role="region" aria-label={t('byLeague')} style={{ overflowX: 'auto', padding: '0.5rem' }}>
             <table className="table-dark">
               <thead>
                 <tr>
-                  <th>{t('league')}</th>
-                  <th style={{ textAlign: 'right' }}>{t('total')}</th>
-                  <th style={{ textAlign: 'right' }}>{t('accuracy')}</th>
+                  <th scope="col">{t('league')}</th>
+                  <th scope="col" style={{ textAlign: 'right' }}>{t('total')}</th>
+                  <th scope="col" style={{ textAlign: 'right' }}>{t('accuracy')}</th>
                 </tr>
               </thead>
               <tbody>

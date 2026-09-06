@@ -241,9 +241,9 @@ function App() {
   const renderGridHeader = () => (
     <div role="row" className="fixtures-header">
       <span>{t('fixtures')}</span>
-      <span><abbr title={t('home')}>1</abbr></span>
-      <span><abbr title={t('draw')}>X</abbr></span>
-      <span><abbr title={t('away')}>2</abbr></span>
+      <span><span role="img" aria-label={t('home')}>1</span></span>
+      <span><span role="img" aria-label={t('draw')}>X</span></span>
+      <span><span role="img" aria-label={t('away')}>2</span></span>
     </div>
   )
 
@@ -306,13 +306,12 @@ function App() {
             <span id="league-tabs-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               {t('league')}
             </span>
-            <div role="tablist" aria-labelledby="league-tabs-label" className="league-tabs">
+            <div role="group" aria-labelledby="league-tabs-label" className="league-tabs">
               {LEAGUES.map(l => (
                 <button
                   key={l.code}
                   type="button"
-                  role="tab"
-                  aria-selected={league === l.code}
+                  aria-pressed={league === l.code}
                   onClick={() => handleLeagueChange(l.code)}
                   className="league-tab"
                 >
@@ -343,7 +342,7 @@ function App() {
       )}
 
       {!error && (
-        <div className="app-grid">
+        <main className="app-grid">
           <div>
             <h2 style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '1.1rem' }}>{t('fixtures')}</h2>
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
@@ -362,7 +361,11 @@ function App() {
               )}
             </div>
             {loading ? (
-              <p style={{ color: 'var(--text-muted)' }}>{t('loading')}</p>
+              <div role="status" aria-label={t('loading')}>
+                {[0, 1, 2, 3, 4].map(i => (
+                  <div key={i} className="skeleton skeleton-row" />
+                ))}
+              </div>
             ) : visibleFixtures.length === 0 ? (
               <p style={{ color: 'var(--text-muted)' }}>
                 {searchQuery.trim() ? t('noSearchResults') : t('noFixtures')}
@@ -395,10 +398,9 @@ function App() {
           <div>
             {selectedFixture && prediction ? (
               <div className="animate-fade-in">
-                <div role="tablist" style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)', marginBottom: '1rem' }}>
+                <div role="group" aria-label={t('prediction')} style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)', marginBottom: '1rem' }}>
                   <button
-                    role="tab"
-                    aria-selected={activeTab === 'match'}
+                    aria-pressed={activeTab === 'match'}
                     className={activeTab === 'match' ? 'tab-active' : ''}
                     style={{
                       padding: '0.5rem 1rem',
@@ -416,8 +418,7 @@ function App() {
                     {t('match')}
                   </button>
                   <button
-                    role="tab"
-                    aria-selected={activeTab === 'scorer'}
+                    aria-pressed={activeTab === 'scorer'}
                     className={activeTab === 'scorer' ? 'tab-active' : ''}
                     style={{
                       padding: '0.5rem 1rem',
@@ -464,8 +465,11 @@ function App() {
               <p style={{ color: 'var(--text-muted)' }}>{t('selectFixture')}</p>
             )}
           </div>
-        </div>
+        </main>
       )}
+      <footer className="app-footer">
+        <span>{t('disclaimer')}</span>
+      </footer>
     </div>
   )
 }
