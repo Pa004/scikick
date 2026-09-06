@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { LanguageProvider } from './i18n'
 import App from './App'
@@ -57,15 +57,33 @@ describe('App', () => {
 
   it('renders fixtures after loading', async () => {
     renderApp()
-    const arsenal = await screen.findByText(/Arsenal/)
-    expect(arsenal).toBeDefined()
-    expect(screen.getByText(/Liverpool/)).toBeDefined()
+    // Featured rail repeats predicted fixtures, so Arsenal appears more than once
+    const arsenal = await screen.findAllByText(/Arsenal/)
+    expect(arsenal.length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Liverpool/).length).toBeGreaterThan(0)
   })
 
   it('shows stats when no fixture selected', async () => {
     renderApp()
-    await screen.findByText(/Arsenal/)
+    await screen.findAllByText(/Arsenal/)
     expect(screen.getAllByText('150').length).toBeGreaterThan(0)
     expect(screen.getAllByText('62.0%').length).toBeGreaterThan(0)
+  })
+
+  it('filters fixtures via search and shows empty state', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.change(screen.getByLabelText(/Search team or league/), { target: { value: 'Liverpool' } })
+    expect(screen.queryByText(/Arsenal/)).toBeNull()
+    expect(screen.getAllByText(/Liverpool/).length).toBeGreaterThan(0)
+    fireEvent.change(screen.getByLabelText(/Search team or league/), { target: { value: 'zzz' } })
+    expect(screen.getByText('No matches for this search.')).toBeDefined()
+  })
+
+  it('switches league via tabs', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.click(screen.getByRole('tab', { name: 'La Liga' }))
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith(expect.stringContaining('league=SP1'))
   })
 })

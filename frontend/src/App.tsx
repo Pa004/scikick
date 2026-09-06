@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction } from './types'
 import { fetchFixtures, fetchPrediction, fetchStats, fetchMatchdayStats, fetchCalibration, fetchScorer } from './api'
 import { useLanguage } from './i18n'
@@ -18,6 +18,33 @@ const LEAGUES = [
 
 type ViewTab = 'match' | 'scorer'
 
+interface OutcomeProbs {
+  home: number
+  draw: number
+  away: number
+}
+
+// Stored fixture predictions carry { probabilities: { home, draw, away } }.
+// Narrow the untyped record so 1X2 cells degrade to '—' instead of crashing.
+function getFixture1x2(f: Fixture): OutcomeProbs | null {
+  const raw = f.prediction?.['probabilities']
+  if (typeof raw !== 'object' || raw === null) return null
+  const rec = raw as Record<string, unknown>
+  const { home, draw, away } = rec
+  if (typeof home !== 'number' || typeof draw !== 'number' || typeof away !== 'number') return null
+  return { home, draw, away }
+}
+
+function formatPct(p: number): string {
+  return `${(p * 100).toFixed(1)}%`
+}
+
+function matchesQuery(f: Fixture, query: string): boolean {
+  const q = query.trim().toLowerCase()
+  if (!q) return true
+  return `${f.home} ${f.away} ${f.league}`.toLowerCase().includes(q)
+}
+
 function App() {
   const { t } = useLanguage()
   const [fixtures, setFixtures] = useState<Fixture[]>([])
@@ -32,8 +59,32 @@ function App() {
   const [league, setLeague] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   const leagueRequestId = useRef(0)
+
+  const visibleFixtures = useMemo(
+    () => fixtures.filter(f => matchesQuery(f, searchQuery)),
+    [fixtures, searchQuery],
+  )
+
+  const showRails = league === '' && searchQuery.trim() === ''
+
+  // Predicted fixtures first so the Featured rail shows actionable rows.
+  const featured = useMemo(() => {
+    const ranked = [...visibleFixtures].sort(
+      (a, b) => Number(b.prediction != null) - Number(a.prediction != null),
+    )
+    return ranked.slice(0, 5)
+  }, [visibleFixtures])
+
+  const rails = LEAGUES.filter(l => l.code !== '')
+    .map(l => ({
+      code: l.code,
+      labelKey: l.labelKey,
+      fixtures: visibleFixtures.filter(f => f.league === l.code),
+    }))
+    .filter(g => g.fixtures.length > 0)
 
   useEffect(() => {
     const requestId = ++leagueRequestId.current
@@ -124,6 +175,79 @@ function App() {
     }
   }
 
+  const handleOddsClick = (id: number) => {
+    handleFixtureChange(id)
+    if (selectedMarket !== '1x2') handleMarketChange('1x2')
+  }
+
+  const renderOddsCells = (f: Fixture) => {
+    const probs = getFixture1x2(f)
+    const fav = !probs ? null : probs.home >= probs.draw && probs.home >= probs.away
+      ? 'home'
+      : probs.draw >= probs.away ? 'draw' : 'away'
+    const cells = [
+      { key: 'home', label: t('home') },
+      { key: 'draw', label: t('draw') },
+      { key: 'away', label: t('away') },
+    ] as const
+    return cells.map(c => (
+      <button
+        key={c.key}
+        type="button"
+        disabled={!probs}
+        onClick={() => handleOddsClick(f.id)}
+        aria-label={`${f.home} vs ${f.away} — ${c.label}${probs ? ` ${formatPct(probs[c.key])}` : ''}`}
+        className={`odds-cell${fav === c.key ? ' odds-cell-fav' : ''}`}
+      >
+        {probs ? formatPct(probs[c.key]) : '—'}
+      </button>
+    ))
+  }
+
+  const renderGridHeader = () => (
+    <div role="row" className="fixtures-header">
+      <span>{t('fixtures')}</span>
+      <span><abbr title={t('home')}>1</abbr></span>
+      <span><abbr title={t('draw')}>X</abbr></span>
+      <span><abbr title={t('away')}>2</abbr></span>
+    </div>
+  )
+
+  const renderFixtureRow = (f: Fixture, index: number) => {
+    const isActive = selectedFixture === f.id
+    const staggerClass = index < 10 ? `stagger-${index + 1}` : ''
+    return (
+      <div key={f.id} role="row" data-active={isActive} className={`fixture-row-grid animate-fade-in-up ${staggerClass}`}>
+        <button
+          type="button"
+          onClick={() => handleFixtureChange(isActive ? null : f.id)}
+          aria-pressed={isActive}
+          className="row-main"
+        >
+          <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
+            <span>
+              <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                {f.date} · {f.league}
+              </span>
+              <span style={{ fontWeight: 500 }}>
+                {f.home} vs {f.away}
+                {f.home_score !== null && (
+                  <span style={{ marginLeft: '0.5rem', color: 'var(--text-secondary)' }}>
+                    {f.home_score} - {f.away_score}
+                  </span>
+                )}
+              </span>
+            </span>
+            {f.prediction != null && (
+              <span className="badge badge-accent" style={{ fontSize: '0.7rem' }}>{t('predicted')}</span>
+            )}
+          </span>
+        </button>
+        {renderOddsCells(f)}
+      </div>
+    )
+  }
+
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <header
@@ -145,21 +269,23 @@ function App() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <label htmlFor="league-select" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            <span id="league-tabs-label" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               {t('league')}
-            </label>
-            <select
-              id="league-select"
-              value={league}
-              onChange={e => handleLeagueChange(e.target.value)}
-              className="select-dark"
-            >
+            </span>
+            <div role="tablist" aria-labelledby="league-tabs-label" className="league-tabs">
               {LEAGUES.map(l => (
-                <option key={l.code} value={l.code}>
+                <button
+                  key={l.code}
+                  type="button"
+                  role="tab"
+                  aria-selected={league === l.code}
+                  onClick={() => handleLeagueChange(l.code)}
+                  className="league-tab"
+                >
                   {t(l.labelKey)}
-                </option>
+                </button>
               ))}
-            </select>
+            </div>
           </div>
           <LanguageSelector />
         </div>
@@ -186,44 +312,48 @@ function App() {
         <div className="app-grid">
           <div>
             <h2 style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '1.1rem' }}>{t('fixtures')}</h2>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder={t('searchFixtures')}
+                aria-label={t('searchFixtures')}
+                className="search-input"
+              />
+              {searchQuery && (
+                <button type="button" onClick={() => setSearchQuery('')} className="league-tab">
+                  {t('clearSearch')}
+                </button>
+              )}
+            </div>
             {loading ? (
               <p style={{ color: 'var(--text-muted)' }}>{t('loading')}</p>
-            ) : fixtures.length === 0 ? (
-              <p style={{ color: 'var(--text-muted)' }}>{t('noFixtures')}</p>
-            ) : (
+            ) : visibleFixtures.length === 0 ? (
+              <p style={{ color: 'var(--text-muted)' }}>
+                {searchQuery.trim() ? t('noSearchResults') : t('noFixtures')}
+              </p>
+            ) : showRails ? (
               <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                {fixtures.map((f, i) => {
-                  const isActive = selectedFixture === f.id
-                  const staggerClass = i < 10 ? `stagger-${i + 1}` : ''
-                  return (
-                    <button
-                      key={f.id}
-                      type="button"
-                      onClick={() => handleFixtureChange(isActive ? null : f.id)}
-                      aria-pressed={isActive}
-                      className={`fixture-item animate-fade-in-up ${staggerClass}`}
-                    >
-                      <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>
-                          <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                            {f.date} · {f.league}
-                          </span>
-                          <span style={{ fontWeight: 500 }}>
-                            {f.home} vs {f.away}
-                            {f.home_score !== null && (
-                              <span style={{ marginLeft: '0.5rem', color: 'var(--text-secondary)' }}>
-                                {f.home_score} - {f.away_score}
-                              </span>
-                            )}
-                          </span>
-                        </span>
-                        {f.prediction != null && (
-                          <span className="badge badge-accent" style={{ fontSize: '0.7rem' }}>{t('predicted')}</span>
-                        )}
-                      </span>
-                    </button>
-                  )
-                })}
+                <h3 className="rail-title">{t('featured')}</h3>
+                <div className="fixtures-grid" role="table" aria-label={t('featured')}>
+                  {renderGridHeader()}
+                  {featured.map((f, i) => renderFixtureRow(f, i))}
+                </div>
+                {rails.map(g => (
+                  <div key={g.code}>
+                    <h3 className="rail-title">{t(g.labelKey)}</h3>
+                    <div className="fixtures-grid" role="table" aria-label={t(g.labelKey)}>
+                      {renderGridHeader()}
+                      {g.fixtures.map((f, i) => renderFixtureRow(f, i))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="fixtures-grid" role="table" aria-label={t('fixtures')} style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                {renderGridHeader()}
+                {visibleFixtures.map((f, i) => renderFixtureRow(f, i))}
               </div>
             )}
           </div>

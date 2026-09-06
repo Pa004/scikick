@@ -36,3 +36,6 @@ logs/
 # === Documentation (only root README.md is versioned) ===
 *.md
 !/README.md
+
+# === Local audit artifacts (not versioned) ===
+docs/audit/
