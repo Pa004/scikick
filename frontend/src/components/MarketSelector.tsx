@@ -7,6 +7,7 @@ interface MarketSelectorProps {
   selected: string
   onChange: (market: string) => void
   availableMarkets?: string[]
+  analyst?: boolean
 }
 
 function findCategory(market: string, available?: string[]): MarketCategoryKey | null {
@@ -17,7 +18,7 @@ function findCategory(market: string, available?: string[]): MarketCategoryKey |
   return null
 }
 
-export default function MarketSelector({ selected, onChange, availableMarkets }: MarketSelectorProps) {
+export default function MarketSelector({ selected, onChange, availableMarkets, analyst = false }: MarketSelectorProps) {
   const { t, locale } = useLanguage()
   // Derived state (React-endorsed "previous render info" pattern):
   // manual toggles persist, but programmatic market changes re-open their group.
@@ -65,7 +66,7 @@ export default function MarketSelector({ selected, onChange, availableMarkets }:
                     onClick={() => onChange(m)}
                     className={`market-option${m === selected ? ' market-option-active' : ''}`}
                   >
-                    {getMarketLabel(m, locale)}
+                    {getMarketLabel(m, locale)}{analyst ? ` · ${m}` : ''}
                   </button>
                 ))}
               </div>

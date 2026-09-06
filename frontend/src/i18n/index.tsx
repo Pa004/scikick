@@ -116,6 +116,8 @@ const DICTIONARIES = {
     verdictWin: '{team} win {n} in 10',
     verdictDraw: 'Draw {n} in 10',
     frequencyInTen: '{n} in 10',
+    analyst: 'Analyst',
+    analystMode: 'Analyst mode: show technical details',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -228,6 +230,8 @@ const DICTIONARIES = {
     verdictWin: '{team} gana {n} de cada 10',
     verdictDraw: 'Empate {n} de cada 10',
     frequencyInTen: '{n} de cada 10',
+    analyst: 'Analista',
+    analystMode: 'Modo analista: muestra detalles técnicos',
   },
 } as const
 
