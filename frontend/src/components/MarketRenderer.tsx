@@ -117,19 +117,13 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
       <div style={{ height: '180px' }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
-            <defs>
-              <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
-                <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8} />
-              </linearGradient>
-            </defs>
             <XAxis dataKey="goals" fontSize={12} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
             <YAxis fontSize={12} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
             <Tooltip
               contentStyle={{ background: '#1a2238', border: '1px solid #2a3350', borderRadius: '8px', color: '#e2e8f0' }}
               formatter={(value) => `${value}%`}
             />
-            <Bar dataKey="probability" fill="url(#barGrad)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="probability" fill="var(--accent)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -3,7 +3,7 @@ import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerP
 import { fetchFixtures, fetchPrediction, fetchStats, fetchMatchdayStats, fetchCalibration, fetchScorer } from './api'
 import { useLanguage } from './i18n'
 import { selectPickOfDay } from './utils/matchCenter'
-import ClickSpark from './components/ClickSpark'
+import { handleSpotlightMove } from './utils/spotlight'
 import PredictionPanel from './components/PredictionPanel'
 import ScorerPanel from './components/ScorerPanel'
 import StatsDashboard from './components/StatsDashboard'
@@ -189,7 +189,8 @@ function App() {
       <button
         type="button"
         onClick={() => handleFixtureChange(pick.fixtureId)}
-        className="card-flat pick-day"
+        className="card-flat pick-day spotlight-card"
+        onMouseMove={handleSpotlightMove}
         style={{ padding: '1rem', marginBottom: '1rem' }}
       >
         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.25rem' }}>
@@ -224,17 +225,16 @@ function App() {
       { key: 'away', label: t('away') },
     ] as const
     return cells.map(c => (
-      <ClickSpark key={c.key}>
-        <button
-          type="button"
-          disabled={!probs}
-          onClick={() => handleOddsClick(f.id)}
-          aria-label={`${f.home} vs ${f.away} — ${c.label}${probs ? ` ${formatPct(probs[c.key])}` : ''}`}
-          className={`odds-cell${fav === c.key ? ' odds-cell-fav' : ''}`}
-        >
-          {probs ? formatPct(probs[c.key]) : '—'}
-        </button>
-      </ClickSpark>
+      <button
+        key={c.key}
+        type="button"
+        disabled={!probs}
+        onClick={() => handleOddsClick(f.id)}
+        aria-label={`${f.home} vs ${f.away} — ${c.label}${probs ? ` ${formatPct(probs[c.key])}` : ''}`}
+        className={`odds-cell${fav === c.key ? ' odds-cell-fav' : ''}`}
+      >
+        {probs ? formatPct(probs[c.key]) : '—'}
+      </button>
     ))
   }
 
@@ -247,11 +247,10 @@ function App() {
     </div>
   )
 
-  const renderFixtureRow = (f: Fixture, index: number) => {
+  const renderFixtureRow = (f: Fixture) => {
     const isActive = selectedFixture === f.id
-    const staggerClass = index < 10 ? `stagger-${index + 1}` : ''
     return (
-      <div key={f.id} role="row" data-active={isActive} className={`fixture-row-grid animate-fade-in-up ${staggerClass}`}>
+      <div key={f.id} role="row" data-active={isActive} className="fixture-row-grid">
         <button
           type="button"
           onClick={() => handleFixtureChange(isActive ? null : f.id)}
@@ -285,7 +284,6 @@ function App() {
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <header
-        className="animate-fade-in"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -298,7 +296,7 @@ function App() {
         }}
       >
         <div>
-          <h1 className="gradient-text" style={{ fontSize: '2rem', letterSpacing: '-0.03em' }}>SciKick</h1>
+          <h1 style={{ fontSize: '2rem', letterSpacing: '-0.03em' }}>SciKick</h1>
           <p style={{ color: 'var(--text-secondary)', margin: 0 }}>{t('tagline')}</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -375,14 +373,14 @@ function App() {
                 <h3 className="rail-title">{t('featured')}</h3>
                 <div className="fixtures-grid" role="table" aria-label={t('featured')}>
                   {renderGridHeader()}
-                  {featured.map((f, i) => renderFixtureRow(f, i))}
+                  {featured.map(f => renderFixtureRow(f))}
                 </div>
                 {rails.map(g => (
                   <div key={g.code}>
                     <h3 className="rail-title">{t(g.labelKey)}</h3>
                     <div className="fixtures-grid" role="table" aria-label={t(g.labelKey)}>
                       {renderGridHeader()}
-                      {g.fixtures.map((f, i) => renderFixtureRow(f, i))}
+                      {g.fixtures.map(f => renderFixtureRow(f))}
                     </div>
                   </div>
                 ))}
@@ -390,7 +388,7 @@ function App() {
             ) : (
               <div className="fixtures-grid" role="table" aria-label={t('fixtures')} style={{ maxHeight: '600px', overflowY: 'auto' }}>
                 {renderGridHeader()}
-                {visibleFixtures.map((f, i) => renderFixtureRow(f, i))}
+                {visibleFixtures.map(f => renderFixtureRow(f))}
               </div>
             )}
           </div>
