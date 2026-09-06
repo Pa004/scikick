@@ -583,6 +583,42 @@ select {
 .move-down { color: var(--danger); }
 .move-flash { animation: fadeIn 0.4s ease both; }
 
+/* ── Match center ─────────────────────────────────────── */
+.form-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  min-width: 1.75rem;
+  text-align: center;
+}
+
+.combo-legs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.pick-day {
+  border-color: rgba(59, 130, 246, 0.3);
+  background: var(--accent-soft);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.pick-day:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .combo-legs {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Animations ───────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; }
