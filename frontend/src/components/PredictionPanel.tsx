@@ -3,6 +3,7 @@ import { useLanguage } from '../i18n'
 import { useDisplayMode, type DisplayMode } from '../hooks/useDisplayMode'
 import { useMovement } from '../hooks/useMovement'
 import { formatDecimal } from '../utils/odds'
+import { handleSpotlightMove } from '../utils/spotlight'
 import {
   getTeamForm,
   getHeadToHead,
@@ -54,7 +55,7 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
   const momentum = getMomentum(homeForm, awayForm)
 
   return (
-    <div className="card-flat" style={{ padding: '1rem', marginBottom: '1rem' }}>
+    <div className="card-flat spotlight-card" onMouseMove={handleSpotlightMove} style={{ padding: '1rem', marginBottom: '1rem' }}>
       <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>
         {t('matchCenter')}
       </h3>
@@ -123,7 +124,7 @@ function SuperCombo({ probabilities, mode }: { probabilities: Record<string, Rec
   }
 
   return (
-    <div className="card-flat" style={{ padding: '1rem', marginBottom: '1rem' }}>
+    <div className="card-flat spotlight-card" onMouseMove={handleSpotlightMove} style={{ padding: '1rem', marginBottom: '1rem' }}>
       <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>
         {t('superCombo')}
       </h3>
@@ -179,7 +180,7 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
     <div>
       <h2 style={{ color: 'var(--text)', marginBottom: '1rem', fontSize: '1.1rem' }}>{t('prediction')}</h2>
 
-      <div className="card-flat" style={{ padding: '1rem', marginBottom: '1rem' }}>
+      <div className="card-flat spotlight-card" onMouseMove={handleSpotlightMove} style={{ padding: '1rem', marginBottom: '1rem' }}>
         <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           {t('model')}: <span style={{ color: 'var(--text)', fontWeight: 500 }}>{prediction.model_version}</span>
           {' | '}
@@ -205,7 +206,7 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
         <DisplayModeToggle mode={mode} onChange={setMode} />
       </div>
 
-      <div className="card-flat" style={{ padding: '1rem', marginBottom: '1rem' }}>
+      <div className="card-flat spotlight-card" onMouseMove={handleSpotlightMove} style={{ padding: '1rem', marginBottom: '1rem' }}>
         <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>
           {selectedMarket.replace(/_/g, ' ')}
         </h3>

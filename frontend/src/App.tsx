@@ -3,6 +3,7 @@ import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerP
 import { fetchFixtures, fetchPrediction, fetchStats, fetchMatchdayStats, fetchCalibration, fetchScorer } from './api'
 import { useLanguage } from './i18n'
 import { selectPickOfDay } from './utils/matchCenter'
+import ClickSpark from './components/ClickSpark'
 import PredictionPanel from './components/PredictionPanel'
 import ScorerPanel from './components/ScorerPanel'
 import StatsDashboard from './components/StatsDashboard'
@@ -223,16 +224,17 @@ function App() {
       { key: 'away', label: t('away') },
     ] as const
     return cells.map(c => (
-      <button
-        key={c.key}
-        type="button"
-        disabled={!probs}
-        onClick={() => handleOddsClick(f.id)}
-        aria-label={`${f.home} vs ${f.away} — ${c.label}${probs ? ` ${formatPct(probs[c.key])}` : ''}`}
-        className={`odds-cell${fav === c.key ? ' odds-cell-fav' : ''}`}
-      >
-        {probs ? formatPct(probs[c.key]) : '—'}
-      </button>
+      <ClickSpark key={c.key}>
+        <button
+          type="button"
+          disabled={!probs}
+          onClick={() => handleOddsClick(f.id)}
+          aria-label={`${f.home} vs ${f.away} — ${c.label}${probs ? ` ${formatPct(probs[c.key])}` : ''}`}
+          className={`odds-cell${fav === c.key ? ' odds-cell-fav' : ''}`}
+        >
+          {probs ? formatPct(probs[c.key]) : '—'}
+        </button>
+      </ClickSpark>
     ))
   }
 
