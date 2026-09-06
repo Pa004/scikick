@@ -12,6 +12,7 @@ function MoveArrow({ move }: { move: MoveDirection }) {
   const up = move === 'up'
   return (
     <span
+      role="img"
       aria-label={up ? t('oddsUp') : t('oddsDown')}
       className={`move-flash ${up ? 'move-up' : 'move-down'}`}
       style={{ fontSize: '0.75rem', marginLeft: '0.375rem' }}

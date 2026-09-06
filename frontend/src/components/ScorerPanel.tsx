@@ -134,7 +134,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
           {rows.length === 0 ? (
             <p style={{ color: 'var(--text-muted)' }}>{t('noScorerMatch')}</p>
           ) : (
-            <div className="card-flat" style={{ overflowX: 'auto', padding: '0.5rem' }}>
+            <div className="card-flat" tabIndex={0} role="region" aria-label={t('goalscorer')} style={{ overflowX: 'auto', padding: '0.5rem' }}>
               <table className="table-dark">
                 <thead>
                   <tr>
@@ -155,7 +155,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
                     ))}
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="scorer-tbody">
                   {visible.map(s => <ScorerRow key={s.player_id} s={s} />)}
                 </tbody>
               </table>
@@ -165,7 +165,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
             {t('showingOf').replace('{shown}', String(visible.length)).replace('{total}', String(rows.length))}
           </p>
           {rows.length > VISIBLE_COUNT && (
-            <button type="button" onClick={() => setExpanded(!expanded)} className="league-tab expander-btn">
+            <button type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} aria-controls="scorer-tbody" className="league-tab expander-btn">
               {expanded ? t('showLess') : `${t('showAll')} (${rows.length})`}
             </button>
           )}

@@ -13,7 +13,8 @@
   --border: #2a3350;
   --text: #e2e8f0;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  /* Lightened from #64748b to pass WCAG AA 4.5:1 on --bg/--surface */
+  --text-muted: #7e8daa;
 
   --danger: #ef4444;
   --danger-bg: rgba(239, 68, 68, 0.12);
@@ -318,7 +319,7 @@ select {
 }
 
 .select-dark:hover { border-color: var(--text-muted); }
-.select-dark:focus { border-color: var(--accent); outline: none; }
+.select-dark:focus-visible { border-color: var(--accent); }
 
 /* ── Pill toggle ──────────────────────────────────────── */
 .pill {
@@ -361,7 +362,7 @@ select {
 }
 
 .search-input:hover { border-color: var(--text-muted); }
-.search-input:focus { border-color: var(--accent); outline: none; }
+.search-input:focus-visible { border-color: var(--accent); }
 .search-input::placeholder { color: var(--text-muted); }
 
 .league-tabs {
@@ -501,6 +502,11 @@ select {
 
   .odds-cell {
     font-size: 0.75rem;
+    min-height: 44px;
+  }
+
+  .league-tab {
+    padding: 8px 18px;
   }
 }
 
@@ -748,6 +754,53 @@ select {
 
 .spotlight-card:hover::before {
   opacity: 1;
+}
+
+/* ── Skeletons ──────────────────────────────────────── */
+@keyframes shimmer {
+  from { background-position: -200px 0; }
+  to { background-position: 200px 0; }
+}
+
+.skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-hover) 50%, var(--surface) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.skeleton-row {
+  height: 64px;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Footer ─────────────────────────────────────────── */
+.app-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+@media (pointer: coarse) {
+  .pill-btn,
+  .league-tab,
+  .market-option,
+  .market-group-header,
+  .th-sortable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+@media (forced-colors: active) {
+  .gradient-text,
+  .stat-card-value {
+    background: none;
+    -webkit-text-fill-color: CanvasText;
+  }
 }
 
 /* ── Reduced motion ───────────────────────────────────── */
