@@ -110,6 +110,12 @@ const DICTIONARIES = {
     trustSample: 'Based on {n} resolved predictions (calibration n={m}).',
     disclaimer: 'SciKick is an analytical instrument: probabilities for research, not betting advice.',
     language: 'Language',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    yesterday: 'Yesterday',
+    verdictWin: '{team} win {n} in 10',
+    verdictDraw: 'Draw {n} in 10',
+    frequencyInTen: '{n} in 10',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -216,6 +222,12 @@ const DICTIONARIES = {
     trustSample: 'Basado en {n} predicciones resueltas (n={m} en calibración).',
     disclaimer: 'SciKick es un instrumento analítico: probabilidades para investigación, no consejo de apuestas.',
     language: 'Idioma',
+    today: 'Hoy',
+    tomorrow: 'Mañana',
+    yesterday: 'Ayer',
+    verdictWin: '{team} gana {n} de cada 10',
+    verdictDraw: 'Empate {n} de cada 10',
+    frequencyInTen: '{n} de cada 10',
   },
 } as const
 

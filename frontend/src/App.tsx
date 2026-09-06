@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction } from './types'
 import { fetchFixtures, fetchPrediction, fetchStats, fetchMatchdayStats, fetchCalibration, fetchScorer } from './api'
 import { useLanguage } from './i18n'
-import { selectPickOfDay } from './utils/matchCenter'
+import { selectPickOfDay, extract1x2 } from './utils/matchCenter'
 import { handleSpotlightMove } from './utils/spotlight'
+import { getVerdict, formatFrequency, formatHumanDate } from './utils/verdict'
 import PredictionPanel from './components/PredictionPanel'
 import ScorerPanel from './components/ScorerPanel'
 import StatsDashboard from './components/StatsDashboard'
@@ -20,23 +21,6 @@ const LEAGUES = [
 
 type ViewTab = 'match' | 'scorer'
 
-interface OutcomeProbs {
-  home: number
-  draw: number
-  away: number
-}
-
-// Stored fixture predictions carry { probabilities: { home, draw, away } }.
-// Narrow the untyped record so 1X2 cells degrade to '—' instead of crashing.
-function getFixture1x2(f: Fixture): OutcomeProbs | null {
-  const raw = f.prediction?.['probabilities']
-  if (typeof raw !== 'object' || raw === null) return null
-  const rec = raw as Record<string, unknown>
-  const { home, draw, away } = rec
-  if (typeof home !== 'number' || typeof draw !== 'number' || typeof away !== 'number') return null
-  return { home, draw, away }
-}
-
 function formatPct(p: number): string {
   return `${(p * 100).toFixed(1)}%`
 }
@@ -48,7 +32,7 @@ function matchesQuery(f: Fixture, query: string): boolean {
 }
 
 function App() {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [fixtures, setFixtures] = useState<Fixture[]>([])
   const [selectedMarket, setSelectedMarket] = useState('1x2')
   const [selectedFixture, setSelectedFixture] = useState<number | null>(null)
@@ -177,6 +161,26 @@ function App() {
     }
   }
 
+  const leagueName = (code: string) => {
+    const found = LEAGUES.find(l => l.code === code)
+    return found ? t(found.labelKey) : code
+  }
+
+  const renderVerdict = (f: Fixture) => {
+    const probs = extract1x2(f.prediction)
+    if (!probs) return null
+    const v = getVerdict(f.home, f.away, probs)
+    const n = String(formatFrequency(v.prob))
+    const text = v.outcome === 'draw'
+      ? t('verdictDraw').replace('{n}', n)
+      : t('verdictWin').replace('{team}', v.teamLabel).replace('{n}', n)
+    return (
+      <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+        {text}
+      </span>
+    )
+  }
+
   const renderPickOfDay = () => {
     const pick = selectPickOfDay(visibleFixtures)
     if (!pick) {
@@ -198,10 +202,10 @@ function App() {
         </div>
         <div style={{ fontWeight: 600 }}>
           {pick.home} vs {pick.away}
-          <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}> · {pick.league}</span>
+          <span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}> · {leagueName(pick.league)}</span>
         </div>
         <span className="badge badge-accent" style={{ marginTop: '0.375rem', display: 'inline-block' }}>
-          {label} {(pick.prob * 100).toFixed(1)}%
+          {label} {(pick.prob * 100).toFixed(1)}% · {t('frequencyInTen').replace('{n}', String(formatFrequency(pick.prob)))}
         </span>
       </button>
     )
@@ -215,7 +219,7 @@ function App() {
   }
 
   const renderOddsCells = (f: Fixture) => {
-    const probs = getFixture1x2(f)
+    const probs = extract1x2(f.prediction)
     const fav = !probs ? null : probs.home >= probs.draw && probs.home >= probs.away
       ? 'home'
       : probs.draw >= probs.away ? 'draw' : 'away'
@@ -260,7 +264,7 @@ function App() {
           <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem' }}>
             <span>
               <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                {f.date} · {f.league}
+                {formatHumanDate(f.date, locale)} · {leagueName(f.league)}
               </span>
               <span style={{ fontWeight: 500 }}>
                 {f.home} vs {f.away}
@@ -270,6 +274,7 @@ function App() {
                   </span>
                 )}
               </span>
+              {renderVerdict(f)}
             </span>
             {f.prediction != null && (
               <span className="badge badge-accent" style={{ fontSize: '0.7rem' }}>{t('predicted')}</span>
