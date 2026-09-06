@@ -40,16 +40,16 @@ function renderDashboard(brier: number | null, cal: CalibrationData | null = cal
 describe('StatsDashboard trust block', () => {
   it('shows brier reading, calibration count and sample size', () => {
     renderDashboard(0.05)
-    expect(screen.getByText('Why trust these numbers')).toBeDefined()
+    expect(screen.getByText('Calibration')).toBeDefined()
     expect(screen.getByText('0.050')).toBeDefined()
-    expect(screen.getByText('Well calibrated — predictions land close to actual outcomes.')).toBeDefined()
+    expect(screen.getByText('Well calibrated. Predictions land close to actual outcomes.')).toBeDefined()
     expect(screen.getByText('1 of 2 ranges within 10 pts of perfect calibration.')).toBeDefined()
     expect(screen.getByText('Based on 100 resolved predictions (calibration n=30).')).toBeDefined()
   })
 
   it('grades reasonable and weak brier thresholds', () => {
     renderDashboard(0.2)
-    expect(screen.getByText('Reasonably calibrated — useful signal, expect some error.')).toBeDefined()
+    expect(screen.getByText('Reasonably calibrated. Useful signal, expect some error.')).toBeDefined()
   })
 
   it('hides the block on cold start', () => {
@@ -58,12 +58,12 @@ describe('StatsDashboard trust block', () => {
         <StatsDashboard stats={{ ...stats, cold_start: true }} matchdayData={null} calibrationData={null} selectedMarket="1x2" />
       </LanguageProvider>,
     )
-    expect(screen.queryByText('Why trust these numbers')).toBeNull()
+    expect(screen.queryByText('Calibration')).toBeNull()
   })
 
   it('shows pending states without matchday or calibration data', () => {
     renderDashboard(null, null)
     expect(screen.getByText('Not enough matchdays yet to judge calibration.')).toBeDefined()
-    expect(screen.getByText('Calibration still pending — check back after 30 resolved predictions.')).toBeDefined()
+    expect(screen.getByText('Calibration still pending. Check back after 30 resolved predictions.')).toBeDefined()
   })
 })
