@@ -4,6 +4,8 @@ import { fetchFixtures, fetchPrediction, fetchStats, fetchMatchdayStats, fetchCa
 import { useLanguage } from './i18n'
 import { selectPickOfDay, extract1x2 } from './utils/matchCenter'
 import { handleSpotlightMove } from './utils/spotlight'
+import { useAnalystMode } from './hooks/useAnalystMode'
+import AnalystToggle from './components/AnalystToggle'
 import { getVerdict, formatFrequency, formatHumanDate } from './utils/verdict'
 import PredictionPanel from './components/PredictionPanel'
 import ScorerPanel from './components/ScorerPanel'
@@ -46,6 +48,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [analyst, setAnalyst] = useAnalystMode()
 
   const leagueRequestId = useRef(0)
 
@@ -324,6 +327,7 @@ function App() {
             </div>
           </div>
           <LanguageSelector />
+          <AnalystToggle analyst={analyst} onChange={setAnalyst} />
         </div>
       </header>
 
@@ -447,6 +451,7 @@ function App() {
                     home={selected?.home ?? ''}
                     away={selected?.away ?? ''}
                     fixtures={fixtures}
+                    analyst={analyst}
                   />
                 ) : scorer ? (
                   <ScorerPanel key={scorer.fixture_id} scorer={scorer} />

@@ -103,7 +103,7 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
   )
 }
 
-function SuperCombo({ probabilities, mode }: { probabilities: Record<string, Record<string, number>>; mode: DisplayMode }) {
+function SuperCombo({ probabilities, mode, analyst }: { probabilities: Record<string, Record<string, number>>; mode: DisplayMode; analyst: boolean }) {
   const { t, locale } = useLanguage()
   const combo = getSuperCombo(probabilities)
 
@@ -120,7 +120,7 @@ function SuperCombo({ probabilities, mode }: { probabilities: Record<string, Rec
             {combo.legs.map(leg => (
               <div key={leg.market} className="card-flat" style={{ padding: '0.625rem', fontSize: '0.85rem' }}>
                 <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
-                  {getMarketLabel(leg.market, locale)}
+                  {getMarketLabel(leg.market, locale)}{analyst ? ` · ${leg.market}` : ''}
                 </div>
                 <div style={{ fontWeight: 600 }}>{getOutcomeLabel(leg.market, leg.outcome, locale)}</div>
                 <div style={{ fontWeight: 600, color: 'var(--accent)' }}>
@@ -152,9 +152,10 @@ interface PredictionPanelProps {
   home: string
   away: string
   fixtures: Fixture[]
+  analyst: boolean
 }
 
-export default function PredictionPanel({ prediction, selectedMarket, onMarketChange, home, away, fixtures }: PredictionPanelProps) {
+export default function PredictionPanel({ prediction, selectedMarket, onMarketChange, home, away, fixtures, analyst }: PredictionPanelProps) {
   const { t, locale } = useLanguage()
   const [mode, setMode] = useDisplayMode()
   const moves = useMovement(prediction.fixture_id, selectedMarket, prediction.probabilities[selectedMarket])
@@ -165,11 +166,13 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
       <h2 style={{ color: 'var(--text)', marginBottom: '1rem', fontSize: '1.1rem' }}>{t('prediction')}</h2>
 
       <div className="card-flat" style={{ padding: '1rem', marginBottom: '1rem' }}>
-        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          {t('model')}: <span style={{ color: 'var(--text)', fontWeight: 500 }}>{prediction.model_version}</span>
-          {' | '}
-          {t('agreement')}: <span style={{ color: 'var(--accent)', fontWeight: 500 }}>{formatProb(prediction.model_agreement)}</span>
-        </div>
+        {analyst && (
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            {t('model')}: <span style={{ color: 'var(--text)', fontWeight: 500 }}>{prediction.model_version}</span>
+            {' | '}
+            {t('agreement')}: <span style={{ color: 'var(--accent)', fontWeight: 500 }}>{formatProb(prediction.model_agreement)}</span>
+          </div>
+        )}
         {prediction.probable_score && (
           <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             {t('probableScore')}:{' '}
@@ -185,22 +188,22 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
 
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
         <div style={{ flex: '1 1 220px', minWidth: 0 }}>
-          <MarketSelector selected={selectedMarket} onChange={onMarketChange} availableMarkets={availableMarkets} />
+          <MarketSelector selected={selectedMarket} onChange={onMarketChange} availableMarkets={availableMarkets} analyst={analyst} />
         </div>
         <DisplayModeToggle mode={mode} onChange={setMode} />
       </div>
 
       <div className="card-flat" style={{ padding: '1rem', marginBottom: '1rem' }}>
         <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>
-          {getMarketLabel(selectedMarket, locale)}
+          {getMarketLabel(selectedMarket, locale)}{analyst ? ` · ${selectedMarket}` : ''}
         </h3>
         <MarketRenderer market={selectedMarket} probabilities={prediction.probabilities} mode={mode} moves={moves} />
       </div>
 
       <MatchCenter home={home} away={away} fixtures={fixtures} />
-      <SuperCombo probabilities={prediction.probabilities} mode={mode} />
+      <SuperCombo probabilities={prediction.probabilities} mode={mode} analyst={analyst} />
 
-      {prediction.top_features && prediction.top_features.length > 0 && (
+      {analyst && prediction.top_features && prediction.top_features.length > 0 && (
         <div className="card-flat" style={{ padding: '1rem' }}>
           <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>{t('topFeatures')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
