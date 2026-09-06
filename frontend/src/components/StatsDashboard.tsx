@@ -1,5 +1,6 @@
 import type { Stats, MatchdayData, CalibrationData } from '../types'
 import { useLanguage } from '../i18n'
+import { useCountUp } from '../hooks/useCountUp'
 import CalibrationChart from './CalibrationChart'
 import MatchdayChart from './MatchdayChart'
 
@@ -97,9 +98,9 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
       <h2 style={{ color: 'var(--text)', marginBottom: '1rem', fontSize: '1.1rem' }}>{t('stats')}</h2>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-        <StatCard value={String(stats.total_predictions)} label={t('predictions')} />
-        <StatCard value={formatProb(stats.accuracy)} label={t('accuracy')} />
-        <StatCard value={formatProb(stats.avg_confidence)} label={t('avgConfidence')} />
+        <StatCard value={stats.total_predictions} label={t('predictions')} format={v => String(Math.round(v))} />
+        <StatCard value={stats.accuracy} label={t('accuracy')} format={v => formatProb(v)} />
+        <StatCard value={stats.avg_confidence} label={t('avgConfidence')} format={v => formatProb(v)} />
       </div>
 
       <TrustBlock stats={stats} matchdayData={matchdayData} calibrationData={calibrationData} selectedMarket={selectedMarket} />
@@ -176,10 +177,11 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
   )
 }
 
-function StatCard({ value, label }: { value: string; label: string }) {
+function StatCard({ value, label, format }: { value: number; label: string; format: (v: number) => string }) {
+  const animated = useCountUp(value)
   return (
     <div className="stat-card">
-      <div className="stat-card-value">{value}</div>
+      <div className="stat-card-value">{format(animated)}</div>
       <div className="stat-card-label">{label}</div>
     </div>
   )
