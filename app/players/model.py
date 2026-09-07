@@ -18,6 +18,7 @@ class ScorerPlayer:
     min_expected: float
     opponent_xga: float | None
     source: str
+    projected: bool = False
 
 
 @dataclass
@@ -30,6 +31,12 @@ class ScorerProb:
     min_expected: float
     prob_anytime: float
     home_away: str
+    projected: bool = False
+
+
+# Projected XI size when no confirmed lineup exists: top-N by minutes played.
+PROJECTED_XI_SIZE = 11
+BENCH_MIN_EXPECTED = 15.0
 
 
 _SHRINK_K = 900.0
@@ -110,6 +117,7 @@ def rank_scorers(players: list[ScorerPlayer], min_minutes: int = 450) -> list[Sc
             min_expected=p.min_expected,
             prob_anytime=prob,
             home_away=p.home_away,
+            projected=p.projected,
         ))
     scored.sort(key=lambda s: s.prob_anytime, reverse=True)
     return scored

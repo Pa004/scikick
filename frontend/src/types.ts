@@ -102,6 +102,7 @@ export interface ScorerPlayer {
   min_expected: number
   prob_anytime: number
   home_away: string
+  projected?: boolean
 }
 
 export interface ScorerPrediction {
