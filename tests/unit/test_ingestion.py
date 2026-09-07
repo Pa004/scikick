@@ -123,3 +123,16 @@ def test_sync_all_leagues_includes_current_season(monkeypatch):
     sync_module.sync_all_leagues(["E0"], 1)
     years = [year for _, year in seen]
     assert 2026 in years
+
+
+def test_sync_all_leagues_window_covers_last_seasons(monkeypatch):
+    from app.ingestion import sync as sync_module
+
+    seen = []
+    monkeypatch.setattr(
+        sync_module, "sync_league",
+        lambda code, year, raw_dir, db_path=None: seen.append(year),
+    )
+    monkeypatch.setattr(sync_module, "current_season_start", lambda: 2026)
+    sync_module.sync_all_leagues(["E0"], 3)
+    assert seen == [2026, 2025, 2024]

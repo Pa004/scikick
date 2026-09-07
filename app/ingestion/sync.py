@@ -235,12 +235,8 @@ def sync_all_leagues(
     raw_dir: str = "data/raw",
     db_path: str | None = None,
 ) -> list[dict]:
-    from datetime import datetime
-    current_year = datetime.now().year
-    years = [current_year - 2 - i for i in range(n_seasons)]
     season_start = current_season_start()
-    if season_start not in years:
-        years.append(season_start)
+    years = [season_start - i for i in range(n_seasons)]
 
     results = []
     for code in league_codes:
