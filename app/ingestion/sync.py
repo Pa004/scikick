@@ -16,6 +16,7 @@ from app.ingestion.adapters.football_data import (
 )
 from app.ingestion.adapters.api_football import fetch_fixtures as fetch_api_football_fixtures
 from app.ingestion.adapters.football_data_org import fetch_scheduled as fetch_fdorg_fixtures
+from app.ingestion.aliases import find_best_match
 from app.ingestion.seasons import current_season_start
 from app.ingestion.validation import validate_all
 
@@ -50,6 +51,22 @@ def _resolve_team(conn: sqlite3.Connection, team_name: str) -> int:
     if row:
         return row["canonical_team_id"]
 
+    row = conn.execute(
+        "SELECT id FROM teams WHERE canonical_name = ?", (team_name,)
+    ).fetchone()
+    if row:
+        return row["id"]
+
+    canonical = _fuzzy_canonical(conn, team_name)
+    if canonical is not None:
+        canonical_id, canonical_name = canonical
+        conn.execute(
+            "INSERT INTO team_aliases (canonical_team_id, source, source_name) VALUES (?, 'football_data', ?)",
+            (canonical_id, team_name),
+        )
+        print(f"Aliased '{team_name}' to '{canonical_name}'")
+        return canonical_id
+
     conn.execute("INSERT INTO teams (canonical_name) VALUES (?)", (team_name,))
     team_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
     conn.execute(
@@ -57,6 +74,22 @@ def _resolve_team(conn: sqlite3.Connection, team_name: str) -> int:
         (team_id, team_name),
     )
     return team_id
+
+
+def _fuzzy_canonical(
+    conn: sqlite3.Connection, team_name: str
+) -> tuple[int, str] | None:
+    names = [
+        row["canonical_name"]
+        for row in conn.execute("SELECT id, canonical_name FROM teams").fetchall()
+    ]
+    best = find_best_match(team_name, names)
+    if not best:
+        return None
+    row = conn.execute(
+        "SELECT id FROM teams WHERE canonical_name = ?", (best,)
+    ).fetchone()
+    return (row["id"], best) if row else None
 
 
 def sync_league(

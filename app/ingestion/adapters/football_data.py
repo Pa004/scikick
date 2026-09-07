@@ -57,6 +57,11 @@ def download_csv(
     if result.returncode != 0 or not dest.exists() or dest.stat().st_size < 100:
         raise ConnectionError(f"Failed to download {url}: {result.stderr}")
 
+    head = dest.read_bytes()[:200]
+    if b"Div," not in head:
+        dest.unlink(missing_ok=True)
+        raise ConnectionError(f"Not a CSV (season file missing?): {url}")
+
     return dest
 
 

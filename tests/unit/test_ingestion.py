@@ -83,13 +83,30 @@ def test_download_csv_force_redownloads(tmp_path: Path):
     dest.write_text("x" * 200)
 
     def fake_run(*args, **kwargs):
-        dest.write_text("y" * 200)
+        dest.write_text("Div,Date,HomeTeam\n" + "y" * 200)
         return subprocess.CompletedProcess(args, 0)
 
     with patch("subprocess.run", side_effect=fake_run) as mock_run:
         path = football_data.download_csv("E0", 2023, tmp_path, force=True)
     assert path == dest
     assert mock_run.call_count == 1
+
+
+def test_download_csv_rejects_non_csv(tmp_path: Path):
+    import subprocess
+    from unittest.mock import patch
+
+    from app.ingestion.adapters import football_data
+
+    def fake_run(*args, **kwargs):
+        dest = tmp_path / "E0_2627.csv"
+        dest.write_bytes(b"<html>Access denied</html>" + b"x" * 200)
+        return subprocess.CompletedProcess(args, 0)
+
+    with patch("subprocess.run", side_effect=fake_run):
+        with pytest.raises(ConnectionError, match="Not a CSV"):
+            football_data.download_csv("E0", 2026, tmp_path, force=True)
+    assert not (tmp_path / "E0_2627.csv").exists()
 
 
 def test_sync_all_leagues_includes_current_season(monkeypatch):

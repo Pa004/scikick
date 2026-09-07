@@ -76,7 +76,6 @@ def test_fallback_used_when_primary_empty(tmp_path, monkeypatch):
     finally:
         conn.close()
 
-
 def test_no_duplicates_on_resync(tmp_path, monkeypatch):
     monkeypatch.setattr(
         sync_module, "fetch_fdorg_fixtures", lambda code: [_fdorg_fixtures()[0]]
@@ -89,5 +88,47 @@ def test_no_duplicates_on_resync(tmp_path, monkeypatch):
         conn.commit()
         total = conn.execute("SELECT COUNT(*) FROM fixtures").fetchone()[0]
         assert total == 1
+    finally:
+        conn.close()
+
+
+def test_resolve_team_fuzzy_matches_canonical(tmp_path, capsys):
+    conn = _make_conn(tmp_path)
+    try:
+        conn.execute("INSERT INTO teams (canonical_name) VALUES ('Hull City')")
+        canonical_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        conn.execute(
+            "INSERT INTO team_aliases (canonical_team_id, source, source_name)"
+            " VALUES (?, 'football_data', 'Hull City')",
+            (canonical_id,),
+        )
+        resolved = sync_module._resolve_team(conn, "Hull City AFC")
+        assert resolved == canonical_id
+        teams = conn.execute("SELECT COUNT(*) FROM teams").fetchone()[0]
+        assert teams == 1
+        assert "Aliased" in capsys.readouterr().out
+    finally:
+        conn.close()
+
+def test_resolve_team_creates_unknown(tmp_path):
+    conn = _make_conn(tmp_path)
+    try:
+        resolved = sync_module._resolve_team(conn, "Zxq Qwerty United")
+        row = conn.execute(
+            "SELECT canonical_name FROM teams WHERE id = ?", (resolved,)
+        ).fetchone()
+        assert row[0] == "Zxq Qwerty United"
+    finally:
+        conn.close()
+
+
+def test_resolve_team_exact_canonical_no_alias(tmp_path, capsys):
+    conn = _make_conn(tmp_path)
+    try:
+        conn.execute("INSERT INTO teams (canonical_name) VALUES ('Hull City')")
+        canonical_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        resolved = sync_module._resolve_team(conn, "Hull City")
+        assert resolved == canonical_id
+        assert capsys.readouterr().out == ""
     finally:
         conn.close()
