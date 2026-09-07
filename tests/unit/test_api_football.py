@@ -25,3 +25,30 @@ def test_fetch_fixtures_unknown_league(monkeypatch):
     get_settings.cache_clear()
     result = fetch_fixtures("UNKNOWN")
     assert result == []
+
+
+def test_fetch_fixtures_uses_current_season(monkeypatch):
+    from app.ingestion.adapters import api_football
+
+    monkeypatch.setenv("API_FOOTBALL_KEY", "test-key")
+    from app.config import get_settings
+    get_settings.cache_clear()
+    monkeypatch.setattr(api_football, "current_season_start", lambda: 2026)
+
+    captured = {}
+
+    class FakeResponse:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"response": []}
+
+    def fake_get(url, headers=None, params=None, timeout=None):
+        captured.update(params or {})
+        return FakeResponse()
+
+    monkeypatch.setattr(api_football.httpx, "get", fake_get)
+    assert fetch_fixtures("E0") == []
+    assert captured["season"] == 2026
+    assert captured["status"] == "NS"

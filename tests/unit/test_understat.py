@@ -142,6 +142,7 @@ def test_fetch_match_player_xg_groups_by_player(monkeypatch):
 
 
 def test_resolve_season_tracks_current_year(monkeypatch):
+    from app.ingestion import seasons
     from app.ingestion.adapters import understat
 
     class _FakeNow(datetime):
@@ -149,8 +150,8 @@ def test_resolve_season_tracks_current_year(monkeypatch):
         def now(cls, tz=None):
             return datetime(2026, 9, 3)
 
-    monkeypatch.setattr(understat, "datetime", _FakeNow)
-    assert understat._resolve_season() == 2025
+    monkeypatch.setattr(seasons, "datetime", _FakeNow)
+    assert understat._resolve_season() == 2026
 
 
 def test_match_xg_exact_date():

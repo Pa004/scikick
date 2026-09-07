@@ -3,15 +3,16 @@ from __future__ import annotations
 import httpx
 
 from app.config import get_settings
+from app.ingestion.seasons import current_season_start
 
 API_FOOTBALL_BASE = "https://v3.football.api-sports.io"
 
 LEAGUE_MAP = {
-    "E0": {"league": 39, "season": 2024},
-    "SP1": {"league": 140, "season": 2024},
-    "D1": {"league": 78, "season": 2024},
-    "I1": {"league": 135, "season": 2024},
-    "F1": {"league": 61, "season": 2024},
+    "E0": {"league": 39},
+    "SP1": {"league": 140},
+    "D1": {"league": 78},
+    "I1": {"league": 135},
+    "F1": {"league": 61},
 }
 
 
@@ -34,7 +35,7 @@ def fetch_fixtures(league_code: str, season: int | None = None) -> list[dict]:
 
     params = {
         "league": league_info["league"],
-        "season": season or league_info["season"],
+        "season": season or current_season_start(),
         "status": "NS",
     }
 

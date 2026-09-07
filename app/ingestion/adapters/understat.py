@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime
-
 import httpx
+
+from app.ingestion.seasons import current_season_start
 
 
 UNDERSTAT_API_LEAGUE = "https://understat.com/getLeagueData/{league}/{season}"
@@ -15,7 +15,7 @@ _API_HEADERS = {
 
 
 def _resolve_season() -> int:
-    return datetime.now().year - 1
+    return current_season_start()
 
 
 def _get_json(url: str) -> dict | None:
