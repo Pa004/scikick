@@ -17,6 +17,13 @@ class DixonColesParams:
     rho: float
 
 
+@dataclass
+class DixonColesTeams:
+    strengths: dict[int, dict[str, float]]
+    home_advantage: float
+    rho: float
+
+
 def _poisson_pmf(k: int, lam: float) -> float:
     return math.exp(-lam) * (lam ** k) / math.factorial(k)
 
@@ -100,6 +107,92 @@ def fit_dixon_coles(
     n_teams: int,
     team_id_to_idx: dict[int, int],
 ) -> DixonColesParams:
+    averaged, _ = fit_dixon_coles_full(
+        home_team_ids, away_team_ids, home_goals, away_goals, n_teams, team_id_to_idx
+    )
+    return averaged
+
+
+def fit_team_strengths(
+    home_team_ids: np.ndarray,
+    away_team_ids: np.ndarray,
+    home_goals: np.ndarray,
+    away_goals: np.ndarray,
+    n_teams: int,
+    team_id_to_idx: dict[int, int],
+) -> DixonColesTeams:
+    _, teams = fit_dixon_coles_full(
+        home_team_ids, away_team_ids, home_goals, away_goals, n_teams, team_id_to_idx
+    )
+    return teams
+
+
+def fit_dixon_coles_full(
+    home_team_ids: np.ndarray,
+    away_team_ids: np.ndarray,
+    home_goals: np.ndarray,
+    away_goals: np.ndarray,
+    n_teams: int,
+    team_id_to_idx: dict[int, int],
+) -> tuple[DixonColesParams, DixonColesTeams]:
+    p = _minimize_dixon_coles(
+        home_team_ids, away_team_ids, home_goals, away_goals, n_teams, team_id_to_idx
+    )
+    idx_to_team = {idx: tid for tid, idx in team_id_to_idx.items()}
+    strengths = {}
+    for idx in range(n_teams):
+        team_id = idx_to_team.get(idx)
+        if team_id is None:
+            continue
+        strengths[team_id] = {
+            "home_attack": float(p[idx]),
+            "home_defense": float(p[n_teams + idx]),
+            "away_attack": float(p[2 * n_teams + idx]),
+            "away_defense": float(p[3 * n_teams + idx]),
+        }
+    home_advantage = float(p[4 * n_teams])
+    rho = float(p[4 * n_teams + 1])
+    averaged = DixonColesParams(
+        home_attack=float(np.mean(p[:n_teams])),
+        home_defense=float(np.mean(p[n_teams : 2 * n_teams])),
+        away_attack=float(np.mean(p[2 * n_teams : 3 * n_teams])),
+        away_defense=float(np.mean(p[3 * n_teams : 4 * n_teams])),
+        home_advantage=home_advantage,
+        rho=rho,
+    )
+    return averaged, DixonColesTeams(
+        strengths=strengths, home_advantage=home_advantage, rho=rho
+    )
+
+
+def params_for_match(
+    averaged: DixonColesParams,
+    teams: DixonColesTeams | None,
+    home_team_id: int,
+    away_team_id: int,
+) -> DixonColesParams:
+    if not teams:
+        return averaged
+    home = teams.strengths.get(home_team_id)
+    away = teams.strengths.get(away_team_id)
+    return DixonColesParams(
+        home_attack=home["home_attack"] if home else averaged.home_attack,
+        home_defense=home["home_defense"] if home else averaged.home_defense,
+        away_attack=away["away_attack"] if away else averaged.away_attack,
+        away_defense=away["away_defense"] if away else averaged.away_defense,
+        home_advantage=teams.home_advantage,
+        rho=teams.rho,
+    )
+
+
+def _minimize_dixon_coles(
+    home_team_ids: np.ndarray,
+    away_team_ids: np.ndarray,
+    home_goals: np.ndarray,
+    away_goals: np.ndarray,
+    n_teams: int,
+    team_id_to_idx: dict[int, int],
+) -> np.ndarray:
     home_idx = np.array([team_id_to_idx.get(int(t), 0) for t in home_team_ids])
     away_idx = np.array([team_id_to_idx.get(int(t), 0) for t in away_team_ids])
 
@@ -127,13 +220,4 @@ def fit_dixon_coles(
         return -ll
 
     result = minimize(objective, x0, method="L-BFGS-B", options={"maxiter": 1000})
-    p = result.x
-
-    return DixonColesParams(
-        home_attack=float(np.mean(p[:n_teams])),
-        home_defense=float(np.mean(p[n_teams : 2 * n_teams])),
-        away_attack=float(np.mean(p[2 * n_teams : 3 * n_teams])),
-        away_defense=float(np.mean(p[3 * n_teams : 4 * n_teams])),
-        home_advantage=float(p[4 * n_teams]),
-        rho=float(p[4 * n_teams + 1]),
-    )
+    return result.x

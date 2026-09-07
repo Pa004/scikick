@@ -14,7 +14,9 @@ import pandas as pd
 from app.features.build_features import build_features, persist_features
 from app.models.dixon_coles import (
     DixonColesParams,
-    fit_dixon_coles,
+    DixonColesTeams,
+    fit_dixon_coles_full,
+    params_for_match,
     score_matrix,
     probabilities_from_matrix,
 )
@@ -55,9 +57,9 @@ def _build_team_id_map(train_df: pd.DataFrame) -> tuple[dict[int, int], int]:
     return mapping, len(mapping)
 
 
-def _fit_dc_fold(train_df: pd.DataFrame) -> DixonColesParams:
+def _fit_dc_fold(train_df: pd.DataFrame) -> tuple[DixonColesParams, DixonColesTeams]:
     team_map, n_teams = _build_team_id_map(train_df)
-    return fit_dixon_coles(
+    return fit_dixon_coles_full(
         home_team_ids=train_df["home_team_id"].values,
         away_team_ids=train_df["away_team_id"].values,
         home_goals=train_df["target_home_goals"].values,
@@ -85,10 +87,17 @@ def _fit_count_fold(
     )
 
 
-def _dc_predict_1x2(params: DixonColesParams, test_df: pd.DataFrame) -> np.ndarray:
-    matrix = score_matrix(params)
-    probs = probabilities_from_matrix(matrix)
-    return np.tile([probs["home"], probs["draw"], probs["away"]], (len(test_df), 1))
+def _dc_predict_1x2(
+    averaged: DixonColesParams,
+    teams: DixonColesTeams,
+    test_df: pd.DataFrame,
+) -> np.ndarray:
+    rows = []
+    for home_id, away_id in zip(test_df["home_team_id"], test_df["away_team_id"]):
+        params = params_for_match(averaged, teams, int(home_id), int(away_id))
+        probs = probabilities_from_matrix(score_matrix(params))
+        rows.append([probs["home"], probs["draw"], probs["away"]])
+    return np.array(rows)
 
 
 def _reconstruct_blended_matrix(
@@ -231,8 +240,8 @@ def train_league(
         if len(train_df) < 10:
             continue
 
-        dc_params = _fit_dc_fold(train_df)
-        dc_preds = _dc_predict_1x2(dc_params, test_df)
+        dc_params, dc_teams = _fit_dc_fold(train_df)
+        dc_preds = _dc_predict_1x2(dc_params, dc_teams, test_df)
 
         lgbm_model = train_lightgbm(train_df)
         lgbm_preds, lgbm_std = predict_lightgbm(lgbm_model, test_df)
@@ -287,7 +296,7 @@ def train_league(
             vs_market = {"model": vs_market, "market": mkt_eval}
 
     team_map, n_teams = _build_team_id_map(features_df)
-    final_dc_params = fit_dixon_coles(
+    final_dc_params, final_dc_teams = fit_dixon_coles_full(
         home_team_ids=features_df["home_team_id"].values,
         away_team_ids=features_df["away_team_id"].values,
         home_goals=features_df["target_home_goals"].values,
@@ -307,7 +316,8 @@ def train_league(
     mean_model_agreement = float(np.mean(np.mean(all_lgbm_stds_concat, axis=1))) if all_lgbm_stds_concat.size > 0 else 0.0
 
     _persist_multi_market_predictions(
-        conn, features_df, all_fixture_ids, final_dc_params, optimal_w, league, mean_model_agreement, all_lgbm_stds,
+        conn, features_df, all_fixture_ids, final_dc_params, final_dc_teams,
+        optimal_w, league, mean_model_agreement, all_lgbm_stds,
         corners_params, cards_params, ht_params, residuals,
     )
 
@@ -330,6 +340,14 @@ def train_league(
             "away_defense": final_dc_params.away_defense,
             "home_advantage": final_dc_params.home_advantage,
             "rho": final_dc_params.rho,
+        },
+        "dc_teams": {
+            "home_advantage": final_dc_teams.home_advantage,
+            "rho": final_dc_teams.rho,
+            "teams": {
+                str(team_id): strengths
+                for team_id, strengths in final_dc_teams.strengths.items()
+            },
         },
         "corners_params": {
             "team_attack": {str(k): v for k, v in corners_params.team_attack.items()},
@@ -385,6 +403,7 @@ def _persist_multi_market_predictions(
     features_df: pd.DataFrame,
     fixture_ids: list[int],
     dc_params: DixonColesParams,
+    dc_teams: DixonColesTeams | None,
     w: float,
     league: str,
     model_agreement: float,
@@ -401,17 +420,25 @@ def _persist_multi_market_predictions(
     ).fetchall()
     fixtures_map = {r["id"]: dict(r) for r in fixtures_info}
 
-    dc_matrix = score_matrix(dc_params)
-    dc_probs = probabilities_from_matrix(dc_matrix)
+    legacy_matrix = score_matrix(dc_params)
+    legacy_probs = probabilities_from_matrix(legacy_matrix)
 
     std_idx = 0
     batch_updates = []
     for fid in fixture_ids:
-        blended_matrix = dc_matrix
-
         info = fixtures_map.get(fid, {})
         home_team_id = info.get("home_team_id")
         away_team_id = info.get("away_team_id")
+
+        if dc_teams and home_team_id and away_team_id:
+            match_params = params_for_match(
+                dc_params, dc_teams, home_team_id, away_team_id
+            )
+            blended_matrix = score_matrix(match_params)
+            dc_probs = probabilities_from_matrix(blended_matrix)
+        else:
+            blended_matrix = legacy_matrix
+            dc_probs = legacy_probs
 
         home_corners_rate = None
         away_corners_rate = None
