@@ -44,7 +44,8 @@ def _team_form(conn: sqlite3.Connection, team: str, n: int = 5) -> list[dict]:
 
 def _head_to_head(conn: sqlite3.Connection, team: str, opponent: str) -> dict:
     rows = conn.execute(
-        "SELECT t1.canonical_name AS home_name, t2.canonical_name AS away_name, "
+        "SELECT f.match_date, t1.canonical_name AS home_name, "
+        "t2.canonical_name AS away_name, "
         "f.home_score, f.away_score "
         "FROM fixtures f "
         "JOIN teams t1 ON f.home_team_id = t1.id "
@@ -66,8 +67,10 @@ def _head_to_head(conn: sqlite3.Connection, team: str, opponent: str) -> dict:
         else:
             record["losses"] += 1
         record["matches"].append({
+            "date": r["match_date"],
+            "home": r["home_name"],
+            "away": r["away_name"],
             "score": f"{r['home_score']}-{r['away_score']}",
-            "home": r["home_name"] == team,
         })
     return record
 

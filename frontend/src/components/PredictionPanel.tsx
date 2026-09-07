@@ -1,4 +1,6 @@
-import type { Fixture, Prediction } from '../types'
+import type { Fixture, Prediction, TeamContext } from '../types'
+import { useEffect, useState } from 'react'
+import { fetchContext } from '../api'
 import { useLanguage } from '../i18n'
 import { useDisplayMode, type DisplayMode } from '../hooks/useDisplayMode'
 import { useMovement } from '../hooks/useMovement'
@@ -55,9 +57,44 @@ function MomentumRow({ label, pct }: { label: string; pct: number }) {
 
 function MatchCenter({ home, away, fixtures }: { home: string; away: string; fixtures: Fixture[] }) {
   const { t } = useLanguage()
-  const homeForm = getTeamForm(fixtures, home)
-  const awayForm = getTeamForm(fixtures, away)
-  const h2h = getHeadToHead(home, away, fixtures)
+  const [serverHome, setServerHome] = useState<TeamContext | null>(null)
+  const [serverAway, setServerAway] = useState<TeamContext | null>(null)
+
+  useEffect(() => {
+    let active = true
+    setServerHome(null)
+    setServerAway(null)
+    Promise.all([
+      fetchContext(home, away).catch(() => null),
+      fetchContext(away, home).catch(() => null),
+    ]).then(([h, a]) => {
+      if (!active) return
+      setServerHome(h)
+      setServerAway(a)
+    })
+    return () => {
+      active = false
+    }
+  }, [home, away])
+
+  const homeForm = serverHome && serverHome.form.length > 0
+    ? serverHome.form.map(f => f.result)
+    : getTeamForm(fixtures, home)
+  const awayForm = serverAway && serverAway.form.length > 0
+    ? serverAway.form.map(f => f.result)
+    : getTeamForm(fixtures, away)
+  const serverH2H = serverHome?.h2h
+  const h2h = serverH2H && (serverH2H.wins + serverH2H.draws + serverH2H.losses) > 0
+    ? {
+        homeWins: serverH2H.wins,
+        draws: serverH2H.draws,
+        awayWins: serverH2H.losses,
+        meetings: serverH2H.matches.slice(0, 5).map(m => {
+          const [hs, aws] = m.score.split('-').map(Number)
+          return { date: m.date, home: m.home, away: m.away, homeScore: hs, awayScore: aws }
+        }),
+      }
+    : getHeadToHead(home, away, fixtures)
   const momentum = getMomentum(homeForm, awayForm)
 
   return (

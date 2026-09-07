@@ -32,6 +32,27 @@ export interface ValueResponse {
   outcomes: Record<string, ValueOutcome>
 }
 
+export interface ContextFormEntry {
+  date: string
+  opponent: string
+  result: 'W' | 'D' | 'L'
+  score: string
+}
+
+export interface ContextH2HMeeting {
+  date: string
+  home: string
+  away: string
+  score: string
+}
+
+export interface TeamContext {
+  team: string
+  form: ContextFormEntry[]
+  opponent?: string
+  h2h?: { wins: number; draws: number; losses: number; matches: ContextH2HMeeting[] }
+}
+
 export interface ConfidenceBand {
   band: string
   total: number

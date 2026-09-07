@@ -40,6 +40,7 @@ function App() {
   const [selectedFixture, setSelectedFixture] = useState<number | null>(null)
   const [prediction, setPrediction] = useState<Prediction | null>(null)
   const [scorer, setScorer] = useState<ScorerPrediction | null>(null)
+  const [scorerFailed, setScorerFailed] = useState(false)
   const [activeTab, setActiveTab] = useState<ViewTab>('match')
   const [stats, setStats] = useState<Stats | null>(null)
   const [matchdayData, setMatchdayData] = useState<MatchdayData | null>(null)
@@ -76,8 +77,9 @@ function App() {
 
   useEffect(() => {
     const requestId = ++leagueRequestId.current
+    const wantLeague = league === '' ? 'all' : league
 
-    fetchFixtures(league || undefined)
+    fetchFixtures(wantLeague, league === '' ? 100 : 30)
       .then(data => {
         if (requestId !== leagueRequestId.current) return
         setFixtures(data)
@@ -114,6 +116,9 @@ function App() {
   useEffect(() => {
     if (!selectedFixture) return
     let active = true
+    setPrediction(null)
+    setScorer(null)
+    setScorerFailed(false)
     fetchPrediction(selectedFixture)
       .then(data => {
         if (active) setPrediction(data)
@@ -126,7 +131,10 @@ function App() {
         if (active) setScorer(data)
       })
       .catch(() => {
-        if (active) setScorer(null)
+        if (active) {
+          setScorer(null)
+          setScorerFailed(true)
+        }
       })
     return () => {
       active = false
@@ -453,6 +461,8 @@ function App() {
                   />
                 ) : scorer ? (
                   <ScorerPanel key={scorer.fixture_id} scorer={scorer} />
+                ) : scorerFailed ? (
+                  <p style={{ color: 'var(--text-muted)' }}>{t('scorerFailed')}</p>
                 ) : (
                   <p style={{ color: 'var(--text-muted)' }}>{t('loadingScorer')}</p>
                 )}

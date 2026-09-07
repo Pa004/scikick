@@ -162,7 +162,11 @@ export function getSuperCombo(probabilities: Record<string, Record<string, numbe
 export function selectPickOfDay(fixtures: Fixture[]): DayPick | null {
   let best: DayPick | null = null
   let bestGap = -1
+  const horizon = new Date()
+  horizon.setDate(horizon.getDate() + 7)
+  const horizonStr = horizon.toISOString().slice(0, 10)
   for (const f of fixtures) {
+    if (f.date > horizonStr) continue
     const p = extract1x2(f.prediction)
     if (!p) continue
     const ranked = [

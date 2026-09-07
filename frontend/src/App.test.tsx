@@ -39,6 +39,14 @@ beforeEach(() => {
     if (url.includes('/stats/per-matchday')) return Promise.resolve({ ok: true, json: () => Promise.resolve(mockMatchday) })
     if (url.includes('/stats/calibration')) return Promise.resolve({ ok: true, json: () => Promise.resolve(mockCalibration) })
     if (url.includes('/stats')) return Promise.resolve({ ok: true, json: () => Promise.resolve(mockStats) })
+    if (url.includes('/context')) return Promise.resolve({ ok: true, json: () => Promise.resolve({
+      team: 'Arsenal',
+      form: [{ date: '2025-08-10', opponent: 'Chelsea', result: 'W', score: '2-1' }],
+      opponent: 'Chelsea',
+      h2h: { wins: 2, draws: 1, losses: 0, matches: [
+        { date: '2025-08-10', home: 'Arsenal', away: 'Chelsea', score: '2-1' },
+      ] },
+    }) })
     if (url.includes('/predict/')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ fixture_id: 1, model_version: 'ensemble_v1', model_agreement: 0.85, probabilities: { '1x2': { home: 0.5, draw: 0.25, away: 0.25 } } }) })
     return Promise.resolve({ ok: false, status: 404 })
   }))
@@ -101,5 +109,12 @@ describe('App', () => {
     const scorerTab = screen.getByRole('button', { name: 'Goalscorer' }) as HTMLButtonElement
     expect(matchTab.disabled).toBe(true)
     expect(scorerTab.disabled).toBe(true)
+  })
+
+  it('shows server form and head-to-head in Match Center', async () => {
+    renderApp()
+    await screen.findByText('Pick of the Day')
+    fireEvent.click(screen.getByRole('button', { name: /Pick of the Day/ }))
+    expect(await screen.findByText('Arsenal 2 - 1 - 0 Chelsea')).toBeDefined()
   })
 })

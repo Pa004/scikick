@@ -1,4 +1,4 @@
-import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction, ValueResponse } from './types'
+import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction, ValueResponse, TeamContext } from './types'
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api'
 
@@ -39,6 +39,12 @@ export async function fetchCalibration(market = '1x2', league?: string): Promise
 
 export async function fetchScorer(id: number): Promise<ScorerPrediction> {
   return fetchJson<ScorerPrediction>(`${API_BASE}/predict/scorer/${id}`)
+}
+
+export async function fetchContext(team: string, opponent?: string): Promise<TeamContext> {
+  const params = new URLSearchParams({ team })
+  if (opponent) params.set('opponent', opponent)
+  return fetchJson<TeamContext>(`${API_BASE}/context?${params}`)
 }
 
 export async function fetchValue(
