@@ -9,6 +9,7 @@ import joblib
 
 from app.players.model import (
     ScorerPlayer,
+    effective_min_minutes,
     shrink_xg90,
     expected_goals,
     p_anytime,
@@ -18,13 +19,23 @@ from app.players.model import (
 PLAYER_RUNS_DIR = str(Path(__file__).resolve().parent.parent.parent / "data" / "player_runs")
 
 
-def _get_player_season_stats(conn: sqlite3.Connection, league: str) -> list[dict]:
+def _get_player_season_stats(
+    conn: sqlite3.Connection, team_names: list[str]
+) -> list[dict]:
+    if not team_names:
+        return []
+    placeholders = ",".join("?" * len(team_names))
+    max_minutes = conn.execute(
+        f"SELECT MAX(minutes_total) FROM players WHERE team_name IN ({placeholders})",
+        team_names,
+    ).fetchone()[0] or 0
+    gate = effective_min_minutes(max_minutes)
     rows = conn.execute(
         "SELECT p.id, p.name, p.team_name, p.position, p.xg90, p.npxg90, "
         "p.minutes_total, p.games, p.source "
-        "FROM players p "
-        "WHERE p.minutes_total >= 450 "
-        "ORDER BY p.xg90 DESC"
+        f"FROM players p WHERE p.team_name IN ({placeholders}) "
+        "AND p.minutes_total >= ? ORDER BY p.xg90 DESC",
+        (*team_names, gate),
     ).fetchall()
     return [dict(r) for r in rows]
 
@@ -75,7 +86,7 @@ def build_scorer_players(
     lineup = _get_lineup_for_fixture(conn, fixture_id)
     has_lineup = len(lineup) > 0
 
-    players = _get_player_season_stats(conn, league)
+    players = _get_player_season_stats(conn, [fixture["home_name"], fixture["away_name"]])
     result = []
 
     for p in players:
@@ -124,7 +135,8 @@ def predict_scorer(conn: sqlite3.Connection, fixture_id: int, league: str) -> di
     ).fetchone()["cnt"] > 0
 
     players = build_scorer_players(conn, fixture_id, league)
-    scorers = rank_scorers(players)
+    gate = effective_min_minutes(max((p.minutes_total for p in players), default=0))
+    scorers = rank_scorers(players, min_minutes=gate)
 
     return {
         "fixture_id": fixture_id,

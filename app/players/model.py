@@ -79,6 +79,20 @@ def p_anytime(lambda_goals: float) -> float:
     return 1.0 - math.exp(-lambda_goals)
 
 
+# Full-season reliability gate. Early in the season nobody reaches it, so it
+# scales with the minutes leader: 75% of the max keeps regulars without
+# letting one-game wonders through.
+FULL_SEASON_MINUTES = 450
+EARLY_SEASON_FRACTION = 0.75
+MIN_SEASON_MINUTES = 90
+
+
+def effective_min_minutes(max_minutes: int) -> int:
+    if max_minutes < MIN_SEASON_MINUTES:
+        return FULL_SEASON_MINUTES
+    return min(FULL_SEASON_MINUTES, int(max_minutes * EARLY_SEASON_FRACTION))
+
+
 def rank_scorers(players: list[ScorerPlayer], min_minutes: int = 450) -> list[ScorerProb]:
     scored = []
     for p in players:

@@ -23,8 +23,8 @@ def _setup_db(tmp_path: Path) -> str:
     conn.execute("INSERT INTO teams (id, canonical_name) VALUES (2, 'Chelsea')")
 
     conn.execute(
-        "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, status, source, source_fixture_id) "
-        "VALUES ('E0', '2025-09-10', 1, 2, 'pre', 'api_football', 'api_football_12345')"
+        "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, status, source, source_fixture_id, api_football_id) "
+        "VALUES ('E0', '2025-09-10', 1, 2, 'pre', 'api_football', 'api_football_12345', 12345)"
     )
 
     players = [
