@@ -1,5 +1,5 @@
 import type { Stats, MatchdayData, CalibrationData } from '../types'
-import { useLanguage } from '../i18n'
+import { useLanguage, fillVars as fill } from '../i18n'
 import { useCountUp } from '../hooks/useCountUp'
 import CalibrationChart from './CalibrationChart'
 import MatchdayChart from './MatchdayChart'
@@ -11,12 +11,6 @@ const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 const BRIER_EXCELLENT_MAX = 0.1
 const BRIER_REASONABLE_MAX = 0.3
 const CALIBRATION_TOLERANCE = 0.1
-
-function fill(template: string, vars: Record<string, string | number>): string {
-  let out = template
-  for (const [k, v] of Object.entries(vars)) out = out.replace(`{${k}}`, String(v))
-  return out
-}
 
 function meanBrier(matchdayData: MatchdayData | null): number | null {
   if (!matchdayData || matchdayData.cold_start || matchdayData.data.length === 0) return null

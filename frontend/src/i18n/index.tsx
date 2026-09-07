@@ -14,7 +14,7 @@ const DICTIONARIES = {
     serieA: 'Serie A',
     ligue1: 'Ligue 1',
     loading: 'Loading...',
-    backendError: 'Backend not running. Start with: uvicorn app.api.main:app --reload',
+    backendError: 'No connection to the server. Check your connection and try again.',
     fixtures: 'Fixtures',
     noFixtures: 'No fixtures available right now.',
     predicted: 'predicted',
@@ -31,7 +31,7 @@ const DICTIONARIES = {
     over: 'Over',
     under: 'Under',
     stats: 'Stats',
-    noStats: 'No stats yet. Train models first.',
+    noStats: 'No results to calibrate yet. Check back after the matchday.',
     predictions: 'Predictions',
     accuracy: 'Accuracy',
     avgConfidence: 'Avg Confidence',
@@ -125,6 +125,13 @@ const DICTIONARIES = {
     valueKelly: 'Kelly ¼',
     valueIsValue: '+EV',
     valueNoValue: 'No value',
+    naValue: 'Not available',
+    marketMissing: 'This fixture has no such market.',
+    oddsMissing: 'No odds for this outcome.',
+    scorerFailed: 'Could not load scorers. Try again.',
+    formLegend: 'W win · D draw · L loss',
+    sortAsc: 'Ascending order',
+    sortDesc: 'Descending order',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -135,7 +142,7 @@ const DICTIONARIES = {
     serieA: 'Serie A',
     ligue1: 'Ligue 1',
     loading: 'Cargando...',
-    backendError: 'Backend no activo. Inicia con: uvicorn app.api.main:app --reload',
+    backendError: 'Sin conexión con el servidor. Revisa tu conexión e inténtalo de nuevo.',
     fixtures: 'Partidos',
     noFixtures: 'No hay partidos disponibles por ahora.',
     predicted: 'predicho',
@@ -152,7 +159,7 @@ const DICTIONARIES = {
     over: 'Más',
     under: 'Menos',
     stats: 'Estadísticas',
-    noStats: 'Aún sin estadísticas. Entrena los modelos primero.',
+    noStats: 'Aún no hay resultados para calibrar. Vuelve tras la jornada.',
     predictions: 'Predicciones',
     accuracy: 'Precisión',
     avgConfidence: 'Confianza media',
@@ -246,6 +253,13 @@ const DICTIONARIES = {
     valueKelly: 'Kelly ¼',
     valueIsValue: '+EV',
     valueNoValue: 'Sin valor',
+    naValue: 'No disponible',
+    marketMissing: 'Este partido no trae este mercado.',
+    oddsMissing: 'Sin cuota para este signo.',
+    scorerFailed: 'No se pudo cargar goleadores. Reintenta.',
+    formLegend: 'V victoria · E empate · D derrota',
+    sortAsc: 'Orden ascendente',
+    sortDesc: 'Orden descendente',
   },
 } as const
 
@@ -304,4 +318,10 @@ export function useLanguage(): LanguageContextValue {
   const ctx = useContext(LanguageContext)
   if (!ctx) throw new Error('useLanguage must be used within a LanguageProvider')
   return ctx
+}
+
+export function fillVars(template: string, vars: Record<string, string | number>): string {
+  let out = template
+  for (const [k, v] of Object.entries(vars)) out = out.split(`{${k}}`).join(String(v))
+  return out
 }
