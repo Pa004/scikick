@@ -15,7 +15,9 @@ from app.models.pipeline import (
 )
 from app.models.dixon_coles import (
     DixonColesParams,
+    DixonColesTeams,
     fit_dixon_coles,
+    params_for_match,
     score_matrix,
     probabilities_from_matrix,
 )
@@ -57,6 +59,17 @@ def _load_count_params(run_data: dict, key: str) -> CountParams | None:
         team_defense={int(k): v for k, v in data.get("team_defense", {}).items()},
         home_advantage=data.get("home_advantage", 0.0),
         global_avg=data.get("global_avg", 5.0),
+    )
+
+
+def _load_dc_teams(run_data: dict) -> DixonColesTeams | None:
+    data = run_data.get("dc_teams")
+    if not data or not data.get("teams"):
+        return None
+    return DixonColesTeams(
+        strengths={int(k): v for k, v in data["teams"].items()},
+        home_advantage=data.get("home_advantage", 0.0),
+        rho=data.get("rho", 0.0),
     )
 
 
@@ -114,14 +127,18 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
     corners_params = _load_count_params(run_data, "corners_params")
     cards_params = _load_count_params(run_data, "cards_params")
     ht_params, residuals = _load_ht_params(run_data)
-
-    dc_matrix = score_matrix(dc_params)
-    dc_probs = probabilities_from_matrix(dc_matrix)
+    dc_teams = _load_dc_teams(run_data)
 
     batch_updates = []
     for fix in fixtures:
         home_team_id = fix["home_team_id"]
         away_team_id = fix["away_team_id"]
+
+        match_params = params_for_match(
+            dc_params, dc_teams, home_team_id, away_team_id
+        )
+        dc_matrix = score_matrix(match_params)
+        dc_probs = probabilities_from_matrix(dc_matrix)
 
         home_corners_rate = None
         away_corners_rate = None
@@ -138,7 +155,7 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
             )
 
         markets = _derive_all_markets_for_fixture(
-            dc_matrix, dc_params,
+            dc_matrix, match_params,
             home_corners_rate, away_corners_rate,
             home_cards_rate, away_cards_rate,
             ht_params, residuals,
