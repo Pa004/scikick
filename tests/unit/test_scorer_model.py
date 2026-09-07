@@ -5,6 +5,7 @@ from pathlib import Path
 
 from app.db.migrations import run_migrations
 from app.players.model import (
+    effective_min_minutes,
     shrink_xg90,
     expected_goals,
     p_anytime,
@@ -124,7 +125,6 @@ def test_predict_scorer_not_found(tmp_path: Path):
     assert "error" in result
     conn.close()
 
-
 def test_save_load_scorer_run(tmp_path: Path, monkeypatch):
     monkeypatch.setattr("app.players.pipeline.PLAYER_RUNS_DIR", str(tmp_path / "player_runs"))
     result = {"fixture_id": 1, "scorers": []}
@@ -133,3 +133,54 @@ def test_save_load_scorer_run(tmp_path: Path, monkeypatch):
     loaded = load_scorer_run("E0")
     assert loaded is not None
     assert loaded["fixture_id"] == 1
+
+
+def test_effective_min_minutes():
+    assert effective_min_minutes(3000) == 450
+    assert effective_min_minutes(450) == 337
+    assert effective_min_minutes(270) == 202
+    assert effective_min_minutes(89) == 450
+    assert effective_min_minutes(0) == 450
+
+
+def test_normalize_understat_team():
+    from app.players.ingest import normalize_understat_team
+
+    canonicals = ["Man City", "Newcastle", "Spurs", "Arsenal", "Hull City"]
+    assert normalize_understat_team("Arsenal", "E0", canonicals) == "Arsenal"
+    assert normalize_understat_team("Manchester City", "E0", canonicals) == "Man City"
+    assert normalize_understat_team("Tottenham", "E0", canonicals) == "Spurs"
+    assert normalize_understat_team("Hull", "E0", canonicals) == "Hull City"
+    assert normalize_understat_team("Manchester City FC", "E0", canonicals) == "Man City"
+    assert normalize_understat_team("A, B", "E0", canonicals) is None
+    assert normalize_understat_team("Bedford Town", "E0", canonicals) is None
+
+
+def test_ingest_early_season_includes_regulars(tmp_path: Path, monkeypatch):
+    from unittest.mock import patch
+
+    from app.players import ingest as ingest_module
+
+    db_path = str(tmp_path / "early.db")
+    run_migrations(db_path)
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    conn.execute(
+        "INSERT INTO leagues (id, name, country, tier, source_csv_code, "
+        "has_odds, has_xg, season_start_month, min_seasons) "
+        "VALUES ('E0', 'PL', 'England', 1, 'E0', 1, 0, 8, 2)"
+    )
+    conn.commit()
+
+    stats = [
+        {"player_id": "1", "name": "Star", "team": "Arsenal", "position": "F",
+         "games": 3, "minutes": 270, "goals": 2, "assists": 0, "xg": 1.5, "npxg": 1.2},
+        {"player_id": "2", "name": "Fringe", "team": "Arsenal", "position": "F",
+         "games": 1, "minutes": 15, "goals": 1, "assists": 0, "xg": 0.9, "npxg": 0.1},
+    ]
+    with patch.object(ingest_module, "fetch_league_xg", return_value=[{"id": 1}]), \
+         patch.object(ingest_module, "fetch_league_players_stats", return_value=stats), \
+         patch.object(ingest_module.time, "sleep", return_value=None):
+        result = ingest_module.ingest_league_players(conn, "E0")
+    conn.close()
+    assert result["players_inserted"] == 1

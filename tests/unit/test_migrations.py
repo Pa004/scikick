@@ -7,12 +7,12 @@ from app.db.migrations import get_user_version, run_migrations
 def test_run_migrations_applies_001(tmp_path: Path) -> None:
     db_path = str(tmp_path / "test.db")
     applied = run_migrations(db_path)
-    assert applied == 5
+    assert applied == 6
 
     conn = get_connection(db_path)
     try:
         version = get_user_version(conn)
-        assert version == 5
+        assert version == 6
 
         tables = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"

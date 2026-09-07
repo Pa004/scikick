@@ -80,7 +80,7 @@ def test_scorer_endpoint_has_prob_anytime(tmp_path: Path):
 
 def test_fetch_lineups_no_key():
     from app.ingestion.adapters.api_football import fetch_lineups
-    with patch("app.config.get_settings") as mock:
+    with patch("app.ingestion.adapters.api_football.get_settings") as mock:
         mock.return_value.api_football_key = ""
         result = fetch_lineups(12345)
         assert result is None

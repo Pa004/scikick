@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import time
 import sqlite3
 
@@ -10,7 +11,12 @@ from app.ingestion.adapters.understat import (
     fetch_league_xg,
     fetch_match_player_xg,
 )
+from app.ingestion.adapters.football_data_org import TEAM_NAMES
+from app.ingestion.aliases import find_best_match
+from app.players.model import effective_min_minutes
 from app.db.connection import get_connection
+
+logger = logging.getLogger(__name__)
 
 UNDERSTAT_SLUG_MAP = {
     "E0": "epl",
@@ -20,7 +26,38 @@ UNDERSTAT_SLUG_MAP = {
     "F1": "ligue_1",
 }
 
-_MIN_MATCH_MINUTES = 450
+# Understat team titles -> our canonical short names, for cases the
+# "<name> FC" lookup into TEAM_NAMES cannot resolve.
+UNDERSTAT_OVERRIDES = {
+    "E0": {
+        "Manchester City": "Man City",
+        "Manchester United": "Man United",
+        "Newcastle United": "Newcastle",
+        "Tottenham": "Spurs",
+        "Nottingham Forest": "Nott'm Forest",
+        "Hull": "Hull City",
+        "Leeds United": "Leeds",
+    },
+}
+
+
+def normalize_understat_team(
+    title: str, league: str, canonical_names: list[str]
+) -> str | None:
+    if "," in title:
+        return None
+    if title in canonical_names:
+        return title
+    table = TEAM_NAMES.get(league, {})
+    if title in table:
+        return table[title]
+    override = UNDERSTAT_OVERRIDES.get(league, {}).get(title)
+    if override:
+        return override
+    suffixed = f"{title} FC"
+    if suffixed in table:
+        return table[suffixed]
+    return find_best_match(title, canonical_names, threshold=85)
 
 
 def _find_understat_match_id(
@@ -47,13 +84,25 @@ def ingest_league_players(conn: sqlite3.Connection, league: str) -> dict:
     if not league_xg:
         return {"league": league, "error": "Could not fetch Understat datesData"}
 
+    time.sleep(6)
+
     players_stats = fetch_league_players_stats(understat_slug)
 
     time.sleep(6)
 
+    max_minutes = max((p["minutes"] for p in players_stats), default=0)
+    min_minutes = effective_min_minutes(max_minutes)
+    canonical_names = [
+        r["canonical_name"] for r in conn.execute("SELECT canonical_name FROM teams").fetchall()
+    ]
+
     players_inserted = 0
     for p in players_stats:
-        if p["minutes"] < _MIN_MATCH_MINUTES:
+        if p["minutes"] < min_minutes:
+            continue
+        team_name = normalize_understat_team(p["team"], league, canonical_names)
+        if not team_name:
+            logger.warning("Unmapped Understat team '%s' for league %s", p["team"], league)
             continue
         conn.execute(
             "INSERT OR REPLACE INTO players "
@@ -61,7 +110,7 @@ def ingest_league_players(conn: sqlite3.Connection, league: str) -> dict:
             "VALUES (?, ?, ?, ?, ?, ?, ?, 'understat', ?)",
             (
                 p["name"],
-                p["team"],
+                team_name,
                 p["position"],
                 (p["xg"] / p["minutes"] * 90) if p["minutes"] > 0 else 0.0,
                 (p["npxg"] / p["minutes"] * 90) if p["minutes"] > 0 else 0.0,
