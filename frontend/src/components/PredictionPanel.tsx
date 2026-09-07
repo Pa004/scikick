@@ -24,14 +24,19 @@ function toTitleCase(s: string): string {
 }
 
 function FormBadges({ form, emptyLabel }: { form: FormOutcome[]; emptyLabel: string }) {
+  const { t } = useLanguage()
+  const word = (o: FormOutcome) => (o === 'W' ? t('formWin') : o === 'D' ? t('formDraw') : t('formLoss'))
   if (form.length === 0) {
     return <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{emptyLabel}</span>
   }
   return (
-    <span style={{ display: 'inline-flex', gap: '0.25rem' }}>
+    <span style={{ display: 'inline-flex', gap: '0.25rem' }} role="list" aria-label={t('formLegend')}>
       {form.map((o, i) => (
         <span
           key={i}
+          role="listitem"
+          aria-label={word(o)}
+          title={word(o)}
           className={`badge form-badge ${o === 'W' ? 'badge-success' : o === 'D' ? 'badge-warning' : 'badge-danger'}`}
         >
           {o}

@@ -54,7 +54,7 @@ function ScorerControls({
             aria-pressed={team === f.value}
             onClick={() => onTeam(f.value)}
             className="league-tab"
-            style={team === f.value ? { background: 'var(--accent-gradient)', borderColor: 'transparent', color: '#fff' } : undefined}
+            style={team === f.value ? { background: 'var(--accent-gradient)', borderColor: 'transparent', color: '#0a0e1a', fontWeight: 600 } : undefined}
           >
             {f.label}
           </button>

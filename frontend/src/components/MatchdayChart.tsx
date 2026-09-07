@@ -19,9 +19,11 @@ export default function MatchdayChart({ data }: MatchdayChartProps) {
     brier: +d.brier.toFixed(3),
     accuracy: +(d.accuracy * 100).toFixed(1),
   }))
+  const summary = `${t('brierScore')}: ${chartData[0].brier} → ${chartData[chartData.length - 1].brier}`
 
   return (
     <div className="card-flat" style={{ padding: '0.75rem', height: '280px' }}>
+      <div role="img" aria-label={summary} style={{ height: '100%' }}>
       <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#2a3350" />
@@ -38,6 +40,26 @@ export default function MatchdayChart({ data }: MatchdayChartProps) {
           <Line type="monotone" dataKey="brier" stroke="var(--accent)" strokeWidth={2.5} dot={{ r: 3, fill: '#a3e635' }} name={t('brierScore')} />
         </LineChart>
       </ResponsiveContainer>
+      </div>
+      <table className="sr-only">
+        <caption>{summary}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{t('tableDate')}</th>
+            <th scope="col">{t('brierScore')}</th>
+            <th scope="col">{t('accuracyPct')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {chartData.map(row => (
+            <tr key={row.date}>
+              <td>{row.date}</td>
+              <td>{row.brier}</td>
+              <td>{row.accuracy}%</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }

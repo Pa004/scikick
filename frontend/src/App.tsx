@@ -231,25 +231,36 @@ function App() {
       { key: 'away', label: t('away') },
     ] as const
     return cells.map(c => (
+      <span key={c.key} role="cell" style={{ display: 'contents' }}>
       <button
-        key={c.key}
         type="button"
         disabled={!probs}
         onClick={() => handleOddsClick(f.id)}
-        aria-label={`${f.home} vs ${f.away} — ${c.label}${probs ? ` ${formatPct(probs[c.key])}` : ''}`}
+        aria-label={`${f.home} vs ${f.away} — ${c.label}${probs ? ` ${formatPct(probs[c.key])}` : ''}${fav === c.key ? ` · ${t('favorite')}` : ''}`}
+        title={probs ? undefined : t('oddsMissing')}
         className={`odds-cell${fav === c.key ? ' odds-cell-fav' : ''}`}
       >
         {probs ? formatPct(probs[c.key]) : '—'}
       </button>
+      </span>
     ))
   }
 
   const renderGridHeader = () => (
     <div role="row" className="fixtures-header">
-      <span>{t('fixtures')}</span>
-      <span><span role="img" aria-label={t('home')}>1</span></span>
-      <span><span role="img" aria-label={t('draw')}>X</span></span>
-      <span><span role="img" aria-label={t('away')}>2</span></span>
+      <span role="columnheader">{t('fixtures')}</span>
+      <span role="columnheader">
+        <span aria-hidden="true">1</span>
+        <span className="sr-only">{t('home')}</span>
+      </span>
+      <span role="columnheader">
+        <span aria-hidden="true">X</span>
+        <span className="sr-only">{t('draw')}</span>
+      </span>
+      <span role="columnheader">
+        <span aria-hidden="true">2</span>
+        <span className="sr-only">{t('away')}</span>
+      </span>
     </div>
   )
 
@@ -257,6 +268,7 @@ function App() {
     const isActive = selectedFixture === f.id
     return (
       <div key={f.id} role="row" data-active={isActive} className="fixture-row-grid">
+        <span role="cell" style={{ display: 'contents' }}>
         <button
           type="button"
           onClick={() => handleFixtureChange(isActive ? null : f.id)}
@@ -283,6 +295,7 @@ function App() {
             )}
           </span>
         </button>
+        </span>
         {renderOddsCells(f)}
       </div>
     )
@@ -290,6 +303,7 @@ function App() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <a href="#main-content" className="skip-link">{t('skipToContent')}</a>
       <header
         style={{
           display: 'flex',
@@ -348,10 +362,10 @@ function App() {
       )}
 
       {!error && (
-        <main className="app-grid">
+        <main id="main-content" className="app-grid">
           <div>
             <h2 style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '1.1rem' }}>{t('fixtures')}</h2>
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div role="search" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
               <input
                 type="search"
                 value={searchQuery}
@@ -397,9 +411,23 @@ function App() {
           </div>
 
           <div>
-            <div role="group" aria-label={t('prediction')} style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)', marginBottom: '1rem' }}>
+            <div
+              role="tablist"
+              aria-label={t('prediction')}
+              onKeyDown={e => {
+                if (!hasPrediction) return
+                if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
+                e.preventDefault()
+                setActiveTab(prev => (prev === 'match' ? 'scorer' : 'match'))
+              }}
+              style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)', marginBottom: '1rem' }}
+            >
               <button
-                aria-pressed={activeTab === 'match'}
+                role="tab"
+                id="tab-match"
+                aria-selected={activeTab === 'match'}
+                aria-controls="panel-match"
+                aria-describedby={hasPrediction ? undefined : 'view-tabs-hint'}
                 disabled={!hasPrediction}
                 className={activeTab === 'match' ? 'tab-active' : ''}
                 style={{
@@ -419,7 +447,11 @@ function App() {
                 {t('match')}
               </button>
               <button
-                aria-pressed={activeTab === 'scorer'}
+                role="tab"
+                id="tab-scorer"
+                aria-selected={activeTab === 'scorer'}
+                aria-controls="panel-scorer"
+                aria-describedby={hasPrediction ? undefined : 'view-tabs-hint'}
                 disabled={!hasPrediction}
                 className={activeTab === 'scorer' ? 'tab-active' : ''}
                 style={{
@@ -439,8 +471,9 @@ function App() {
                 {t('goalscorer')}
               </button>
             </div>
+            <span id="view-tabs-hint" className="sr-only">{t('tabsHintDisabled')}</span>
             {hasPrediction ? (
-              <div className="animate-fade-in">
+              <div className="animate-fade-in" role="tabpanel" id={activeTab === 'match' ? 'panel-match' : 'panel-scorer'} aria-labelledby={activeTab === 'match' ? 'tab-match' : 'tab-scorer'}>
                 {activeTab === 'match' ? (
                   <PredictionPanel
                     prediction={prediction}

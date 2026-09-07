@@ -93,7 +93,7 @@ export default function ValueChecker({
       <h3 style={{ margin: '0 0 0.25rem 0', color: 'var(--text)', fontSize: '1rem' }}>
         {t('valueTitle')}
       </h3>
-      <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+      <p id="value-hint" style={{ margin: '0 0 0.75rem 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
         {t('valueHint')}
       </p>
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
@@ -113,7 +113,7 @@ export default function ValueChecker({
             />
           </label>
         ))}
-        <button type="button" onClick={() => void check()} disabled={!ready || pending}>
+        <button type="button" onClick={() => void check()} disabled={!ready || pending} aria-describedby="value-hint">
           {t('valueCheck')}
         </button>
       </div>
