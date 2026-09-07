@@ -105,10 +105,18 @@ describe('App', () => {
   it('keeps view tabs disabled until a fixture with prediction loads', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    const matchTab = screen.getByRole('button', { name: 'Match' }) as HTMLButtonElement
-    const scorerTab = screen.getByRole('button', { name: 'Goalscorer' }) as HTMLButtonElement
+    const matchTab = screen.getByRole('tab', { name: 'Match' }) as HTMLButtonElement
+    const scorerTab = screen.getByRole('tab', { name: 'Goalscorer' }) as HTMLButtonElement
     expect(matchTab.disabled).toBe(true)
     expect(scorerTab.disabled).toBe(true)
+    expect(matchTab.getAttribute('aria-describedby')).toBe('view-tabs-hint')
+  })
+
+  it('exposes tabs with tablist semantics and skip link', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    expect(screen.getByRole('tablist', { name: 'Prediction' })).toBeDefined()
+    expect(screen.getByRole('link', { name: 'Skip to main content' })).toBeDefined()
   })
 
   it('shows server form and head-to-head in Match Center', async () => {

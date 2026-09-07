@@ -1,6 +1,6 @@
 import { ResponsiveContainer, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from 'recharts'
 import type { CalibrationBin } from '../types'
-import { useLanguage } from '../i18n'
+import { useLanguage, fillVars } from '../i18n'
 
 interface CalibrationChartProps {
   data: CalibrationBin[]
@@ -19,9 +19,11 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
     y: d.actual_accuracy * 100,
     count: d.count,
   }))
+  const summary = `${t('predictedPct')} / ${t('actualPct')}: ${fillVars(t('chartBins'), { n: chartData.length })}`
 
   return (
     <div className="card-flat" style={{ padding: '0.75rem', height: '280px' }}>
+      <div role="img" aria-label={summary} style={{ height: '100%' }}>
       <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#2a3350" />
@@ -61,6 +63,26 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
           <Scatter data={chartData} fill="var(--accent)" />
         </ScatterChart>
       </ResponsiveContainer>
+      </div>
+      <table className="sr-only">
+        <caption>{summary}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{t('predictedPct')}</th>
+            <th scope="col">{t('actualPct')}</th>
+            <th scope="col">{t('total')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {chartData.map((row, i) => (
+            <tr key={i}>
+              <td>{row.x.toFixed(1)}%</td>
+              <td>{row.y.toFixed(1)}%</td>
+              <td>{row.count}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
