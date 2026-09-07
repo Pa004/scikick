@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from fastapi import APIRouter, HTTPException
 
 from app.db.connection import get_connection
 
 router = APIRouter()
+
+ComboType = Literal["ht-ft", "both-halves"]
 
 
 @router.get("/predict/{fixture_id}/first-half")
@@ -64,7 +68,7 @@ def predict_half_time_full_time(fixture_id: int):
 
 
 @router.get("/predict/{fixture_id}/combo/{tipo}")
-def predict_combo(fixture_id: int, tipo: str):
+def predict_combo(fixture_id: int, tipo: ComboType):
     conn = get_connection()
     row = conn.execute(
         "SELECT id, prediction FROM fixtures WHERE id = ?", (fixture_id,)

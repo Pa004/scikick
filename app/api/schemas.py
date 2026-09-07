@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class PredictRequest(BaseModel):
-    fixture_id: int
+    fixture_id: int = Field(gt=0)
 
 
 class MarketProb(BaseModel):
