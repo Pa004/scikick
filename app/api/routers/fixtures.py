@@ -48,6 +48,7 @@ def list_fixtures(
                 "date": row["match_date"],
                 "home": row["home_name"],
                 "away": row["away_name"],
+                "league": row["league"],
                 "status": row["status"],
                 "home_score": row["home_score"],
                 "away_score": row["away_score"],

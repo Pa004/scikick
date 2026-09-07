@@ -145,6 +145,7 @@ def test_list_fixtures(tmp_path: Path):
     data = resp.json()
     assert data["count"] == 1
     assert data["fixtures"][0]["home"] == "Arsenal"
+    assert data["fixtures"][0]["league"] == "E0"
 
 
 def test_list_fixtures_upcoming_first(tmp_path: Path):
