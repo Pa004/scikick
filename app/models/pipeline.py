@@ -329,6 +329,7 @@ def train_league(
         "n_folds": len(fold_metrics),
         "n_samples": int(len(all_tgts)),
         "blend_weight_dc": round(optimal_w, 3),
+        "model_agreement": round(mean_model_agreement, 4),
         "overall_metrics": overall,
         "calibrated_metrics": cal_metrics,
         "fold_metrics": fold_metrics,

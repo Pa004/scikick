@@ -107,9 +107,16 @@ def _get_prediction(fixture_id: int) -> PredictResponse:
             raise HTTPException(status_code=404, detail="Fixture not found")
 
         if not row["prediction"]:
+            from app.models.predict import _load_latest_run
+
+            if not _load_latest_run(row["league"]):
+                raise HTTPException(
+                    status_code=404,
+                    detail="Model not trained for this league yet",
+                )
             raise HTTPException(
                 status_code=404,
-                detail="No prediction available for this fixture yet",
+                detail="Prediction not computed for this fixture yet",
             )
 
         pred = json.loads(row["prediction"])

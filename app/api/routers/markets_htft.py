@@ -16,11 +16,14 @@ def predict_first_half(fixture_id: int):
     conn.close()
 
     if not row:
-        raise HTTPException(404, "Fixture not found")
+        raise HTTPException(status_code=404, detail="Fixture not found")
 
     prediction = row["prediction"]
     if not prediction:
-        raise HTTPException(404, "No prediction yet")
+        raise HTTPException(
+            status_code=404,
+            detail="No prediction available for this fixture yet",
+        )
 
     import json
     pred = json.loads(prediction) if isinstance(prediction, str) else prediction
@@ -30,7 +33,9 @@ def predict_first_half(fixture_id: int):
     ht_markets = {k: markets[k] for k in ht_keys if k in markets}
 
     if not ht_markets:
-        raise HTTPException(404, "No first-half markets available")
+        raise HTTPException(
+            status_code=404, detail="No first-half markets available for this fixture"
+        )
 
     return {"fixture_id": fixture_id, "half": "first", "markets": ht_markets}
 
@@ -44,11 +49,14 @@ def predict_half_time_full_time(fixture_id: int):
     conn.close()
 
     if not row:
-        raise HTTPException(404, "Fixture not found")
+        raise HTTPException(status_code=404, detail="Fixture not found")
 
     prediction = row["prediction"]
     if not prediction:
-        raise HTTPException(404, "No prediction yet")
+        raise HTTPException(
+            status_code=404,
+            detail="No prediction available for this fixture yet",
+        )
 
     import json
     pred = json.loads(prediction) if isinstance(prediction, str) else prediction
@@ -58,7 +66,10 @@ def predict_half_time_full_time(fixture_id: int):
     htft_markets = {k: markets[k] for k in htft_keys}
 
     if not htft_markets:
-        raise HTTPException(404, "No half-time/full-time markets available")
+        raise HTTPException(
+            status_code=404,
+            detail="No half-time/full-time markets available for this fixture",
+        )
 
     return {"fixture_id": fixture_id, "type": "ht-ft", "markets": htft_markets}
 
@@ -72,11 +83,14 @@ def predict_combo(fixture_id: int, tipo: str):
     conn.close()
 
     if not row:
-        raise HTTPException(404, "Fixture not found")
+        raise HTTPException(status_code=404, detail="Fixture not found")
 
     prediction = row["prediction"]
     if not prediction:
-        raise HTTPException(404, "No prediction yet")
+        raise HTTPException(
+            status_code=404,
+            detail="No prediction available for this fixture yet",
+        )
 
     import json
     pred = json.loads(prediction) if isinstance(prediction, str) else prediction
@@ -89,4 +103,7 @@ def predict_combo(fixture_id: int, tipo: str):
         bh = markets.get("both_halves", {})
         return {"fixture_id": fixture_id, "type": "both-halves", "markets": bh}
     else:
-        raise HTTPException(400, f"Unknown combo type: {tipo}")
+        raise HTTPException(
+            status_code=400,
+            detail="Unknown combo type. Valid: ht-ft, both-halves",
+        )

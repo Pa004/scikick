@@ -30,7 +30,10 @@ def compute_value(req: ValueRequest):
             )
         probs = json.loads(row["prediction"]).get("markets", {}).get("1x2")
         if not probs:
-            raise HTTPException(status_code=404, detail="No 1x2 probabilities stored")
+            raise HTTPException(
+                status_code=404,
+                detail="This fixture has no result probabilities saved",
+            )
 
         if req.odds is not None:
             given = {"home": req.odds.home, "draw": req.odds.draw, "away": req.odds.away}
@@ -41,8 +44,16 @@ def compute_value(req: ValueRequest):
                 (req.fixture_id,),
             ).fetchone()
             if not stored:
+                from app.config import get_settings
+
+                if not get_settings().odds_api_key:
+                    raise HTTPException(
+                        status_code=404,
+                        detail="Automatic odds not configured for this fixture yet",
+                    )
                 raise HTTPException(
-                    status_code=404, detail="No stored odds for this fixture yet"
+                    status_code=404,
+                    detail="No bookmaker odds matched for this fixture yet",
                 )
             given = {"home": stored["home"], "draw": stored["draw"], "away": stored["away"]}
     finally:

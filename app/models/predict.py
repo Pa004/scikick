@@ -127,6 +127,7 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
         rho=dc_params_data["rho"],
     )
     w = run_data.get("blend_weight_dc", 0.5)
+    agreement = run_data.get("model_agreement", 0.0)
 
     corners_params = _load_count_params(run_data, "corners_params")
     cards_params = _load_count_params(run_data, "cards_params")
@@ -169,7 +170,7 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
             "markets": markets,
             "probabilities": {"home": dc_probs["home"], "draw": dc_probs["draw"], "away": dc_probs["away"]},
             "model_version": f"ensemble_v1_{league}",
-            "model_agreement": 0.0,
+            "model_agreement": agreement,
             "blend_weight": round(w, 3),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
