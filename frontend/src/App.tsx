@@ -389,13 +389,13 @@ function App() {
               )}
             </div>
             {loading ? (
-              <div role="status" aria-label={t('loading')}>
+              <div role="status" aria-label={t('loading')} aria-busy="true">
                 {[0, 1, 2, 3, 4].map(i => (
                   <div key={i} className="skeleton skeleton-row" />
                 ))}
               </div>
             ) : visibleFixtures.length === 0 ? (
-              <p style={{ color: 'var(--text-muted)' }}>
+              <p aria-live="polite" style={{ color: 'var(--text-muted)' }}>
                 {searchQuery.trim() ? t('noSearchResults') : t('noFixtures')}
               </p>
             ) : showFeatured ? (

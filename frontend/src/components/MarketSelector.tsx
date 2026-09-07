@@ -70,7 +70,7 @@ export default function MarketSelector({ selected, onChange, availableMarkets, a
             >
               <span>{t(marketCategoryLabel(category))}</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span className="badge badge-accent" style={{ fontSize: '0.7rem' }}>{visible.length}</span>
+                <span aria-hidden="true" className="badge badge-accent" style={{ fontSize: '0.7rem' }}>{visible.length}</span>
                 <span aria-hidden="true" className="market-group-chevron">▾</span>
               </span>
             </button>

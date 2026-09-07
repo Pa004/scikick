@@ -152,7 +152,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
                         <button
                           type="button"
                           onClick={() => handleSort(col.key)}
-                          aria-label={`${t('sortBy')} ${t(col.labelKey)}`}
+                          aria-label={`${t('sortBy')} ${t(col.labelKey)}${sortKey === col.key ? `, ${sortDir === 'asc' ? t('sortAsc') : t('sortDesc')}` : ''}`}
                           className="th-sortable"
                         >
                           {t(col.labelKey)}
@@ -170,7 +170,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
               </table>
             </div>
           )}
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.5rem 0' }}>
+          <p aria-live="polite" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.5rem 0' }}>
             {fillVars(t('showingOf'), { shown: visible.length, total: rows.length })}
           </p>
           {rows.length > VISIBLE_COUNT && (
