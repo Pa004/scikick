@@ -44,7 +44,11 @@ def _load_latest_run(league: str) -> dict | None:
     run_dir = Path(RUNS_DIR) / league
     if not run_dir.exists():
         return None
-    run_files = sorted(run_dir.glob("pipeline_*.json"), reverse=True)
+    run_files = sorted(
+        run_dir.glob("pipeline_*.json"),
+        key=lambda p: (p.stat().st_mtime, p.name),
+        reverse=True,
+    )
     if not run_files:
         return None
     return json.loads(run_files[0].read_text(encoding="utf-8"))

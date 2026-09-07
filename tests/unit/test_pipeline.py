@@ -65,7 +65,7 @@ def test_build_team_id_map():
 
 def test_train_league_produces_results(tmp_path: Path):
     conn = _setup_db(tmp_path, n_matchdays=25)
-    result = train_league(conn, "E0", mode="light", min_train_matches=50)
+    result = train_league(conn, "E0", mode="light", min_train_matches=50, persist_run=False)
     assert "error" not in result, result.get("error")
     assert result["n_folds"] > 0
     assert result["n_samples"] > 0
@@ -91,7 +91,10 @@ def test_calibrate_reduces_brier(tmp_path: Path):
     assert cal_brier <= raw + 0.05
 
 
-def test_train_league_saves_run_file(tmp_path: Path):
+def test_train_league_saves_run_file(tmp_path: Path, monkeypatch):
+    import app.models.pipeline as pipeline_module
+
+    monkeypatch.setattr(pipeline_module, "RUNS_DIR", str(tmp_path / "runs"))
     conn = _setup_db(tmp_path, n_matchdays=25)
     result = train_league(conn, "E0", mode="light", min_train_matches=50)
     assert "run_id" in result

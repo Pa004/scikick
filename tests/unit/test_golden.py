@@ -105,7 +105,7 @@ def test_golden_predictions_regression(tmp_path: Path):
     TOLERANCE = 0.05
 
     conn = _setup_golden_db(tmp_path)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     assert abs(result["overall_brier"] - golden["overall_brier"]) < TOLERANCE, (

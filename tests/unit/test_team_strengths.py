@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 from pathlib import Path
 
@@ -149,7 +150,13 @@ def _setup_mini_db(tmp_path: Path) -> sqlite3.Connection:
     return conn
 
 
-def test_predict_future_differs_per_fixture(tmp_path: Path):
+def test_predict_future_differs_per_fixture(tmp_path: Path, monkeypatch):
+    import app.models.pipeline as pipeline_module
+    from app.models import predict as predict_module
+
+    runs_dir = str(tmp_path / "runs")
+    monkeypatch.setattr(pipeline_module, "RUNS_DIR", runs_dir)
+    monkeypatch.setattr(predict_module, "RUNS_DIR", runs_dir)
     conn = _setup_mini_db(tmp_path)
     try:
         result = train_league(conn, "E0", mode="light", min_train_matches=80)
@@ -164,3 +171,20 @@ def test_predict_future_differs_per_fixture(tmp_path: Path):
         assert (p1["home"], p1["draw"], p1["away"]) != (p2["home"], p2["draw"], p2["away"])
     finally:
         conn.close()
+
+
+def test_load_latest_run_prefers_newest_mtime(tmp_path: Path, monkeypatch):
+    import time
+
+    from app.models import predict as predict_module
+
+    run_dir = tmp_path / "E0"
+    run_dir.mkdir()
+    old = run_dir / "pipeline_light_20260903_171748.json"
+    old.write_text(json.dumps({"mode": "light"}), encoding="utf-8")
+    new = run_dir / "pipeline_complete_20260907_031601.json"
+    new.write_text(json.dumps({"mode": "complete"}), encoding="utf-8")
+    old_time = time.time() - 100
+    os.utime(old, (old_time, old_time))
+    monkeypatch.setattr(predict_module, "RUNS_DIR", tmp_path)
+    assert predict_module._load_latest_run("E0")["mode"] == "complete"

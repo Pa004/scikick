@@ -196,6 +196,7 @@ def train_league(
     mode: str = "complete",
     min_train_matches: int = 380,
     n_holdout_folds: int = 5,
+    persist_run: bool = True,
 ) -> dict:
     features_df = build_features(conn, league)
     if features_df.empty:
@@ -378,17 +379,20 @@ def train_league(
     }
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    run_dir = Path(RUNS_DIR) / league
-    run_dir.mkdir(parents=True, exist_ok=True)
-    run_file = run_dir / f"pipeline_{mode}_{ts}.json"
-    run_file.write_text(json.dumps(run_data, indent=2, default=str), encoding="utf-8")
+    run_id = None
+    if persist_run:
+        run_dir = Path(RUNS_DIR) / league
+        run_dir.mkdir(parents=True, exist_ok=True)
+        run_file = run_dir / f"pipeline_{mode}_{ts}.json"
+        run_file.write_text(json.dumps(run_data, indent=2, default=str), encoding="utf-8")
 
-    ensemble_file = run_dir / f"ensemble_{ts}.joblib"
-    joblib.dump(final_lgbm_ensemble.models, ensemble_file)
+        ensemble_file = run_dir / f"ensemble_{ts}.joblib"
+        joblib.dump(final_lgbm_ensemble.models, ensemble_file)
+        run_id = str(run_file)
 
     return {
         "league": league,
-        "run_id": str(run_file),
+        "run_id": run_id,
         "n_folds": len(fold_metrics),
         "n_samples": int(len(all_tgts)),
         "overall_brier": overall["brier"],
