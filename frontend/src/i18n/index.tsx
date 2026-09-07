@@ -118,6 +118,13 @@ const DICTIONARIES = {
     frequencyInTen: '{n} in 10',
     analyst: 'Analyst',
     analystMode: 'Analyst mode: show technical details',
+    valueTitle: 'Value check',
+    valueHint: 'Paste your bookmaker odds to compare against the model.',
+    valueCheck: 'Check value',
+    valueEdge: 'Edge',
+    valueKelly: 'Kelly ¼',
+    valueIsValue: '+EV',
+    valueNoValue: 'No value',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -232,6 +239,13 @@ const DICTIONARIES = {
     frequencyInTen: '{n} de cada 10',
     analyst: 'Analista',
     analystMode: 'Modo analista: muestra detalles técnicos',
+    valueTitle: 'Chequeo de valor',
+    valueHint: 'Pega las cuotas de tu casa de apuestas para comparar con el modelo.',
+    valueCheck: 'Calcular valor',
+    valueEdge: 'Ventaja',
+    valueKelly: 'Kelly ¼',
+    valueIsValue: '+EV',
+    valueNoValue: 'Sin valor',
   },
 } as const
 

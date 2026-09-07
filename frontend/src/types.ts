@@ -19,6 +19,19 @@ export interface Prediction {
   top_features: { feature: string; value: number; shap_importance: number }[] | null
 }
 
+export interface ValueOutcome {
+  prob: number
+  odds: number
+  edge: number
+  value: boolean
+  kelly: number
+}
+
+export interface ValueResponse {
+  fixture_id: number
+  outcomes: Record<string, ValueOutcome>
+}
+
 export interface ConfidenceBand {
   band: string
   total: number
