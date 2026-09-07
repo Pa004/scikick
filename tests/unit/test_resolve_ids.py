@@ -58,6 +58,7 @@ def test_normalize_api_name_unmapped_passthrough(caplog):
 
 def test_resolve_sets_api_id(tmp_path, monkeypatch):
     monkeypatch.setenv("API_FOOTBALL_KEY", "test-key")
+    monkeypatch.setenv("LINEUPS_ENABLED", "true")
     tomorrow = (date.today() + timedelta(days=1)).isoformat()
     conn = _setup_db(tmp_path, tomorrow)
     monkeypatch.setattr(
@@ -74,6 +75,7 @@ def test_resolve_sets_api_id(tmp_path, monkeypatch):
 
 def test_resolve_skips_outside_window(tmp_path, monkeypatch):
     monkeypatch.setenv("API_FOOTBALL_KEY", "test-key")
+    monkeypatch.setenv("LINEUPS_ENABLED", "true")
     far = (date.today() + timedelta(days=30)).isoformat()
     conn = _setup_db(tmp_path, far)
     called = []
@@ -95,6 +97,19 @@ def test_resolve_no_key(tmp_path, monkeypatch):
     try:
         result = lineups_module.resolve_api_ids_for_upcoming(conn, "E0")
         assert result["skipped"] == "no_api_key"
+    finally:
+        conn.close()
+
+
+def test_resolve_disabled_flag(tmp_path, monkeypatch):
+    monkeypatch.setenv("API_FOOTBALL_KEY", "test-key")
+    monkeypatch.setenv("LINEUPS_ENABLED", "false")
+    from app.config import get_settings
+    get_settings.cache_clear()
+    conn = _setup_db(tmp_path, date.today().isoformat())
+    try:
+        result = lineups_module.resolve_api_ids_for_upcoming(conn, "E0")
+        assert result["skipped"] == "disabled"
     finally:
         conn.close()
 
