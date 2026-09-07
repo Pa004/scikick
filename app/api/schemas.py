@@ -60,3 +60,27 @@ class ScorerPrediction(BaseModel):
     fixture_id: int
     data_quality: str
     scorers: list[ScorerPlayer]
+
+
+class ValueOdds(BaseModel):
+    home: float
+    draw: float
+    away: float
+
+
+class ValueRequest(BaseModel):
+    fixture_id: int
+    odds: ValueOdds
+
+
+class ValueOutcome(BaseModel):
+    prob: float
+    odds: float
+    edge: float
+    value: bool
+    kelly: float
+
+
+class ValueResponse(BaseModel):
+    fixture_id: int
+    outcomes: dict[str, ValueOutcome]

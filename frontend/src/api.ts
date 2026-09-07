@@ -1,4 +1,4 @@
-import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction } from './types'
+import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction, ValueResponse } from './types'
 
 const API_BASE = 'http://localhost:8000/api'
 
@@ -39,4 +39,17 @@ export async function fetchCalibration(market = '1x2', league?: string): Promise
 
 export async function fetchScorer(id: number): Promise<ScorerPrediction> {
   return fetchJson<ScorerPrediction>(`${API_BASE}/predict/scorer/${id}`)
+}
+
+export async function fetchValue(
+  id: number,
+  odds: { home: number; draw: number; away: number },
+): Promise<ValueResponse> {
+  const res = await fetch(`${API_BASE}/value`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fixture_id: id, odds }),
+  })
+  if (!res.ok) throw new Error(`API error: ${res.status}`)
+  return res.json()
 }

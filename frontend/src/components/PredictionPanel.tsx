@@ -14,6 +14,7 @@ import {
 import MarketRenderer from './MarketRenderer'
 import MarketSelector from './MarketSelector'
 import DisplayModeToggle from './DisplayModeToggle'
+import ValueChecker from './ValueChecker'
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 
@@ -202,6 +203,7 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
 
       <MatchCenter home={home} away={away} fixtures={fixtures} />
       <SuperCombo probabilities={prediction.probabilities} mode={mode} analyst={analyst} />
+      <ValueChecker fixtureId={prediction.fixture_id} home={home} away={away} />
 
       {analyst && prediction.top_features && prediction.top_features.length > 0 && (
         <div className="card-flat" style={{ padding: '1rem' }}>
