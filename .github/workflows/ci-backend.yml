@@ -1,0 +1,35 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "app/**"
+      - "tests/**"
+      - "requirements.txt"
+      - ".github/workflows/ci-backend.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "app/**"
+      - "tests/**"
+      - "requirements.txt"
+      - ".github/workflows/ci-backend.yml"
+
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv pip install --system -r requirements.txt
+      - run: python -m pytest -m "not slow" -q --tb=short -o addopts=""
