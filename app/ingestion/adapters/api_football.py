@@ -6,6 +6,7 @@ import httpx
 
 from app.config import get_settings
 from app.ingestion.adapters.football_data_org import TEAM_NAMES
+from app.ingestion.aliases import canonicalize
 from app.ingestion.seasons import current_season_start
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ API_NAME_OVERRIDES = {
     "E0": {
         "Bournemouth": "Bournemouth",
         "Sunderland": "Sunderland",
+        "Brighton and Hove Albion": "Brighton",
     },
     "SP1": {
         "Atletico Madrid": "Ath Madrid",
@@ -35,6 +37,13 @@ API_NAME_OVERRIDES = {
         "Deportivo Alaves": "Alaves",
         "Celta Vigo": "Celta",
         "Rayo Vallecano": "Vallecano",
+        "Alavés": "Alaves",
+        "CA Osasuna": "Osasuna",
+        "Athletic Bilbao": "Ath Bilbao",
+        "Levante": "Levante UD",
+        "Deportivo La Coruña": "RC Deportivo La Coruña",
+        "Atlético Madrid": "Ath Madrid",
+        "Espanyol": "Espanol",
     },
     "D1": {
         "Borussia Dortmund": "Dortmund",
@@ -42,12 +51,23 @@ API_NAME_OVERRIDES = {
         "Eintracht Frankfurt": "Ein Frankfurt",
         "TSG Hoffenheim": "Hoffenheim",
         "FC St. Pauli": "St Pauli",
+        "FC Schalke 04": "Schalke 04",
+        "Bayer Leverkusen": "Leverkusen",
+        "SC Paderborn": "SC Paderborn 07",
+        "SC Freiburg": "Freiburg",
+        "FSV Mainz 05": "Mainz",
+        "VfB Stuttgart": "Stuttgart",
+        "Elversberg": "SV 07 Elversberg",
     },
     "I1": {
         "AC Milan": "Milan",
         "AS Roma": "Roma",
         "SS Lazio": "Lazio",
         "Hellas Verona": "Verona",
+        "Frosinone": "Frosinone Calcio",
+        "Atalanta BC": "Atalanta",
+        "Sassuolo": "US Sassuolo Calcio",
+        "Inter Milan": "Inter",
     },
     "F1": {
         "Paris Saint Germain": "PSG",
@@ -55,20 +75,28 @@ API_NAME_OVERRIDES = {
         "AS Monaco": "Monaco",
         "Olympique Lyonnais": "Lyon",
         "Saint Etienne": "St Etienne",
+        "Troyes": "ES Troyes AC",
+        "RC Lens": "Racing Club de Lens",
     },
 }
 
 
 def normalize_api_name(name: str, league_code: str) -> str:
+    name = canonicalize(name)
     table = TEAM_NAMES.get(league_code, {})
-    if name in table.values():
-        return name
     override = API_NAME_OVERRIDES.get(league_code, {}).get(name)
     if override:
         return override
+    if name in table.values():
+        return name
     suffixed = f"{name} FC"
     if suffixed in table:
         return table[suffixed]
+    stripped = name.removesuffix(" FC").removesuffix(" CF")
+    if stripped in table.values():
+        return stripped
+    if stripped != name:
+        return stripped
     logger.warning("Unmapped API-Football name '%s' for league %s", name, league_code)
     return name
 

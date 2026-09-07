@@ -12,7 +12,7 @@ from app.ingestion.adapters.understat import (
     fetch_match_player_xg,
 )
 from app.ingestion.adapters.football_data_org import TEAM_NAMES
-from app.ingestion.aliases import find_best_match
+from app.ingestion.aliases import canonicalize, find_best_match
 from app.players.model import effective_min_minutes
 from app.db.connection import get_connection
 
@@ -44,6 +44,7 @@ UNDERSTAT_OVERRIDES = {
 def normalize_understat_team(
     title: str, league: str, canonical_names: list[str]
 ) -> str | None:
+    title = canonicalize(title)
     if "," in title:
         return None
     if title in canonical_names:

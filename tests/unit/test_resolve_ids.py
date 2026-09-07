@@ -46,8 +46,19 @@ def test_normalize_api_name():
     assert normalize_api_name("Arsenal", "E0") == "Arsenal"
     assert normalize_api_name("Manchester City", "E0") == "Man City"
     assert normalize_api_name("Tottenham Hotspur", "E0") == "Spurs"
+    assert normalize_api_name("Brighton and Hove Albion", "E0") == "Brighton"
     assert normalize_api_name("Atletico Madrid", "SP1") == "Ath Madrid"
+    assert normalize_api_name("Atlético Madrid", "SP1") == "Ath Madrid"
+    assert normalize_api_name("Elche CF", "SP1") == "Elche"
+    assert normalize_api_name("Espanyol", "SP1") == "Espanol"
     assert normalize_api_name("Paris Saint Germain", "F1") == "PSG"
+    assert normalize_api_name("Paris FC", "F1") == "Paris"
+    assert normalize_api_name("RC Lens", "F1") == "Racing Club de Lens"
+    assert normalize_api_name("Inter Milan", "I1") == "Inter"
+    assert normalize_api_name("Atalanta BC", "I1") == "Atalanta"
+    assert normalize_api_name("Bayer Leverkusen", "D1") == "Leverkusen"
+    assert normalize_api_name("FSV Mainz 05", "D1") == "Mainz"
+    assert normalize_api_name("Alave\u0301s", "SP1") == "Alaves"
 
 
 def test_normalize_api_name_unmapped_passthrough(caplog):

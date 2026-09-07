@@ -1,6 +1,12 @@
 from __future__ import annotations
 
+import unicodedata
+
 from rapidfuzz import fuzz, process
+
+
+def canonicalize(name: str) -> str:
+    return unicodedata.normalize("NFC", name.strip())
 
 
 def find_best_match(
