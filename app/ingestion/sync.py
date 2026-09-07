@@ -15,6 +15,7 @@ from app.ingestion.adapters.football_data import (
     map_results,
 )
 from app.ingestion.adapters.api_football import fetch_fixtures as fetch_future_fixtures
+from app.ingestion.seasons import current_season_start
 from app.ingestion.validation import validate_all
 
 
@@ -65,7 +66,8 @@ def sync_league(
 ) -> dict:
     run_migrations(db_path)
 
-    csv_path = download_csv(league_code, start_year, raw_dir)
+    is_current_season = start_year == current_season_start()
+    csv_path = download_csv(league_code, start_year, raw_dir, force=is_current_season)
     df = load_csv(csv_path)
     df = parse_dates_utc(df)
     df = map_results(df)
@@ -183,6 +185,9 @@ def sync_all_leagues(
     from datetime import datetime
     current_year = datetime.now().year
     years = [current_year - 2 - i for i in range(n_seasons)]
+    season_start = current_season_start()
+    if season_start not in years:
+        years.append(season_start)
 
     results = []
     for code in league_codes:

@@ -35,13 +35,18 @@ def season_code(start_year: int) -> str:
     return f"{start_year % 100:02d}{(start_year + 1) % 100:02d}"
 
 
-def download_csv(league_code: str, start_year: int, dest_dir: str | Path) -> Path:
+def download_csv(
+    league_code: str,
+    start_year: int,
+    dest_dir: str | Path,
+    force: bool = False,
+) -> Path:
     sc = season_code(start_year)
     url = build_url(league_code, sc)
     dest = Path(dest_dir) / f"{league_code}_{sc}.csv"
     dest.parent.mkdir(parents=True, exist_ok=True)
 
-    if dest.exists() and dest.stat().st_size > 100:
+    if not force and dest.exists() and dest.stat().st_size > 100:
         return dest
 
     import subprocess

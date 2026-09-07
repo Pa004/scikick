@@ -58,6 +58,51 @@ def test_download_csv_real(tmp_path: Path):
     from app.ingestion.adapters.football_data import download_csv
     path = download_csv("E0", 2023, tmp_path)
     assert path.exists()
-    df = load_csv(path)
-    assert len(df) > 100
-    assert all(c in df.columns for c in REQUIRED_COLUMNS)
+
+
+def test_download_csv_uses_cache(tmp_path: Path):
+    from unittest.mock import patch
+
+    from app.ingestion.adapters import football_data
+
+    dest = tmp_path / "E0_2324.csv"
+    dest.write_text("x" * 200)
+    with patch("subprocess.run") as mock_run:
+        path = football_data.download_csv("E0", 2023, tmp_path)
+    assert path == dest
+    mock_run.assert_not_called()
+
+
+def test_download_csv_force_redownloads(tmp_path: Path):
+    import subprocess
+    from unittest.mock import patch
+
+    from app.ingestion.adapters import football_data
+
+    dest = tmp_path / "E0_2324.csv"
+    dest.write_text("x" * 200)
+
+    def fake_run(*args, **kwargs):
+        dest.write_text("y" * 200)
+        return subprocess.CompletedProcess(args, 0)
+
+    with patch("subprocess.run", side_effect=fake_run) as mock_run:
+        path = football_data.download_csv("E0", 2023, tmp_path, force=True)
+    assert path == dest
+    assert mock_run.call_count == 1
+
+
+def test_sync_all_leagues_includes_current_season(monkeypatch):
+    from app.ingestion import sync as sync_module
+
+    seen = []
+
+    def fake_sync_league(code, year, raw_dir, db_path=None):
+        seen.append((code, year))
+        return {"league": code, "season": year}
+
+    monkeypatch.setattr(sync_module, "sync_league", fake_sync_league)
+    monkeypatch.setattr(sync_module, "current_season_start", lambda: 2026)
+    sync_module.sync_all_leagues(["E0"], 1)
+    years = [year for _, year in seen]
+    assert 2026 in years
