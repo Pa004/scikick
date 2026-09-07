@@ -117,9 +117,15 @@ def test_resolve_multi_market(tmp_path: Path):
     conn.close()
 
 
-def test_predict_future_pre_fixtures(tmp_path: Path):
+def test_predict_future_pre_fixtures(tmp_path: Path, monkeypatch):
+    import app.models.pipeline as pipeline_module
+    from app.models import predict as predict_module
+
+    runs_dir = str(tmp_path / "runs")
+    monkeypatch.setattr(pipeline_module, "RUNS_DIR", runs_dir)
+    monkeypatch.setattr(predict_module, "RUNS_DIR", runs_dir)
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80)
     assert "error" not in result, result.get("error")
 
     conn.execute(
