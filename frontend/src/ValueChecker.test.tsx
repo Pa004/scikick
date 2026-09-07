@@ -73,4 +73,28 @@ describe('ValueChecker', () => {
     fireEvent.change(inputs[0], { target: { value: '2.10' } })
     expect(button.disabled).toBe(true)
   })
+
+  it('resets typed odds when the fixture changes', async () => {
+    const fetchMock = vi.mocked(fetch)
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockValue),
+    } as Response)
+    const { rerender } = render(
+      <LanguageProvider>
+        <ValueChecker fixtureId={7} home="Arsenal" away="Chelsea" />
+      </LanguageProvider>,
+    )
+    const inputs = screen.getAllByRole('spinbutton')
+    fireEvent.change(inputs[0], { target: { value: '2.10' } })
+    expect((inputs[0] as HTMLInputElement).value).toBe('2.10')
+    rerender(
+      <LanguageProvider>
+        <ValueChecker fixtureId={8} home="Liverpool" away="Fulham" />
+      </LanguageProvider>,
+    )
+    await waitFor(() => {
+      expect((screen.getAllByRole('spinbutton')[0] as HTMLInputElement).value).toBe('')
+    })
+  })
 })

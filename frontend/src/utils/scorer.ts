@@ -24,13 +24,14 @@ export function filterScorers(scorers: ScorerPlayer[], team: TeamFilter, query: 
 
 export function sortScorers(scorers: ScorerPlayer[], key: ScorerSortKey, dir: SortDir): ScorerPlayer[] {
   const sign = dir === 'asc' ? 1 : -1
+  const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : -Infinity)
   return [...scorers].sort((a, b) => {
     const av = a[key]
     const bv = b[key]
     const cmp = typeof av === 'string' && typeof bv === 'string'
       ? av.localeCompare(bv)
-      : (av as number) - (bv as number)
-    if (cmp !== 0) return cmp * sign
-    return b.prob_anytime - a.prob_anytime
+      : num(av) - num(bv)
+    if (cmp !== 0 && !Number.isNaN(cmp)) return cmp * sign
+    return num(b.prob_anytime) - num(a.prob_anytime)
   })
 }

@@ -49,6 +49,8 @@ export default function ValueChecker({
 
   useEffect(() => {
     let cancelled = false
+    setOdds({ home: '', draw: '', away: '' })
+    setResult(null)
     async function loadAuto() {
       try {
         const data = await fetchValue(fixtureId)
@@ -119,7 +121,7 @@ export default function ValueChecker({
       </div>
       {result && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {SIDES.map((side) => (
+          {SIDES.map((side) => result.outcomes[side] && (
             <OutcomeRow key={side} label={labels[side]} outcome={result.outcomes[side]} />
           ))}
         </div>

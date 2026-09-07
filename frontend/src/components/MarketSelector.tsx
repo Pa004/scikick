@@ -10,24 +10,42 @@ interface MarketSelectorProps {
   analyst?: boolean
 }
 
+const PREFIX_CATEGORY: [string, MarketCategoryKey][] = [
+  ['corners_', 'corners'],
+  ['cards_', 'cards'],
+  ['ht_', 'firstHalf'],
+  ['ft_result_given_ht', 'halfFull'],
+  ['both_halves', 'halfFull'],
+  ['over_under_', 'goals'],
+  ['handicap_', 'handicap'],
+  ['asian_handicap_', 'handicap'],
+]
+
 function findCategory(market: string, available?: string[]): MarketCategoryKey | null {
   for (const [category, markets] of Object.entries(MARKET_CATEGORIES)) {
     const visible = available ? markets.filter(m => available.includes(m)) : markets
     if (visible.includes(market)) return category as MarketCategoryKey
+  }
+  for (const [prefix, category] of PREFIX_CATEGORY) {
+    if (market.startsWith(prefix) && (!available || available.includes(market))) {
+      return category
+    }
   }
   return null
 }
 
 export default function MarketSelector({ selected, onChange, availableMarkets, analyst = false }: MarketSelectorProps) {
   const { t, locale } = useLanguage()
+  const availKey = (availableMarkets ?? []).join('|')
   // Derived state (React-endorsed "previous render info" pattern):
   // manual toggles persist, but programmatic market changes re-open their group.
   const [nav, setNav] = useState(() => ({
     prevSelected: selected,
+    prevAvailable: availKey,
     open: findCategory(selected, availableMarkets) ?? 'results' as MarketCategoryKey | null,
   }))
-  if (nav.prevSelected !== selected) {
-    setNav({ prevSelected: selected, open: findCategory(selected, availableMarkets) ?? 'results' })
+  if (nav.prevSelected !== selected || nav.prevAvailable !== availKey) {
+    setNav({ prevSelected: selected, prevAvailable: availKey, open: findCategory(selected, availableMarkets) ?? 'results' })
   }
   const openCategory = nav.open
   const setOpenCategory = (open: MarketCategoryKey | null) => setNav(n => ({ ...n, open }))
