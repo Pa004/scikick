@@ -43,6 +43,11 @@ TEAM_NAMES = {
         "Tottenham Hotspur FC": "Spurs",
         "West Ham United FC": "West Ham",
         "Wolverhampton Wanderers FC": "Wolves",
+        "Ipswich Town FC": "Ipswich",
+        "Hull City AFC": "Hull City",
+        "Coventry City FC": "Coventry",
+        "Sunderland AFC": "Sunderland",
+        "Sunderland": "Sunderland",
     },
     "SP1": {
         "Real Madrid CF": "Real Madrid",
