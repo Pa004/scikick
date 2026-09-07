@@ -70,7 +70,7 @@ class ValueOdds(BaseModel):
 
 class ValueRequest(BaseModel):
     fixture_id: int
-    odds: ValueOdds
+    odds: ValueOdds | None = None
 
 
 class ValueOutcome(BaseModel):

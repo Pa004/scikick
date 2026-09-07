@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { fetchValue } from '../api'
 import type { ValueOutcome, ValueResponse } from '../types'
 import { useLanguage } from '../i18n'
@@ -46,6 +46,22 @@ export default function ValueChecker({
   const [odds, setOdds] = useState<Record<Side, string>>({ home: '', draw: '', away: '' })
   const [result, setResult] = useState<ValueResponse | null>(null)
   const [pending, setPending] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadAuto() {
+      try {
+        const data = await fetchValue(fixtureId)
+        if (!cancelled) setResult(data)
+      } catch {
+        if (!cancelled) setResult(null)
+      }
+    }
+    void loadAuto()
+    return () => {
+      cancelled = true
+    }
+  }, [fixtureId])
 
   const labels: Record<Side, string> = { home, draw: t('draw'), away }
   const parsed = {

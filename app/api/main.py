@@ -28,8 +28,27 @@ def _startup_sync() -> None:
             "Startup sync done: %d future fixtures, %d league errors",
             future_total, errors,
         )
+        _startup_odds(leagues)
     except Exception as exc:
         logger.warning("Startup sync failed: %s", exc)
+
+
+def _startup_odds(leagues: list[str]) -> None:
+    from app.db.connection import get_connection
+    from app.ingestion.odds_sync import sync_odds_for_league
+
+    conn = get_connection()
+    try:
+        for league in leagues:
+            result = sync_odds_for_league(conn, league)
+            logger.info(
+                "Odds sync %s: %d/%d matched",
+                league, result["matched"], result["events"],
+            )
+    except Exception as exc:
+        logger.warning("Startup odds sync failed: %s", exc)
+    finally:
+        conn.close()
 
 
 @asynccontextmanager
