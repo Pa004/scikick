@@ -86,6 +86,7 @@ predictions before it leaves the cold-start state.
 |--------|-----------|
 | football-data.org (fixtures sync, 5 leagues) | ~8 req (10/min limit, no pool) |
 | API-Football | reserved: free plan covers seasons 2022–2024 only, useless for current data until Pro |
+| API-Football lineups | dormant (`LINEUPS_ENABLED=false`); set true only with Pro, else the resolver skips without spending requests |
 | Understat (scraper, no key) | ~15 req + 6s delays; throttles when rushed |
 
 ## If scores look wrong after a retrain

@@ -92,6 +92,8 @@ def resolve_api_ids_for_upcoming(
     settings = get_settings()
     if not settings.api_football_key:
         return {"league": league, "resolved": 0, "skipped": "no_api_key"}
+    if not settings.lineups_enabled:
+        return {"league": league, "resolved": 0, "skipped": "disabled"}
 
     since = date.today().isoformat()
     rows = conn.execute(
@@ -149,6 +151,8 @@ def ingest_lineups_for_upcoming(
     settings = get_settings()
     if not settings.api_football_key:
         return {"league": league, "fixtures_updated": 0, "skipped": "no_api_key"}
+    if not settings.lineups_enabled:
+        return {"league": league, "fixtures_updated": 0, "skipped": "disabled"}
 
     resolve_api_ids_for_upcoming(conn, league, window_hours=72)
 
