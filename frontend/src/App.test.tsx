@@ -86,12 +86,20 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'La Liga' }))
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(expect.stringContaining('league=SP1'))
   })
-
   it('shows pick of the day and selects it on click', async () => {
     renderApp()
     await screen.findByText('Pick of the Day')
     fireEvent.click(screen.getByRole('button', { name: /Pick of the Day/ }))
     await screen.findByText('Model Combo')
     expect(screen.getByText('Match Center')).toBeDefined()
+  })
+
+  it('keeps view tabs disabled until a fixture with prediction loads', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    const matchTab = screen.getByRole('button', { name: 'Match' }) as HTMLButtonElement
+    const scorerTab = screen.getByRole('button', { name: 'Goalscorer' }) as HTMLButtonElement
+    expect(matchTab.disabled).toBe(true)
+    expect(scorerTab.disabled).toBe(true)
   })
 })

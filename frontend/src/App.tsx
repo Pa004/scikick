@@ -57,7 +57,7 @@ function App() {
     [fixtures, searchQuery],
   )
 
-  const showRails = league === '' && searchQuery.trim() === ''
+  const showFeatured = league === '' && searchQuery.trim() === ''
 
   // Predicted fixtures first so the Featured rail shows actionable rows.
   const featured = useMemo(() => {
@@ -67,13 +67,12 @@ function App() {
     return ranked.slice(0, 5)
   }, [visibleFixtures])
 
-  const rails = LEAGUES.filter(l => l.code !== '')
-    .map(l => ({
-      code: l.code,
-      labelKey: l.labelKey,
-      fixtures: visibleFixtures.filter(f => f.league === l.code),
-    }))
-    .filter(g => g.fixtures.length > 0)
+  const rest = useMemo(() => {
+    const ids = new Set(featured.map(f => f.id))
+    return visibleFixtures.filter(f => !ids.has(f.id))
+  }, [visibleFixtures, featured])
+
+  const hasPrediction = selectedFixture !== null && prediction !== null
 
   useEffect(() => {
     const requestId = ++leagueRequestId.current
@@ -377,22 +376,17 @@ function App() {
               <p style={{ color: 'var(--text-muted)' }}>
                 {searchQuery.trim() ? t('noSearchResults') : t('noFixtures')}
               </p>
-            ) : showRails ? (
+            ) : showFeatured ? (
               <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
                 <h3 className="rail-title">{t('featured')}</h3>
                 <div className="fixtures-grid" role="table" aria-label={t('featured')}>
                   {renderGridHeader()}
                   {featured.map(f => renderFixtureRow(f))}
                 </div>
-                {rails.map(g => (
-                  <div key={g.code}>
-                    <h3 className="rail-title">{t(g.labelKey)}</h3>
-                    <div className="fixtures-grid" role="table" aria-label={t(g.labelKey)}>
-                      {renderGridHeader()}
-                      {g.fixtures.map(f => renderFixtureRow(f))}
-                    </div>
-                  </div>
-                ))}
+                <div className="fixtures-grid" role="table" aria-label={t('fixtures')} style={{ marginTop: '1rem' }}>
+                  {renderGridHeader()}
+                  {rest.map(f => renderFixtureRow(f))}
+                </div>
               </div>
             ) : (
               <div className="fixtures-grid" role="table" aria-label={t('fixtures')} style={{ maxHeight: '600px', overflowY: 'auto' }}>
@@ -403,46 +397,50 @@ function App() {
           </div>
 
           <div>
-            {selectedFixture && prediction ? (
+            <div role="group" aria-label={t('prediction')} style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)', marginBottom: '1rem' }}>
+              <button
+                aria-pressed={activeTab === 'match'}
+                disabled={!hasPrediction}
+                className={activeTab === 'match' ? 'tab-active' : ''}
+                style={{
+                  padding: '0.5rem 1rem',
+                  cursor: hasPrediction ? 'pointer' : 'default',
+                  opacity: hasPrediction ? undefined : 0.45,
+                  border: 'none',
+                  borderBottom: activeTab === 'match' ? 'none' : '2px solid transparent',
+                  background: 'transparent',
+                  color: activeTab === 'match' ? undefined : 'var(--text-muted)',
+                  fontWeight: activeTab === 'match' ? 500 : 400,
+                  fontSize: '0.9rem',
+                  position: 'relative',
+                }}
+                onClick={() => setActiveTab('match')}
+              >
+                {t('match')}
+              </button>
+              <button
+                aria-pressed={activeTab === 'scorer'}
+                disabled={!hasPrediction}
+                className={activeTab === 'scorer' ? 'tab-active' : ''}
+                style={{
+                  padding: '0.5rem 1rem',
+                  cursor: hasPrediction ? 'pointer' : 'default',
+                  opacity: hasPrediction ? undefined : 0.45,
+                  border: 'none',
+                  borderBottom: activeTab === 'scorer' ? 'none' : '2px solid transparent',
+                  background: 'transparent',
+                  color: activeTab === 'scorer' ? undefined : 'var(--text-muted)',
+                  fontWeight: activeTab === 'scorer' ? 500 : 400,
+                  fontSize: '0.9rem',
+                  position: 'relative',
+                }}
+                onClick={() => setActiveTab('scorer')}
+              >
+                {t('goalscorer')}
+              </button>
+            </div>
+            {hasPrediction ? (
               <div className="animate-fade-in">
-                <div role="group" aria-label={t('prediction')} style={{ display: 'flex', gap: '0', borderBottom: '1px solid var(--border)', marginBottom: '1rem' }}>
-                  <button
-                    aria-pressed={activeTab === 'match'}
-                    className={activeTab === 'match' ? 'tab-active' : ''}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      cursor: 'pointer',
-                      border: 'none',
-                      borderBottom: activeTab === 'match' ? 'none' : '2px solid transparent',
-                      background: 'transparent',
-                      color: activeTab === 'match' ? undefined : 'var(--text-muted)',
-                      fontWeight: activeTab === 'match' ? 500 : 400,
-                      fontSize: '0.9rem',
-                      position: 'relative',
-                    }}
-                    onClick={() => setActiveTab('match')}
-                  >
-                    {t('match')}
-                  </button>
-                  <button
-                    aria-pressed={activeTab === 'scorer'}
-                    className={activeTab === 'scorer' ? 'tab-active' : ''}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      cursor: 'pointer',
-                      border: 'none',
-                      borderBottom: activeTab === 'scorer' ? 'none' : '2px solid transparent',
-                      background: 'transparent',
-                      color: activeTab === 'scorer' ? undefined : 'var(--text-muted)',
-                      fontWeight: activeTab === 'scorer' ? 500 : 400,
-                      fontSize: '0.9rem',
-                      position: 'relative',
-                    }}
-                    onClick={() => setActiveTab('scorer')}
-                  >
-                    {t('goalscorer')}
-                  </button>
-                </div>
                 {activeTab === 'match' ? (
                   <PredictionPanel
                     prediction={prediction}
@@ -459,18 +457,25 @@ function App() {
                   <p style={{ color: 'var(--text-muted)' }}>{t('loadingScorer')}</p>
                 )}
               </div>
-            ) : stats ? (
-              <div className="animate-fade-in">
-                {renderPickOfDay()}
-                <StatsDashboard
-                  stats={stats}
-                  matchdayData={matchdayData}
-                  calibrationData={calibrationData}
-                  selectedMarket={selectedMarket}
-                />
-              </div>
             ) : (
-              <p style={{ color: 'var(--text-muted)' }}>{t('selectFixture')}</p>
+              <div className="animate-fade-in">
+                {!selectedFixture && (
+                  <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>{t('selectFixture')}</p>
+                )}
+                {renderPickOfDay()}
+                {stats ? (
+                  <StatsDashboard
+                    stats={stats}
+                    matchdayData={matchdayData}
+                    calibrationData={calibrationData}
+                    selectedMarket={selectedMarket}
+                  />
+                ) : (
+                  <p style={{ color: 'var(--text-muted)' }}>
+                    {selectedFixture ? t('loading') : t('selectFixture')}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </main>
