@@ -37,6 +37,20 @@ def cmd_train(args):
         conn.close()
 
 
+def cmd_odds(args):
+    from app.ingestion.odds_sync import sync_odds_for_league
+
+    settings = get_settings()
+    leagues = args.league.split(",") if args.league else settings.leagues_initial.split(",")
+    conn = get_connection()
+    try:
+        for league in leagues:
+            result = sync_odds_for_league(conn, league)
+            print(f"OK {league}: {result['matched']}/{result['events']} odds matched")
+    finally:
+        conn.close()
+
+
 def cmd_predict(args):
     conn = get_connection()
     try:
@@ -106,6 +120,10 @@ def main():
     predict_parser = subparsers.add_parser("predict", help="Predict future fixtures")
     predict_parser.add_argument("--league", type=str, required=True, help="League code")
     predict_parser.set_defaults(func=cmd_predict)
+
+    odds_parser = subparsers.add_parser("odds", help="Sync bookmaker odds for upcoming fixtures")
+    odds_parser.add_argument("--league", type=str, default=None, help="League codes (comma-separated)")
+    odds_parser.set_defaults(func=cmd_odds)
 
     resolve_parser = subparsers.add_parser("resolve", help="Resolve played predictions")
     resolve_parser.add_argument("--league", type=str, default=None, help="League code (optional)")

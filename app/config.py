@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     service_token: str = ""
     api_football_key: str = ""
     football_data_org_key: str = ""
+    odds_api_key: str = ""
     xg_enabled: bool = True
     leagues_initial: str = "E0,SP1,D1,I1,F1"
     scheduler_sync_hour: int = 6

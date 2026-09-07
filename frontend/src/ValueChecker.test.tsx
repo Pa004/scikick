@@ -25,7 +25,20 @@ beforeEach(() => {
 })
 
 describe('ValueChecker', () => {
-  it('posts odds and shows +EV badge', async () => {
+  it('loads stored odds automatically and shows +EV badge', async () => {
+    const fetchMock = vi.mocked(fetch)
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockValue),
+    } as Response)
+    renderChecker()
+    expect(await screen.findByText('+EV +9.2%')).toBeDefined()
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toContain('/api/value')
+    expect(JSON.parse(init.body as string)).toEqual({ fixture_id: 7 })
+  })
+
+  it('posts manual odds and overrides auto result', async () => {
     const fetchMock = vi.mocked(fetch)
     fetchMock.mockResolvedValue({
       ok: true,
@@ -39,8 +52,11 @@ describe('ValueChecker', () => {
     fireEvent.change(inputs[2], { target: { value: '3.60' } })
     fireEvent.click(screen.getByRole('button', { name: 'Check value' }))
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
-    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2))
+    const [autoUrl, autoInit] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(autoUrl).toContain('/api/value')
+    expect(JSON.parse(autoInit.body as string)).toEqual({ fixture_id: 7 })
+    const [url, init] = fetchMock.mock.calls[1] as [string, RequestInit]
     expect(url).toContain('/api/value')
     expect(JSON.parse(init.body as string)).toEqual({
       fixture_id: 7,

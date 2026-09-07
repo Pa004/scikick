@@ -40,7 +40,7 @@ def test_evaluate_outcome_shape():
     assert result["kelly"] > 0
 
 
-def _setup_value_db(tmp_path: Path, monkeypatch) -> TestClient:
+def _setup_value_db(tmp_path: Path, monkeypatch):
     db_path = str(tmp_path / "value.db")
     run_migrations(db_path)
     conn = sqlite3.connect(db_path)
@@ -71,11 +71,11 @@ def _setup_value_db(tmp_path: Path, monkeypatch) -> TestClient:
         return c
 
     monkeypatch.setattr(conn_module.sqlite3, "connect", fake_connect)
-    return TestClient(create_app())
+    return TestClient(create_app()), db_path
 
 
 def test_value_endpoint(tmp_path: Path, monkeypatch):
-    client = _setup_value_db(tmp_path, monkeypatch)
+    client, _ = _setup_value_db(tmp_path, monkeypatch)
     resp = client.post(
         "/api/value",
         json={"fixture_id": 1, "odds": {"home": 2.10, "draw": 3.40, "away": 3.60}},
@@ -89,7 +89,7 @@ def test_value_endpoint(tmp_path: Path, monkeypatch):
 
 
 def test_value_endpoint_rejects_bad_odds(tmp_path: Path, monkeypatch):
-    client = _setup_value_db(tmp_path, monkeypatch)
+    client, _ = _setup_value_db(tmp_path, monkeypatch)
     resp = client.post(
         "/api/value", json={"fixture_id": 1, "odds": {"home": 1.0, "draw": 3.4, "away": 3.6}}
     )
@@ -97,8 +97,30 @@ def test_value_endpoint_rejects_bad_odds(tmp_path: Path, monkeypatch):
 
 
 def test_value_endpoint_unknown_fixture(tmp_path: Path, monkeypatch):
-    client = _setup_value_db(tmp_path, monkeypatch)
+    client, _ = _setup_value_db(tmp_path, monkeypatch)
     resp = client.post(
         "/api/value", json={"fixture_id": 999, "odds": {"home": 2.1, "draw": 3.4, "away": 3.6}}
     )
+    assert resp.status_code == 404
+
+
+def test_value_endpoint_auto_odds(tmp_path: Path, monkeypatch):
+    client, db_path = _setup_value_db(tmp_path, monkeypatch)
+    conn = sqlite3.connect(db_path)
+    conn.execute(
+        "INSERT INTO fixture_odds (fixture_id, bookmaker, home, draw, away, fetched_at) "
+        "VALUES (1, 'best-eu', 2.10, 3.40, 3.60, '2026-09-07T00:00:00Z')"
+    )
+    conn.commit()
+    conn.close()
+    resp = client.post("/api/value", json={"fixture_id": 1})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["outcomes"]["home"]["value"] is True
+    assert body["outcomes"]["home"]["edge"] == pytest.approx(0.092)
+
+
+def test_value_endpoint_auto_missing_odds(tmp_path: Path, monkeypatch):
+    client, _ = _setup_value_db(tmp_path, monkeypatch)
+    resp = client.post("/api/value", json={"fixture_id": 1})
     assert resp.status_code == 404
