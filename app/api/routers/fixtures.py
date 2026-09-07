@@ -22,7 +22,9 @@ def list_fixtures(league: str = "E0", limit: int = 100):
             "JOIN teams t1 ON f.home_team_id = t1.id "
             "JOIN teams t2 ON f.away_team_id = t2.id "
             "WHERE f.league = ? "
-            "ORDER BY f.match_date DESC "
+            "ORDER BY CASE WHEN f.status = 'pre' THEN 0 ELSE 1 END, "
+            "CASE WHEN f.status = 'pre' THEN f.match_date ELSE '9999' END ASC, "
+            "f.match_date DESC "
             "LIMIT ?",
             (league, limit),
         ).fetchall()

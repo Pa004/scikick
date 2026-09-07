@@ -5,6 +5,7 @@ import logging
 import httpx
 
 from app.config import get_settings
+from app.ingestion.aliases import canonicalize
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,7 @@ TEAM_NAMES = {
         "UD Las Palmas": "Las Palmas",
         "Deportivo Alavés": "Alaves",
         "RCD Espanyol de Barcelona": "Espanyol",
+        "Espanyol": "Espanol",
         "CD Leganés": "Leganes",
         "Real Valladolid CF": "Valladolid",
     },
@@ -137,6 +139,7 @@ TEAM_NAMES = {
 
 
 def normalize_team_name(name: str, league_code: str) -> str:
+    name = canonicalize(name)
     mapped = TEAM_NAMES.get(league_code, {}).get(name)
     if mapped:
         return mapped

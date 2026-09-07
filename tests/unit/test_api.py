@@ -117,6 +117,31 @@ def test_list_fixtures(tmp_path: Path):
     assert data["fixtures"][0]["home"] == "Arsenal"
 
 
+def test_list_fixtures_upcoming_first(tmp_path: Path):
+    db_path = _setup_db(tmp_path)
+    conn = sqlite3.connect(db_path)
+    conn.execute(
+        "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+        "status, source, source_fixture_id) "
+        "VALUES ('E0', '2026-09-12', 1, 2, 'pre', 'football_data_org', 'fdorg_9')"
+    )
+    conn.execute(
+        "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+        "status, source, source_fixture_id) "
+        "VALUES ('E0', '2027-05-30', 2, 1, 'pre', 'football_data_org', 'fdorg_10')"
+    )
+    conn.commit()
+    conn.close()
+    app = create_app()
+    client = TestClient(app)
+    with patch("app.api.routers.fixtures.get_connection", side_effect=_make_get_conn(db_path)):
+        resp = client.get("/api/fixtures?league=E0")
+    assert resp.status_code == 200
+    dates = [f["date"] for f in resp.json()["fixtures"] if f["status"] == "pre"]
+    assert dates == sorted(dates)
+    assert dates[0] == "2026-09-12"
+
+
 def test_get_stats(tmp_path: Path):
     db_path = _setup_db(tmp_path)
     app = create_app()
