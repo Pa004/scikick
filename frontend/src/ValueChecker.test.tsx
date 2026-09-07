@@ -32,7 +32,7 @@ describe('ValueChecker', () => {
       json: () => Promise.resolve(mockValue),
     } as Response)
     renderChecker()
-    expect(await screen.findByText('+EV +9.2%')).toBeDefined()
+    expect(await screen.findByText((_c, el) => el?.textContent === '+EV · Edge +9.2%')).toBeDefined()
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(url).toContain('/api/value')
     expect(JSON.parse(init.body as string)).toEqual({ fixture_id: 7 })
@@ -62,7 +62,7 @@ describe('ValueChecker', () => {
       fixture_id: 7,
       odds: { home: 2.1, draw: 3.4, away: 3.6 },
     })
-    expect(await screen.findByText('+EV +9.2%')).toBeDefined()
+    expect(await screen.findByText((_c, el) => el?.textContent === '+EV · Edge +9.2%')).toBeDefined()
   })
 
   it('keeps check disabled until three valid odds', () => {

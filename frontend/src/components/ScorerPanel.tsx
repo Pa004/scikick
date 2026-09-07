@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { ScorerPlayer, ScorerPrediction } from '../types'
-import { useLanguage } from '../i18n'
+import { useLanguage, fillVars } from '../i18n'
 import {
   filterScorers,
   sortScorers,
@@ -162,7 +162,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
             </div>
           )}
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.5rem 0' }}>
-            {t('showingOf').replace('{shown}', String(visible.length)).replace('{total}', String(rows.length))}
+            {fillVars(t('showingOf'), { shown: visible.length, total: rows.length })}
           </p>
           {rows.length > VISIBLE_COUNT && (
             <button type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} aria-controls="scorer-tbody" className="league-tab expander-btn">

@@ -22,7 +22,7 @@ function OutcomeRow({ label, outcome }: { label: string; outcome: ValueOutcome }
         {(outcome.prob * 100).toFixed(1)}% · {outcome.odds.toFixed(2)}
       </span>
       <span className={outcome.value ? 'badge badge-accent' : 'badge'}>
-        {outcome.value ? t('valueIsValue') : t('valueNoValue')} {edgePct}
+        {outcome.value ? t('valueIsValue') : t('valueNoValue')} · {t('valueEdge')} {edgePct}
       </span>
       {outcome.value && (
         <span style={{ color: 'var(--text-secondary)' }}>
