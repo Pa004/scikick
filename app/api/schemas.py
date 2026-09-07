@@ -42,7 +42,6 @@ class PredictResponse(BaseModel):
     probabilities: dict[str, MarketProb | DoubleChance | OverUnder | BTTS | dict]
     probable_score: dict[str, int] | None = None
     top_features: list[TopFeature] | None = None
-    market_odds: dict[str, MarketProb] | None = None
 
 
 class ScorerPlayer(BaseModel):

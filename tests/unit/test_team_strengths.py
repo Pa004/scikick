@@ -169,6 +169,7 @@ def test_predict_future_differs_per_fixture(tmp_path: Path, monkeypatch):
         p1 = json.loads(rows[0]["prediction"])["markets"]["1x2"]
         p2 = json.loads(rows[1]["prediction"])["markets"]["1x2"]
         assert (p1["home"], p1["draw"], p1["away"]) != (p2["home"], p2["draw"], p2["away"])
+        assert isinstance(json.loads(rows[0]["prediction"])["model_agreement"], float)
     finally:
         conn.close()
 

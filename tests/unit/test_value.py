@@ -124,3 +124,13 @@ def test_value_endpoint_auto_missing_odds(tmp_path: Path, monkeypatch):
     client, _ = _setup_value_db(tmp_path, monkeypatch)
     resp = client.post("/api/value", json={"fixture_id": 1})
     assert resp.status_code == 404
+
+
+def test_value_endpoint_auto_no_key_message(tmp_path: Path, monkeypatch):
+    monkeypatch.setenv("ODDS_API_KEY", "")
+    from app.config import get_settings
+    get_settings.cache_clear()
+    client, _ = _setup_value_db(tmp_path, monkeypatch)
+    resp = client.post("/api/value", json={"fixture_id": 1})
+    assert resp.status_code == 404
+    assert resp.json()["detail"] == "Automatic odds not configured for this fixture yet"

@@ -92,6 +92,36 @@ def test_get_prediction_not_found(tmp_path: Path):
     assert resp.status_code == 404
 
 
+def test_get_prediction_no_model(tmp_path: Path):
+    db_path = _setup_db(tmp_path)
+    conn = sqlite3.connect(db_path)
+    conn.execute("UPDATE fixtures SET prediction = NULL WHERE id = 1")
+    conn.commit()
+    conn.close()
+    app = create_app()
+    client = TestClient(app)
+    with patch("app.api.routers.predict.get_connection", side_effect=_make_get_conn(db_path)), \
+         patch("app.models.predict._load_latest_run", return_value=None):
+        resp = client.get("/api/predict/1")
+    assert resp.status_code == 404
+    assert resp.json()["detail"] == "Model not trained for this league yet"
+
+
+def test_get_prediction_not_computed(tmp_path: Path):
+    db_path = _setup_db(tmp_path)
+    conn = sqlite3.connect(db_path)
+    conn.execute("UPDATE fixtures SET prediction = NULL WHERE id = 1")
+    conn.commit()
+    conn.close()
+    app = create_app()
+    client = TestClient(app)
+    with patch("app.api.routers.predict.get_connection", side_effect=_make_get_conn(db_path)), \
+         patch("app.models.predict._load_latest_run", return_value={"dc_params": {}}):
+        resp = client.get("/api/predict/1")
+    assert resp.status_code == 404
+    assert resp.json()["detail"] == "Prediction not computed for this fixture yet"
+
+
 def test_get_prediction_no_prediction(tmp_path: Path):
     db_path = _setup_db(tmp_path)
     conn = sqlite3.connect(db_path)
