@@ -69,7 +69,7 @@ def _make_predict_conn(db_path: str):
 def test_e2e_train_predict_resolve_stats(tmp_path: Path):
     conn = _setup_e2e_db(tmp_path, n_matchdays=25)
 
-    result = train_league(conn, "E0", mode="light", min_train_matches=50)
+    result = train_league(conn, "E0", mode="light", min_train_matches=50, persist_run=False)
     assert "error" not in result, f"Train failed: {result}"
     assert result["n_folds"] > 0
     assert result["overall_brier"] < 1.0

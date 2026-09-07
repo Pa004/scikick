@@ -29,11 +29,15 @@ def _load_latest_ensemble(league: str):
     run_dir = _RUNS_DIR / league
     if not run_dir.exists():
         return None
-    ensemble_files = sorted(run_dir.glob("ensemble_*.joblib"))
+    ensemble_files = sorted(
+        run_dir.glob("ensemble_*.joblib"),
+        key=lambda p: (p.stat().st_mtime, p.name),
+        reverse=True,
+    )
     if not ensemble_files:
         return None
     try:
-        return joblib.load(ensemble_files[-1])
+        return joblib.load(ensemble_files[0])
     except Exception:
         return None
 

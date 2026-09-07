@@ -65,7 +65,7 @@ def _make_get_conn(db_path: str):
 
 def test_train_persists_multi_market_predictions(tmp_path: Path):
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     rows = conn.execute(
@@ -85,7 +85,7 @@ def test_train_persists_multi_market_predictions(tmp_path: Path):
 
 def test_train_persists_corners_and_cards(tmp_path: Path):
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     rows = conn.execute(
@@ -101,7 +101,7 @@ def test_train_persists_corners_and_cards(tmp_path: Path):
 
 def test_resolve_multi_market(tmp_path: Path):
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     count = resolve_predictions(conn, "E0")
@@ -117,7 +117,13 @@ def test_resolve_multi_market(tmp_path: Path):
     conn.close()
 
 
-def test_predict_future_pre_fixtures(tmp_path: Path):
+def test_predict_future_pre_fixtures(tmp_path: Path, monkeypatch):
+    import app.models.pipeline as pipeline_module
+    from app.models import predict as predict_module
+
+    runs_dir = str(tmp_path / "runs")
+    monkeypatch.setattr(pipeline_module, "RUNS_DIR", runs_dir)
+    monkeypatch.setattr(predict_module, "RUNS_DIR", runs_dir)
     conn = _setup_db(tmp_path, n_matchdays=20)
     result = train_league(conn, "E0", mode="light", min_train_matches=80)
     assert "error" not in result, result.get("error")
@@ -150,7 +156,7 @@ def test_api_serves_multi_market(tmp_path: Path):
 
     db_path = str(tmp_path / "test.db")
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     fix = conn.execute(
@@ -175,7 +181,7 @@ def test_stats_by_market(tmp_path: Path):
 
     db_path = str(tmp_path / "test.db")
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
     resolve_predictions(conn, "E0")
     conn.close()
@@ -197,7 +203,7 @@ def test_api_serves_ht_ft_markets(tmp_path: Path):
 
     db_path = str(tmp_path / "test.db")
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     fix = conn.execute(
@@ -226,7 +232,7 @@ def test_api_serves_ht_ft_markets(tmp_path: Path):
 
 def test_train_persists_ht_residual(tmp_path: Path):
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     rows = conn.execute(
@@ -243,7 +249,7 @@ def test_train_persists_ht_residual(tmp_path: Path):
 
 def test_resolve_expanded_markets(tmp_path: Path):
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     count = resolve_predictions(conn, "E0")
@@ -268,7 +274,7 @@ def test_resolve_expanded_markets(tmp_path: Path):
 
 def test_resolve_corners_cards_handicap(tmp_path: Path):
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     resolve_predictions(conn, "E0")
@@ -291,7 +297,7 @@ def test_stats_per_matchday(tmp_path: Path):
 
     db_path = str(tmp_path / "test.db")
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
     resolve_predictions(conn, "E0")
     conn.close()
@@ -314,7 +320,7 @@ def test_stats_calibration(tmp_path: Path):
 
     db_path = str(tmp_path / "test.db")
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
     resolve_predictions(conn, "E0")
     conn.close()
@@ -332,7 +338,7 @@ def test_stats_calibration(tmp_path: Path):
 
 def test_combined_markets_in_prediction(tmp_path: Path):
     conn = _setup_db(tmp_path, n_matchdays=20)
-    result = train_league(conn, "E0", mode="light", min_train_matches=80)
+    result = train_league(conn, "E0", mode="light", min_train_matches=80, persist_run=False)
     assert "error" not in result, result.get("error")
 
     rows = conn.execute(
