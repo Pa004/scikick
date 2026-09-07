@@ -51,7 +51,7 @@ def test_scorer_endpoint_returns_data(tmp_path: Path):
         assert resp.status_code == 200
         data = resp.json()
         assert data["fixture_id"] == 1
-        assert data["data_quality"] == "lineup_unavailable"
+        assert data["data_quality"] == "lineup_projected"
         assert len(data["scorers"]) > 0
 
 

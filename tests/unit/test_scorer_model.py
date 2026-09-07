@@ -111,9 +111,26 @@ def test_predict_scorer_no_lineup(tmp_path: Path):
     conn.row_factory = sqlite3.Row
 
     result = predict_scorer(conn, 1, "E0")
-    assert result["data_quality"] == "lineup_unavailable"
+    assert result["data_quality"] == "lineup_projected"
     assert len(result["scorers"]) > 0
+    assert all(s["projected"] is True for s in result["scorers"])
     conn.close()
+
+
+def test_projected_xi_marks_top11_and_bench(tmp_path: Path):
+    from app.players.pipeline import _mark_projected_xi
+
+    players = [
+        {"id": i, "team_name": "TeamA", "minutes_total": 1000 - i * 10}
+        for i in range(15)
+    ]
+    marked = _mark_projected_xi(players)
+    starters = [p for p in marked if "minutes_expected" not in p]
+    bench = [p for p in marked if p.get("minutes_expected") == 15.0]
+    assert len(starters) == 11
+    assert len(bench) == 4
+    assert all(p["projected"] for p in marked)
+    assert starters[0]["id"] == 0
 
 
 def test_predict_scorer_not_found(tmp_path: Path):

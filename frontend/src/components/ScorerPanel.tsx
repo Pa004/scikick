@@ -123,7 +123,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
       >
         {scorer.data_quality === 'lineup_confirmed'
           ? t('lineupConfirmed')
-          : t('lineupUnavailable')}
+          : t('lineupProjected')}
       </div>
 
       {scorer.scorers.length === 0 ? (

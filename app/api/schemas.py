@@ -54,6 +54,7 @@ class ScorerPlayer(BaseModel):
     min_expected: float
     prob_anytime: float
     home_away: str
+    projected: bool = False
 
 
 class ScorerPrediction(BaseModel):

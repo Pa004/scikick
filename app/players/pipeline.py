@@ -9,6 +9,8 @@ import joblib
 
 from app.players.model import (
     ScorerPlayer,
+    BENCH_MIN_EXPECTED,
+    PROJECTED_XI_SIZE,
     effective_min_minutes,
     shrink_xg90,
     expected_goals,
@@ -68,6 +70,22 @@ def _estimate_minutes(status: str | None) -> float:
     return 60.0
 
 
+def _mark_projected_xi(players: list[dict]) -> list[dict]:
+    by_team: dict[str, list[dict]] = {}
+    for p in players:
+        by_team.setdefault(p["team_name"], []).append(p)
+    marked = []
+    for team_players in by_team.values():
+        starters = sorted(team_players, key=lambda p: p["minutes_total"], reverse=True)
+        for i, p in enumerate(starters):
+            row = dict(p)
+            row["projected"] = True
+            if i >= PROJECTED_XI_SIZE:
+                row["minutes_expected"] = BENCH_MIN_EXPECTED
+            marked.append(row)
+    return marked
+
+
 def build_scorer_players(
     conn: sqlite3.Connection, fixture_id: int, league: str
 ) -> list[ScorerPlayer]:
@@ -87,6 +105,8 @@ def build_scorer_players(
     has_lineup = len(lineup) > 0
 
     players = _get_player_season_stats(conn, [fixture["home_name"], fixture["away_name"]])
+    if not has_lineup:
+        players = _mark_projected_xi(players)
     result = []
 
     for p in players:
@@ -103,7 +123,7 @@ def build_scorer_players(
 
         li = lineup.get(p["id"], {})
         status = li.get("status")
-        min_expected = _estimate_minutes(status)
+        min_expected = p.get("minutes_expected", _estimate_minutes(status))
 
         result.append(ScorerPlayer(
             player_id=p["id"],
@@ -118,6 +138,7 @@ def build_scorer_players(
             min_expected=min_expected,
             opponent_xga=None,
             source=p.get("source", "understat"),
+            projected=p.get("projected", False),
         ))
 
     return result
@@ -141,7 +162,7 @@ def predict_scorer(conn: sqlite3.Connection, fixture_id: int, league: str) -> di
     return {
         "fixture_id": fixture_id,
         "status": "ok",
-        "data_quality": "lineup_confirmed" if has_lineup else "lineup_unavailable",
+        "data_quality": "lineup_confirmed" if has_lineup else "lineup_projected",
         "scorers": [
             {
                 "player_id": s.player_id,
@@ -152,6 +173,7 @@ def predict_scorer(conn: sqlite3.Connection, fixture_id: int, league: str) -> di
                 "min_expected": s.min_expected,
                 "prob_anytime": round(s.prob_anytime, 4),
                 "home_away": s.home_away,
+                "projected": s.projected,
             }
             for s in scorers
         ],
