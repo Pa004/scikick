@@ -1,15 +1,15 @@
 {
-  "overall_brier": 0.6435496894372342,
-  "blend_weight": 0.9,
+  "overall_brier": 0.6456265215686826,
+  "blend_weight": 0.85,
   "n_folds": 4,
   "n_samples": 20,
   "fixtures": {
     "81": {
-      "1x2_home": 0.3935,
-      "1x2_draw": 0.4022,
-      "1x2_away": 0.2044,
-      "btts_yes": 0.7584,
-      "ou25_over": 0.5514,
+      "1x2_home": 0.3796,
+      "1x2_draw": 0.4065,
+      "1x2_away": 0.2138,
+      "btts_yes": 0.7668,
+      "ou25_over": 0.5519,
       "model_agreement": 0.0235,
       "corners_over_under_8.5": {
         "over": 0.9715,
@@ -45,11 +45,11 @@
       }
     },
     "82": {
-      "1x2_home": 0.4954,
-      "1x2_draw": 0.3474,
-      "1x2_away": 0.1573,
-      "btts_yes": 0.8205,
-      "ou25_over": 0.6646,
+      "1x2_home": 0.4383,
+      "1x2_draw": 0.3774,
+      "1x2_away": 0.1843,
+      "btts_yes": 0.8111,
+      "ou25_over": 0.6218,
       "model_agreement": 0.0248,
       "corners_over_under_8.5": {
         "over": 0.9743,
@@ -85,11 +85,11 @@
       }
     },
     "83": {
-      "1x2_home": 0.3125,
-      "1x2_draw": 0.4162,
-      "1x2_away": 0.2713,
-      "btts_yes": 0.8051,
-      "ou25_over": 0.5686,
+      "1x2_home": 0.3201,
+      "1x2_draw": 0.4167,
+      "1x2_away": 0.2633,
+      "btts_yes": 0.7989,
+      "ou25_over": 0.5632,
       "model_agreement": 0.0306,
       "corners_over_under_8.5": {
         "over": 0.9223,
@@ -125,11 +125,11 @@
       }
     },
     "84": {
-      "1x2_home": 0.3129,
-      "1x2_draw": 0.3979,
-      "1x2_away": 0.2893,
-      "btts_yes": 0.8514,
-      "ou25_over": 0.6264,
+      "1x2_home": 0.3214,
+      "1x2_draw": 0.4052,
+      "1x2_away": 0.2734,
+      "btts_yes": 0.8354,
+      "ou25_over": 0.6055,
       "model_agreement": 0.0311,
       "corners_over_under_8.5": {
         "over": 0.9383,
@@ -165,11 +165,11 @@
       }
     },
     "85": {
-      "1x2_home": 0.3699,
-      "1x2_draw": 0.3949,
-      "1x2_away": 0.2352,
-      "btts_yes": 0.8372,
-      "ou25_over": 0.6192,
+      "1x2_home": 0.358,
+      "1x2_draw": 0.4038,
+      "1x2_away": 0.2382,
+      "btts_yes": 0.8207,
+      "ou25_over": 0.596,
       "model_agreement": 0.0311,
       "corners_over_under_8.5": {
         "over": 0.9723,

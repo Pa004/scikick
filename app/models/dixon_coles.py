@@ -24,6 +24,11 @@ class DixonColesTeams:
     rho: float
 
 
+# Shrinkage prior weight (in games): a team with 0 games predicts the league
+# mean; its own estimate gains weight as it accumulates matches.
+SHRINKAGE_GAMES = 8
+
+
 def _poisson_pmf(k: int, lam: float) -> float:
     return math.exp(-lam) * (lam ** k) / math.factorial(k)
 
@@ -139,6 +144,7 @@ def fit_dixon_coles_full(
         home_team_ids, away_team_ids, home_goals, away_goals, n_teams, team_id_to_idx
     )
     idx_to_team = {idx: tid for tid, idx in team_id_to_idx.items()}
+    games = _count_team_games(home_team_ids, away_team_ids, team_id_to_idx, n_teams)
     strengths = {}
     for idx in range(n_teams):
         team_id = idx_to_team.get(idx)
@@ -149,6 +155,7 @@ def fit_dixon_coles_full(
             "home_defense": float(p[n_teams + idx]),
             "away_attack": float(p[2 * n_teams + idx]),
             "away_defense": float(p[3 * n_teams + idx]),
+            "games": games[idx],
         }
     home_advantage = float(p[4 * n_teams])
     rho = float(p[4 * n_teams + 1])
@@ -173,16 +180,39 @@ def params_for_match(
 ) -> DixonColesParams:
     if not teams:
         return averaged
-    home = teams.strengths.get(home_team_id)
-    away = teams.strengths.get(away_team_id)
     return DixonColesParams(
-        home_attack=home["home_attack"] if home else averaged.home_attack,
-        home_defense=home["home_defense"] if home else averaged.home_defense,
-        away_attack=away["away_attack"] if away else averaged.away_attack,
-        away_defense=away["away_defense"] if away else averaged.away_defense,
+        home_attack=_shrink(teams, home_team_id, "home_attack", averaged.home_attack),
+        home_defense=_shrink(teams, home_team_id, "home_defense", averaged.home_defense),
+        away_attack=_shrink(teams, away_team_id, "away_attack", averaged.away_attack),
+        away_defense=_shrink(teams, away_team_id, "away_defense", averaged.away_defense),
         home_advantage=teams.home_advantage,
         rho=teams.rho,
     )
+
+
+def _shrink(
+    teams: DixonColesTeams, team_id: int, field: str, league_mean: float
+) -> float:
+    entry = teams.strengths.get(team_id)
+    if not entry:
+        return league_mean
+    games = entry.get("games", 0)
+    value = entry[field]
+    return (games * value + SHRINKAGE_GAMES * league_mean) / (games + SHRINKAGE_GAMES)
+
+
+def _count_team_games(
+    home_team_ids: np.ndarray,
+    away_team_ids: np.ndarray,
+    team_id_to_idx: dict[int, int],
+    n_teams: int,
+) -> list[int]:
+    games = [0] * n_teams
+    for tid in list(home_team_ids) + list(away_team_ids):
+        idx = team_id_to_idx.get(int(tid))
+        if idx is not None:
+            games[idx] += 1
+    return games
 
 
 def _minimize_dixon_coles(

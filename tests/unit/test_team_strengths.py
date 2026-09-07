@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from app.db.migrations import run_migrations
 from app.models.dixon_coles import (
@@ -44,8 +45,8 @@ def test_fit_team_strengths_structure():
     assert isinstance(teams, DixonColesTeams)
     assert set(teams.strengths) == set(mapping)
     for vals in teams.strengths.values():
-        assert set(vals) == {"home_attack", "home_defense", "away_attack", "away_defense"}
-        assert all(isinstance(v, float) for v in vals.values())
+        assert set(vals) == {"home_attack", "home_defense", "away_attack", "away_defense", "games"}
+        assert all(isinstance(v, float) for k, v in vals.items() if k != "games")
 
 
 def test_fit_dixon_coles_still_averaged():
@@ -58,15 +59,35 @@ def test_params_for_match_known_teams():
     averaged = DixonColesParams(0.1, -0.1, 0.05, -0.05, 0.3, -0.1)
     teams = DixonColesTeams(
         strengths={
-            1: {"home_attack": 0.9, "home_defense": -0.4, "away_attack": 0.2, "away_defense": 0.1},
-            2: {"home_attack": -0.5, "home_defense": 0.3, "away_attack": -0.2, "away_defense": 0.4},
+            1: {"home_attack": 0.9, "home_defense": -0.4, "away_attack": 0.2, "away_defense": 0.1, "games": 100},
+            2: {"home_attack": -0.5, "home_defense": 0.3, "away_attack": -0.2, "away_defense": 0.4, "games": 100},
         },
         home_advantage=0.3,
         rho=-0.1,
     )
     params = params_for_match(averaged, teams, 1, 2)
-    assert params.home_attack == 0.9
-    assert params.away_defense == 0.4
+    assert params.home_attack == pytest.approx((100 * 0.9 + 8 * 0.1) / 108)
+    assert params.away_defense == pytest.approx((100 * 0.4 + 8 * -0.05) / 108)
+
+
+def test_params_for_match_zero_games_is_league_mean():
+    averaged = DixonColesParams(0.1, -0.1, 0.05, -0.05, 0.3, -0.1)
+    teams = DixonColesTeams(
+        strengths={
+            1: {"home_attack": 0.9, "home_defense": -0.4, "away_attack": 0.2, "away_defense": 0.1, "games": 0},
+        },
+        home_advantage=0.3,
+        rho=-0.1,
+    )
+    assert params_for_match(averaged, teams, 1, 2) == averaged
+
+
+def test_fit_counts_team_games():
+    h, a, hg, ag, n, mapping = _synthetic()
+    teams = fit_team_strengths(h, a, hg, ag, n, mapping)
+    total = sum(v["games"] for v in teams.strengths.values())
+    assert total == 2 * len(hg)
+    assert all(v["games"] > 0 for v in teams.strengths.values())
 
 
 def test_params_for_match_unknown_falls_back_to_mean():
