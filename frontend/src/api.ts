@@ -1,6 +1,6 @@
 import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction, ValueResponse } from './types'
 
-const API_BASE = 'http://localhost:8000/api'
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api'
 
 async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url)
