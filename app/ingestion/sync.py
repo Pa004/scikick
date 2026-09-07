@@ -14,7 +14,8 @@ from app.ingestion.adapters.football_data import (
     parse_dates_utc,
     map_results,
 )
-from app.ingestion.adapters.api_football import fetch_fixtures as fetch_future_fixtures
+from app.ingestion.adapters.api_football import fetch_fixtures as fetch_api_football_fixtures
+from app.ingestion.adapters.football_data_org import fetch_scheduled as fetch_fdorg_fixtures
 from app.ingestion.seasons import current_season_start
 from app.ingestion.validation import validate_all
 
@@ -120,7 +121,7 @@ def sync_league(
             )
             inserted += 1
 
-        _sync_future_fixtures(conn, league_code)
+        future_by_source = _sync_future_fixtures(conn, league_code)
 
         conn.commit()
     finally:
@@ -142,6 +143,7 @@ def sync_league(
         "csv_path": str(csv_path),
         "total_rows": len(df),
         "inserted": inserted,
+        "future_by_source": future_by_source,
         "validation": {
             "valid": validation.valid_rows,
             "rejected": validation.rejected_rows,
@@ -150,10 +152,14 @@ def sync_league(
     }
 
 
-def _sync_future_fixtures(conn: sqlite3.Connection, league_code: str) -> int:
-    future_fixtures = fetch_future_fixtures(league_code)
+def _insert_future_fixtures(
+    conn: sqlite3.Connection,
+    league_code: str,
+    fixtures: list[dict],
+    source: str,
+) -> int:
     inserted = 0
-    for fix in future_fixtures:
+    for fix in fixtures:
         home_name = fix.get("home_team")
         away_name = fix.get("away_team")
         match_date = fix.get("date", "")[:10]
@@ -162,18 +168,32 @@ def _sync_future_fixtures(conn: sqlite3.Connection, league_code: str) -> int:
 
         home_id = _resolve_team(conn, home_name)
         away_id = _resolve_team(conn, away_name)
-        source_id = f"api_football_{fix.get('api_fixture_id', '')}"
+        source_id = f"{source}_{fix.get('api_fixture_id', '')}"
 
         conn.execute(
             "INSERT OR IGNORE INTO fixtures "
             "(league, match_date, home_team_id, away_team_id, competition_type, "
             "status, result_checked, source, source_fixture_id) "
-            "VALUES (?, ?, ?, ?, 'liga', 'pre', 0, 'api_football', ?)",
-            (league_code, match_date, home_id, away_id, source_id),
+            "VALUES (?, ?, ?, ?, 'liga', 'pre', 0, ?, ?)",
+            (league_code, match_date, home_id, away_id, source, source_id),
         )
         inserted += 1
 
     return inserted
+
+
+def _sync_future_fixtures(conn: sqlite3.Connection, league_code: str) -> dict:
+    counts = {"football_data_org": 0, "api_football": 0}
+    primary = fetch_fdorg_fixtures(league_code)
+    counts["football_data_org"] = _insert_future_fixtures(
+        conn, league_code, primary, "football_data_org"
+    )
+    if not primary:
+        fallback = fetch_api_football_fixtures(league_code)
+        counts["api_football"] = _insert_future_fixtures(
+            conn, league_code, fallback, "api_football"
+        )
+    return counts
 
 
 def sync_all_leagues(
