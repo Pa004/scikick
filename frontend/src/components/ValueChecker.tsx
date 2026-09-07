@@ -102,6 +102,7 @@ export default function ValueChecker({
             {labels[side]}
             <input
               type="number"
+              inputMode="decimal"
               min={1.01}
               step={0.01}
               value={odds[side]}
