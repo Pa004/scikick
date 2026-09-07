@@ -175,6 +175,10 @@ def get_stats_per_matchday(league: str | None = None, market: str = "1x2"):
             "league": league,
             "cold_start": len(result) < 5,
             "data": result,
+            "message": (
+                "Not enough matchdays yet. Resolve predictions after matchdays "
+                "to populate this view." if len(result) < 5 else None
+            ),
         }
     finally:
         conn.close()

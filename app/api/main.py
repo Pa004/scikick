@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
-from app.api.routers import predict, fixtures, stats, refresh, market_counts, markets_htft, rare_events, scorer, value, context
+from app.api.routers import predict, fixtures, stats, refresh, market_counts, markets_htft, rare_events, scorer, value, context, resolve
 from app.ingestion.sync import sync_all_leagues
 
 logger = logging.getLogger(__name__)
@@ -85,6 +85,7 @@ def create_app() -> FastAPI:
     app.include_router(scorer.router, prefix="/api", tags=["predict"])
     app.include_router(value.router, prefix="/api", tags=["value"])
     app.include_router(context.router, prefix="/api", tags=["context"])
+    app.include_router(resolve.router, prefix="/api", tags=["resolve"])
 
     @app.get("/health")
     def health():
