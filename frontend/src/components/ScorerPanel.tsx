@@ -74,8 +74,8 @@ function ScorerRow({ s }: { s: ScorerPlayer }) {
         </span>
       </td>
       <td style={{ color: 'var(--text-secondary)' }}>{s.team}</td>
-      <td style={{ textAlign: 'center' }}>{s.xg90.toFixed(2)}</td>
-      <td style={{ textAlign: 'center' }}>{s.min_expected.toFixed(0)}'</td>
+      <td style={{ textAlign: 'center' }}>{typeof s.xg90 === 'number' ? s.xg90.toFixed(2) : '—'}</td>
+      <td style={{ textAlign: 'center' }}>{typeof s.min_expected === 'number' ? `${s.min_expected.toFixed(0)}'` : '—'}</td>
       <td style={{ textAlign: 'right', fontWeight: 500 }}>
         <span className={
           s.prob_anytime > 0.3 ? 'badge badge-success' :
@@ -96,6 +96,15 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
   const [team, setTeam] = useState<TeamFilter>('both')
   const [query, setQuery] = useState('')
   const [expanded, setExpanded] = useState(false)
+  const [fixtureId, setFixtureId] = useState(scorer.fixture_id)
+  if (fixtureId !== scorer.fixture_id) {
+    setFixtureId(scorer.fixture_id)
+    setSortKey('prob_anytime')
+    setSortDir('desc')
+    setTeam('both')
+    setQuery('')
+    setExpanded(false)
+  }
 
   const rows = useMemo(() => {
     const filtered = filterScorers(scorer.scorers, team, query)

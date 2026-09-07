@@ -212,7 +212,9 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
             {prediction.top_features.map((f, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>{toTitleCase(f.feature)}</span>
-                <span style={{ fontWeight: 500, color: 'var(--text)' }}>{f.value.toFixed(3)}</span>
+                <span style={{ fontWeight: 500, color: 'var(--text)' }}>
+                  {typeof f.value === 'number' ? f.value.toFixed(3) : '—'}
+                </span>
               </div>
             ))}
           </div>

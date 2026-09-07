@@ -53,7 +53,7 @@ function isNestedGroups(data: Record<string, number>): boolean {
 }
 
 function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
-  const { locale } = useLanguage()
+  const { t, locale } = useLanguage()
   const bar = (key: string, prob: number, label?: string) => (
     <ProbBar label={label ?? getOutcomeLabel(market, key, locale)} prob={prob} mode={mode} move={moves[key] ?? 'flat'} />
   )
@@ -66,12 +66,17 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
     </div>
   )
 
-  const overUnder = () => (
-    <div>
-      {bar('over', data.over ?? 0)}
-      {bar('under', data.under ?? 0)}
-    </div>
-  )
+  const overUnder = () => {
+    if (data.over === undefined && data.under === undefined) {
+      return <span style={{ color: 'var(--text-muted)' }}>{t('marketMissing')}</span>
+    }
+    return (
+      <div>
+        {bar('over', data.over ?? 0)}
+        {bar('under', data.under ?? 0)}
+      </div>
+    )
+  }
 
   const entries = () => (
     <div>
@@ -121,7 +126,10 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   )
 
   const totalGoals = () => {
-    const chartData = Object.entries(data).map(([k, v]) => ({ goals: k, probability: +(v * 100).toFixed(1) }))
+    const rank = (k: string) => (k.endsWith('+') ? 999 : Number.parseInt(k, 10))
+    const chartData = Object.entries(data)
+      .sort((a, b) => rank(a[0]) - rank(b[0]))
+      .map(([k, v]) => ({ goals: k, probability: +(v * 100).toFixed(1) }))
     return (
       <div style={{ height: '180px' }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -212,7 +220,8 @@ interface MarketRendererProps {
 }
 
 export default function MarketRenderer({ market, probabilities, mode = 'prob', moves = {} }: MarketRendererProps) {
+  const { t } = useLanguage()
   const data = probabilities[market]
-  if (!data) return <span style={{ color: 'var(--text-muted)' }}>N/A</span>
+  if (!data) return <span style={{ color: 'var(--text-muted)' }}>{t('marketMissing')}</span>
   return <MarketRendererInner market={market} data={data} mode={mode} moves={moves} />
 }

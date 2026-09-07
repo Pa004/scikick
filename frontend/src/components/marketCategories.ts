@@ -13,6 +13,6 @@ export const MARKET_CATEGORIES: Record<MarketCategoryKey, string[]> = {
   corners: ['corners_over_under_9.5', 'corners_over_under_10.5', 'corners_over_under_11.5', 'corners_handicap_-1', 'corners_handicap_+1'],
   cards: ['cards_over_under_8.5', 'cards_over_under_9.5', 'cards_over_under_10.5', 'cards_handicap_-1', 'cards_handicap_+1'],
   firstHalf: ['ht_1x2', 'ht_over_under_0.5', 'ht_over_under_1.5', 'ht_double_chance'],
-  halfFull: ['both_halves', 'ft_result_given_ht'],
+  halfFull: ['both_halves', 'ft_result_given_ht', 'highest_scoring_half'],
   combined: ['home_o25', 'home_btts', 'dc_o25', 'dc_u25', '1x2_btts'],
 }
