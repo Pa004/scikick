@@ -1,10 +1,42 @@
 from __future__ import annotations
 
+import logging
+import threading
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.api.routers import predict, fixtures, stats, refresh, market_counts, markets_htft, rare_events, scorer
+from app.ingestion.sync import sync_all_leagues
+
+logger = logging.getLogger(__name__)
+
+
+def _startup_sync() -> None:
+    try:
+        settings = get_settings()
+        leagues = settings.leagues_initial.split(",")
+        results = sync_all_leagues(leagues, 3)
+        future_total = sum(
+            sum(r.get("future_by_source", {}).values())
+            for r in results if "error" not in r
+        )
+        errors = sum(1 for r in results if "error" in r)
+        logger.info(
+            "Startup sync done: %d future fixtures, %d league errors",
+            future_total, errors,
+        )
+    except Exception as exc:
+        logger.warning("Startup sync failed: %s", exc)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    thread = threading.Thread(target=_startup_sync, daemon=True, name="startup-sync")
+    thread.start()
+    yield
 
 
 def create_app() -> FastAPI:
@@ -13,6 +45,7 @@ def create_app() -> FastAPI:
         title="SciKick",
         description="Football probability estimation engine",
         version="0.1.0",
+        lifespan=lifespan,
     )
 
     app.add_middleware(

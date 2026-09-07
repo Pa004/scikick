@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     api_football_key: str = ""
     football_data_org_key: str = ""
     xg_enabled: bool = True
-    leagues_initial: str = "E0"
+    leagues_initial: str = "E0,SP1,D1,I1,F1"
     scheduler_sync_hour: int = 6
     scheduler_retrain_day: str = "sunday"
     scheduler_lineups_hour: int = 5
