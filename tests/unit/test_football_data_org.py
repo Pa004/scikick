@@ -89,6 +89,32 @@ def test_fetch_scheduled_normalizes(monkeypatch):
     assert result[1]["home_team"] == "Spurs"
 
 
+def test_fetch_scheduled_extracts_crests(monkeypatch):
+    _settings_with_key(monkeypatch)
+    payload = {
+        "matches": [
+            {
+                "id": 1,
+                "utcDate": "2026-09-12T14:00:00Z",
+                "homeTeam": {"name": "Arsenal FC", "crest": "https://x.test/arsenal.png"},
+                "awayTeam": {"name": "Chelsea FC", "crest": "https://x.test/chelsea.png"},
+            },
+            {
+                "id": 2,
+                "utcDate": "2026-09-13T16:30:00Z",
+                "homeTeam": {"name": "Liverpool FC"},
+                "awayTeam": {"name": "Everton FC"},
+            },
+        ]
+    }
+    monkeypatch.setattr(fdorg.httpx, "get", lambda *a, **k: FakeResponse(payload))
+    result = fetch_scheduled("E0")
+    assert result[0]["home_crest"] == "https://x.test/arsenal.png"
+    assert result[0]["away_crest"] == "https://x.test/chelsea.png"
+    assert result[1]["home_crest"] is None
+    assert result[1]["away_crest"] is None
+
+
 @pytest.mark.parametrize(("league", "source", "expected"), [
     ("E0", "Manchester United FC", "Man United"),
     ("E0", "Wolverhampton Wanderers FC", "Wolves"),

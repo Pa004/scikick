@@ -1,4 +1,4 @@
-import type { Fixture, Prediction, TeamContext } from '../types'
+import type { Fixture, Prediction, TeamContext, ValueResponse } from '../types'
 import { useEffect, useState } from 'react'
 import { fetchContext } from '../api'
 import { useLanguage } from '../i18n'
@@ -18,8 +18,8 @@ import MarketSelector from './MarketSelector'
 import DisplayModeToggle from './DisplayModeToggle'
 import ValueChecker from './ValueChecker'
 import { Badge } from './ui/badge'
-import { Card, CardBody, CardTitle, Eyebrow } from './ui/card'
-import { Table, Td } from './ui/table'
+import { Card, CardBody, CardTitle, SectionHeading } from './ui/card'
+import { Table, Td, Th } from './ui/table'
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 
@@ -108,7 +108,7 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
     <Card className="mb-4">
       <CardBody>
         <CardTitle className="mb-3">{t('matchCenter')}</CardTitle>
-        <Eyebrow className="mb-1 block">{t('form')} · {t('last5')}</Eyebrow>
+        <SectionHeading>{t('form')} · {t('last5')}</SectionHeading>
         <div className="mb-3 flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm text-foreground">{home}</span>
@@ -119,7 +119,7 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
             <FormBadges form={awayForm} emptyLabel={t('noFormData')} />
           </div>
         </div>
-        <Eyebrow className="mb-1 block">{t('headToHead')}</Eyebrow>
+        <SectionHeading>{t('headToHead')}</SectionHeading>
         {h2h.meetings.length === 0 ? (
           <p className="mb-3 text-xs text-faint">{t('noH2H')}</p>
         ) : (
@@ -134,7 +134,7 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
             ))}
           </div>
         )}
-        <Eyebrow className="mb-1 block">{t('momentum')}</Eyebrow>
+        <SectionHeading>{t('momentum')}</SectionHeading>
         <div className="flex flex-col gap-1.5">
           <MomentumRow label={home} pct={momentum.homePct} />
           <MomentumRow label={away} pct={momentum.awayPct} />
@@ -192,9 +192,14 @@ interface PredictionPanelProps {
   away: string
   fixtures: Fixture[]
   analyst: boolean
+  // Inside a match story card the verdict hero already covers the title
+  // and probable score; bare hides those duplicates.
+  bare?: boolean
+  // Prefetched stored odds; when undefined the checker loads them itself.
+  initialValue?: ValueResponse | null
 }
 
-export default function PredictionPanel({ prediction, selectedMarket, onMarketChange, home, away, fixtures, analyst }: PredictionPanelProps) {
+export default function PredictionPanel({ prediction, selectedMarket, onMarketChange, home, away, fixtures, analyst, bare = false, initialValue }: PredictionPanelProps) {
   const { t, locale } = useLanguage()
   const [mode, setMode] = useDisplayMode()
   const moves = useMovement(prediction.fixture_id, selectedMarket, prediction.probabilities[selectedMarket])
@@ -202,7 +207,9 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
 
   return (
     <div>
-      <h2 className="mb-4 font-display text-lg font-semibold text-foreground">{t('prediction')}</h2>
+      {!bare && (
+        <h2 className="mb-4 font-display text-lg font-semibold text-foreground">{t('prediction')}</h2>
+      )}
 
       <Card className="mb-4">
         <CardBody className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
@@ -213,7 +220,7 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
               {t('agreement')}: <span className="font-medium text-primary-strong">{formatProb(prediction.model_agreement)}</span>
             </span>
           )}
-          {prediction.probable_score && (
+          {!bare && prediction.probable_score && (
             <span className="text-muted">
               {t('probableScore')}{' '}
               <Badge variant="accent" className="px-3 py-1 font-mono text-sm">
@@ -242,7 +249,7 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
 
       <MatchCenter home={home} away={away} fixtures={fixtures} />
       <SuperCombo probabilities={prediction.probabilities} mode={mode} analyst={analyst} />
-      <ValueChecker fixtureId={prediction.fixture_id} home={home} away={away} />
+      <ValueChecker fixtureId={prediction.fixture_id} home={home} away={away} autoResult={initialValue} />
 
       {analyst && prediction.top_features && prediction.top_features.length > 0 && (
         <Card>
@@ -252,7 +259,7 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
               <tbody>
                 {prediction.top_features.map((f, i) => (
                   <tr key={i} className="transition-colors hover:bg-surface-hover">
-                    <Td className="text-muted">{toTitleCase(f.feature)}</Td>
+                    <Th scope="row" className="font-normal text-muted">{toTitleCase(f.feature)}</Th>
                     <Td align="right" className="font-medium">
                       {typeof f.value === 'number' ? f.value.toFixed(3) : '—'}
                     </Td>

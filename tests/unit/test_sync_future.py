@@ -132,3 +132,17 @@ def test_resolve_team_exact_canonical_no_alias(tmp_path, capsys):
         assert capsys.readouterr().out == ""
     finally:
         conn.close()
+
+
+def test_resolve_team_stores_crest_without_overwrite(tmp_path):
+    conn = _make_conn(tmp_path)
+    try:
+        first = sync_module._resolve_team(conn, "Crest FC", "https://x.test/a.png")
+        row = conn.execute("SELECT crest_url FROM teams WHERE id = ?", (first,)).fetchone()
+        assert row[0] == "https://x.test/a.png"
+        second = sync_module._resolve_team(conn, "Crest FC", "https://x.test/b.png")
+        assert second == first
+        row = conn.execute("SELECT crest_url FROM teams WHERE id = ?", (first,)).fetchone()
+        assert row[0] == "https://x.test/a.png"
+    finally:
+        conn.close()

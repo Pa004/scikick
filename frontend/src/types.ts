@@ -3,6 +3,8 @@ export interface Fixture {
   date: string
   home: string
   away: string
+  home_crest?: string | null
+  away_crest?: string | null
   status: string
   home_score: number | null
   away_score: number | null
@@ -48,8 +50,10 @@ export interface ContextH2HMeeting {
 
 export interface TeamContext {
   team: string
+  crest?: string | null
   form: ContextFormEntry[]
   opponent?: string
+  opponent_crest?: string | null
   h2h?: { wins: number; draws: number; losses: number; matches: ContextH2HMeeting[] }
 }
 

@@ -89,6 +89,7 @@ function ScorerRow({ s }: { s: ScorerPlayer }) {
 
 export default function ScorerPanel({ scorer }: ScorerPanelProps) {
   const { t } = useLanguage()
+  const list = scorer.scorers ?? []
   const [sortKey, setSortKey] = useState<ScorerSortKey>('prob_anytime')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [team, setTeam] = useState<TeamFilter>('both')
@@ -105,9 +106,9 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
   }
 
   const rows = useMemo(() => {
-    const filtered = filterScorers(scorer.scorers, team, query)
+    const filtered = filterScorers(list, team, query)
     return sortScorers(filtered, sortKey, sortDir)
-  }, [scorer.scorers, team, query, sortKey, sortDir])
+  }, [list, team, query, sortKey, sortDir])
 
   const visible = expanded ? rows : rows.slice(0, VISIBLE_COUNT)
 
@@ -121,8 +122,8 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
   }
 
   return (
-    <div>
-      <h2 className="mb-4 font-display text-lg font-semibold text-foreground">{t('goalscorer')}</h2>
+    <div className="mt-4">
+      <h3 className="mb-3 font-display text-base font-semibold text-foreground">{t('goalscorer')}</h3>
 
       <Badge
         variant={scorer.data_quality === 'lineup_confirmed' ? 'success' : 'warning'}
@@ -131,7 +132,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
         {scorer.data_quality === 'lineup_confirmed' ? t('lineupConfirmed') : t('lineupProjected')}
       </Badge>
 
-      {scorer.scorers.length === 0 ? (
+      {list.length === 0 ? (
         <p className="text-sm text-faint">{t('noScorerData')}</p>
       ) : (
         <>
@@ -154,7 +155,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
                             type="button"
                             onClick={() => handleSort(col.key)}
                             aria-label={`${t('sortBy')} ${t(col.labelKey)}${sortKey === col.key ? `, ${sortDir === 'asc' ? t('sortAsc') : t('sortDesc')}` : ''}`}
-                            className="inline-flex cursor-pointer items-center gap-1 bg-transparent p-0 font-medium text-inherit hover:text-foreground"
+                            className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1 bg-transparent p-1 font-medium text-inherit hover:text-foreground"
                           >
                             {t(col.labelKey)}
                             {sortKey === col.key && (

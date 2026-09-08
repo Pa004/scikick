@@ -27,6 +27,7 @@ function MoveArrow({ move }: { move: MoveDirection }) {
 }
 
 function ProbBar({ label, prob, mode, move }: { label: string; prob: number; mode: DisplayMode; move: MoveDirection }) {
+  const { t } = useLanguage()
   const isFavorite = prob > 0.5
   return (
     <div
@@ -36,7 +37,10 @@ function ProbBar({ label, prob, mode, move }: { label: string; prob: number; mod
       )}
     >
       <div className="prob-bar-fill absolute inset-y-0 left-0 bg-primary/20 transition-[width] duration-500" style={{ width: `${prob * 100}%` }} />
-      <span className="relative z-10 font-medium text-foreground">{label}</span>
+      <span className="relative z-10 font-medium text-foreground">
+        {label}
+        {isFavorite && <span className="sr-only"> · {t('favorite')}</span>}
+      </span>
       <span className={cn('relative z-10 tabular-nums', isFavorite ? 'font-semibold text-primary-strong' : 'text-muted')}>
         {mode === 'odds' ? formatDecimal(prob) : formatProb(prob)}
         <MoveArrow move={move} />
@@ -73,13 +77,13 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   )
 
   const overUnder = () => {
-    if (data.over === undefined && data.under === undefined) {
+    const sides = (['over', 'under'] as const).filter(k => data[k] !== undefined)
+    if (sides.length === 0) {
       return <span className="text-sm text-faint">{t('marketMissing')}</span>
     }
     return (
       <div className="flex flex-col gap-1.5">
-        {bar('over', data.over ?? 0)}
-        {bar('under', data.under ?? 0)}
+        {sides.map(k => bar(k, data[k]))}
       </div>
     )
   }
@@ -138,8 +142,10 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
     const chartData = Object.entries(data)
       .sort((a, b) => rank(a[0]) - rank(b[0]))
       .map(([k, v]) => ({ goals: k, probability: +(v * 100).toFixed(1) }))
+    const summary = `${getOutcomeLabel(market, 'total', locale)}: ${chartData.map(d => `${d.goals} ${d.probability}%`).join(', ')}`
     return (
       <div className="h-44">
+        <div role="img" aria-label={summary} className="h-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
             <XAxis dataKey="goals" fontSize={12} stroke={chart.grid} tick={{ fill: chart.tick }} />
@@ -151,6 +157,18 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
             <Bar dataKey="probability" fill={chart.accent} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
+        </div>
+        <table className="sr-only">
+          <caption>{summary}</caption>
+          <tbody>
+            {chartData.map(row => (
+              <tr key={row.goals}>
+                <td>{row.goals}</td>
+                <td>{row.probability}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     )
   }

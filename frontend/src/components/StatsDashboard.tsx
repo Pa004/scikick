@@ -2,7 +2,7 @@ import type { Stats, MatchdayData, CalibrationData } from '../types'
 import { useLanguage, fillVars as fill } from '../i18n'
 import { useCountUp } from '../hooks/useCountUp'
 import { Badge } from './ui/badge'
-import { Card, CardBody, CardTitle, Eyebrow } from './ui/card'
+import { Card, CardBody, CardTitle } from './ui/card'
 import { Table, TableRegion, Td, Th } from './ui/table'
 import CalibrationChart from './CalibrationChart'
 import MatchdayChart from './MatchdayChart'
@@ -28,7 +28,7 @@ function calibrationSummary(calibrationData: CalibrationData | null): { good: nu
   return { good, total: bins.length, n: bins.reduce((acc, b) => acc + b.count, 0) }
 }
 
-function TrustBlock({ stats, matchdayData, calibrationData }: StatsDashboardProps) {
+function TrustBlock({ stats, matchdayData, calibrationData }: Omit<StatsDashboardProps, 'selectedMarket'>) {
   const { t } = useLanguage()
   const brier = meanBrier(matchdayData)
   const cal = calibrationSummary(calibrationData)
@@ -99,7 +99,7 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
         <StatCard value={stats.avg_confidence} label={t('avgConfidence')} format={v => formatProb(v)} />
       </div>
 
-      <TrustBlock stats={stats} matchdayData={matchdayData} calibrationData={calibrationData} selectedMarket={selectedMarket} />
+      <TrustBlock stats={stats} matchdayData={matchdayData} calibrationData={calibrationData} />
 
       <Section title={`Brier Score by Matchday — ${selectedMarket}`}>
         {matchdayData && !matchdayData.cold_start ? (
@@ -178,10 +178,11 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
 }
 
 function StatCard({ value, label, format }: { value: number; label: string; format: (v: number) => string }) {
-  const animated = useCountUp(value)
+  const safe = Number.isFinite(value) ? value : null
+  const animated = useCountUp(safe ?? 0)
   return (
     <div className="animate-pop rounded-xl border border-border bg-surface px-2 py-4 text-center shadow-sm">
-      <div className="font-display text-xl font-bold text-primary-strong tabular-nums sm:text-2xl">{format(animated)}</div>
+      <div className="font-display text-xl font-bold text-primary-strong tabular-nums sm:text-2xl">{safe === null ? '—' : format(animated)}</div>
       <div className="mt-1 text-xs text-muted">{label}</div>
     </div>
   )
@@ -190,7 +191,7 @@ function StatCard({ value, label, format }: { value: number; label: string; form
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-6">
-      <Eyebrow className="mb-2 block">{title}</Eyebrow>
+      <h3 className="mb-2 text-xs font-semibold tracking-[0.08em] text-faint uppercase">{title}</h3>
       {children}
     </div>
   )

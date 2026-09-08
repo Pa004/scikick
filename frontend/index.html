@@ -8,10 +8,12 @@
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#090d18" />
     <script>
       try {
-        if ((localStorage.getItem('scikick.theme') || 'dark') === 'dark') {
-          document.documentElement.classList.add('dark')
-        }
-      } catch (e) {}
+        var stored = localStorage.getItem('scikick.theme');
+        var dark = stored ? stored === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches;
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) {
+        document.documentElement.classList.add('dark');
+      }
     </script>
     <title>SciKick</title>
   </head>

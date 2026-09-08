@@ -51,8 +51,8 @@ export default function MatchdayChart({ data }: MatchdayChartProps) {
           </tr>
         </thead>
         <tbody>
-          {chartData.map(row => (
-            <tr key={row.date}>
+          {chartData.map((row, i) => (
+            <tr key={`${row.date}-${i}`}>
               <td>{row.date}</td>
               <td>{row.brier}</td>
               <td>{row.accuracy}%</td>

@@ -29,7 +29,8 @@ def list_fixtures(
             "SELECT f.id, f.match_date, f.league, f.status, "
             "f.home_score, f.away_score, f.ht_home_score, f.ht_away_score, "
             "f.prediction, f.result_checked, "
-            "t1.canonical_name as home_name, t2.canonical_name as away_name "
+            "t1.canonical_name as home_name, t2.canonical_name as away_name, "
+            "t1.crest_url as home_crest, t2.crest_url as away_crest "
             "FROM fixtures f "
             "JOIN teams t1 ON f.home_team_id = t1.id "
             "JOIN teams t2 ON f.away_team_id = t2.id "
@@ -48,6 +49,8 @@ def list_fixtures(
                 "date": row["match_date"],
                 "home": row["home_name"],
                 "away": row["away_name"],
+                "home_crest": row["home_crest"],
+                "away_crest": row["away_crest"],
                 "league": row["league"],
                 "status": row["status"],
                 "home_score": row["home_score"],

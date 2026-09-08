@@ -16,7 +16,6 @@ export default function AnalystToggle({ analyst, onChange }: AnalystToggleProps)
       size="sm"
       variant={analyst ? 'primary' : 'secondary'}
       aria-pressed={analyst}
-      aria-label={t('analystMode')}
       title={t('analystMode')}
       onClick={() => onChange(!analyst)}
     >

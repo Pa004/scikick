@@ -37,36 +37,53 @@ function OutcomeRow({ label, outcome }: { label: string; outcome: ValueOutcome }
   )
 }
 
+interface ValueCheckerProps {
+  fixtureId: number
+  home: string
+  away: string
+  // Prefetched stored odds (match story bundle). When undefined the
+  // checker loads them itself; provided null means "no stored odds".
+  autoResult?: ValueResponse | null
+}
+
 export default function ValueChecker({
   fixtureId,
   home,
   away,
-}: {
-  fixtureId: number
-  home: string
-  away: string
-}) {
+  autoResult,
+}: ValueCheckerProps) {
   const { t } = useLanguage()
   const [odds, setOdds] = useState<Record<Side, string>>({ home: '', draw: '', away: '' })
-  const [result, setResult] = useState<ValueResponse | null>(null)
+  const [result, setResult] = useState<ValueResponse | null>(autoResult ?? null)
   const [pending, setPending] = useState(false)
+  const [autoError, setAutoError] = useState(false)
 
   useEffect(() => {
-    let cancelled = false
     setOdds({ home: '', draw: '', away: '' })
+    setAutoError(false)
+    if (autoResult !== undefined) {
+      setResult(autoResult)
+      return
+    }
+    let cancelled = false
     setResult(null)
     async function loadAuto() {
       try {
         const data = await fetchValue(fixtureId)
         if (!cancelled) setResult(data)
       } catch {
-        if (!cancelled) setResult(null)
+        if (!cancelled) {
+          setResult(null)
+          setAutoError(true)
+        }
       }
     }
     void loadAuto()
     return () => {
       cancelled = true
     }
+    // autoResult is set once per mount (bundle already loaded when rendered)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fixtureId])
 
   const labels: Record<Side, string> = { home, draw: t('draw'), away }
@@ -103,7 +120,7 @@ export default function ValueChecker({
         </p>
         <div className="mb-3 flex flex-wrap items-end gap-2">
           {SIDES.map((side) => (
-            <label key={side} className="flex-1 basis-22 text-xs text-muted">
+            <label key={side} className="min-w-22 flex-1 text-xs text-muted">
               <span className="mb-1 block font-medium">{labels[side]}</span>
               <Input
                 type="number"
@@ -113,22 +130,27 @@ export default function ValueChecker({
                 value={odds[side]}
                 onChange={(e) => {
                   setOdds({ ...odds, [side]: e.target.value })
-                  setResult(null)
                 }}
               />
             </label>
           ))}
           <Button type="button" variant="primary" onClick={() => void check()} disabled={!ready || pending} aria-describedby="value-hint">
-            {t('valueCheck')}
+            {pending ? t('loading') : t('valueCheck')}
           </Button>
         </div>
-        {result && (
-          <div role="status" className="flex flex-col gap-2 border-t border-border pt-3">
-            {SIDES.map((side) => result.outcomes[side] && (
-              <OutcomeRow key={side} label={labels[side]} outcome={result.outcomes[side]} />
-            ))}
-          </div>
-        )}
+        <div role="status" aria-live="polite" className="border-t border-border pt-3">
+          {result ? (
+            <div className="flex flex-col gap-2">
+              {SIDES.map((side) => result.outcomes[side] && (
+                <OutcomeRow key={side} label={labels[side]} outcome={result.outcomes[side]} />
+              ))}
+            </div>
+          ) : (
+            <p className="m-0 text-xs text-faint">
+              {autoError ? t('valueAutoFailed') : t('valueEmpty')}
+            </p>
+          )}
+        </div>
       </CardBody>
     </Card>
   )

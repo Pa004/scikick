@@ -8,6 +8,16 @@ export interface OutcomeProbs {
   away: number
 }
 
+// Narrow a raw market record to 1X2 shares; null when any side
+// is missing or non-numeric (nested ht/ft groups included).
+export function asOutcomeProbs(record: Record<string, unknown> | null | undefined): OutcomeProbs | null {
+  if (!record) return null
+  const { home, draw, away } = record as Record<string, unknown>
+  if (typeof home !== 'number' || typeof draw !== 'number' || typeof away !== 'number') return null
+  if (!Number.isFinite(home) || !Number.isFinite(draw) || !Number.isFinite(away)) return null
+  return { home, draw, away }
+}
+
 export interface H2HMeeting {
   date: string
   home: string

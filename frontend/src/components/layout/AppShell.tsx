@@ -10,10 +10,11 @@ interface AppShellProps {
   onLeagueChange: (code: string) => void
   analyst: boolean
   onAnalystChange: (v: boolean) => void
+  actions?: ReactNode
   children: ReactNode
 }
 
-export function AppShell({ league, onLeagueChange, analyst, onAnalystChange, children }: AppShellProps) {
+export function AppShell({ league, onLeagueChange, analyst, onAnalystChange, actions, children }: AppShellProps) {
   const { t } = useLanguage()
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
@@ -27,9 +28,12 @@ export function AppShell({ league, onLeagueChange, analyst, onAnalystChange, chi
           </h1>
           <p className="mt-1 text-sm text-muted">{t('tagline')}</p>
         </div>
-        <div className="flex flex-wrap items-end gap-x-4 gap-y-3">
-          <LeagueSwitcher league={league} onChange={onLeagueChange} />
-          <div className="flex items-center gap-2 pb-0.5">
+        <div className="flex min-w-0 flex-wrap items-end gap-x-4 gap-y-3">
+          <div className="min-w-0 flex-1">
+            <LeagueSwitcher league={league} onChange={onLeagueChange} />
+          </div>
+          <div className="flex shrink-0 items-center gap-2 pb-0.5">
+            {actions}
             <LanguageSelector />
             <AnalystToggle analyst={analyst} onChange={onAnalystChange} />
             <ThemeToggle />

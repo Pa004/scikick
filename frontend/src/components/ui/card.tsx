@@ -31,3 +31,16 @@ export function Eyebrow({ className, ...props }: HTMLAttributes<HTMLSpanElement>
     />
   )
 }
+
+// Section titles that belong in the heading outline (h3 under card h2s).
+export function SectionHeading({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
+  return (
+    <h3
+      className={cn(
+        'mb-2 text-xs font-semibold tracking-[0.08em] text-faint uppercase',
+        className,
+      )}
+      {...props}
+    />
+  )
+}

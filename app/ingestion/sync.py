@@ -43,18 +43,28 @@ def _ensure_league(conn: sqlite3.Connection, league_code: str) -> None:
     )
 
 
-def _resolve_team(conn: sqlite3.Connection, team_name: str) -> int:
+def _store_crest(conn: sqlite3.Connection, team_id: int, crest: str | None) -> None:
+    if crest:
+        conn.execute(
+            "UPDATE teams SET crest_url = COALESCE(crest_url, ?) WHERE id = ?",
+            (crest, team_id),
+        )
+
+
+def _resolve_team(conn: sqlite3.Connection, team_name: str, crest: str | None = None) -> int:
     row = conn.execute(
         "SELECT canonical_team_id FROM team_aliases WHERE source = 'football_data' AND source_name = ?",
         (team_name,),
     ).fetchone()
     if row:
+        _store_crest(conn, row["canonical_team_id"], crest)
         return row["canonical_team_id"]
 
     row = conn.execute(
         "SELECT id FROM teams WHERE canonical_name = ?", (team_name,)
     ).fetchone()
     if row:
+        _store_crest(conn, row["id"], crest)
         return row["id"]
 
     canonical = _fuzzy_canonical(conn, team_name)
@@ -65,9 +75,10 @@ def _resolve_team(conn: sqlite3.Connection, team_name: str) -> int:
             (canonical_id, team_name),
         )
         print(f"Aliased '{team_name}' to '{canonical_name}'")
+        _store_crest(conn, canonical_id, crest)
         return canonical_id
 
-    conn.execute("INSERT INTO teams (canonical_name) VALUES (?)", (team_name,))
+    conn.execute("INSERT INTO teams (canonical_name, crest_url) VALUES (?, ?)", (team_name, crest))
     team_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
     conn.execute(
         "INSERT INTO team_aliases (canonical_team_id, source, source_name) VALUES (?, 'football_data', ?)",
@@ -199,8 +210,8 @@ def _insert_future_fixtures(
         if not home_name or not away_name or not match_date:
             continue
 
-        home_id = _resolve_team(conn, home_name)
-        away_id = _resolve_team(conn, away_name)
+        home_id = _resolve_team(conn, home_name, fix.get("home_crest"))
+        away_id = _resolve_team(conn, away_name, fix.get("away_crest"))
         source_id = f"{source}_{fix.get('api_fixture_id', '')}"
 
         conn.execute(

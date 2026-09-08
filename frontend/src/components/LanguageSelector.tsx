@@ -16,7 +16,7 @@ export function LanguageSelector() {
           key={value}
           active={value === locale}
           lang={value}
-          aria-label={name}
+          title={name}
           onClick={() => setLocale(value)}
           className="min-h-9 px-2.5 text-xs font-bold"
         >
