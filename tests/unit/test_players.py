@@ -20,7 +20,7 @@ def test_migration_005_applies(tmp_path: Path):
     ).fetchall()]
     conn.close()
 
-    assert version == 7
+    assert version == 8
     assert "players" in tables
     assert "player_features" in tables
     assert "lineups" in tables
@@ -33,7 +33,7 @@ def test_migration_005_idempotent(tmp_path: Path):
     conn = sqlite3.connect(db_path)
     version = conn.execute("PRAGMA user_version").fetchone()[0]
     conn.close()
-    assert version == 7
+    assert version == 8
 
 
 def test_insert_player(tmp_path: Path):

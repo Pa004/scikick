@@ -1,4 +1,4 @@
-import type { Fixture, Prediction, Stats, MatchdayData, CalibrationData, ScorerPrediction, ValueResponse, TeamContext } from './types'
+import type { CalibrationData, Fixture, MatchdayData, Stats } from './types'
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api'
 
@@ -13,10 +13,6 @@ export async function fetchFixtures(league?: string, limit = 30): Promise<Fixtur
   if (league) params.set('league', league)
   const data = await fetchJson<{ fixtures: Fixture[] }>(`${API_BASE}/fixtures?${params}`)
   return data.fixtures || []
-}
-
-export async function fetchPrediction(id: number): Promise<Prediction> {
-  return fetchJson<Prediction>(`${API_BASE}/predict/${id}`)
 }
 
 export async function fetchStats(market = '1x2', league?: string): Promise<Stats> {
@@ -37,25 +33,5 @@ export async function fetchCalibration(market = '1x2', league?: string): Promise
   return fetchJson<CalibrationData>(`${API_BASE}/stats/calibration?${params}`)
 }
 
-export async function fetchScorer(id: number): Promise<ScorerPrediction> {
-  return fetchJson<ScorerPrediction>(`${API_BASE}/predict/scorer/${id}`)
-}
-
-export async function fetchContext(team: string, opponent?: string): Promise<TeamContext> {
-  const params = new URLSearchParams({ team })
-  if (opponent) params.set('opponent', opponent)
-  return fetchJson<TeamContext>(`${API_BASE}/context?${params}`)
-}
-
-export async function fetchValue(
-  id: number,
-  odds?: { home: number; draw: number; away: number },
-): Promise<ValueResponse> {
-  const res = await fetch(`${API_BASE}/value`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(odds ? { fixture_id: id, odds } : { fixture_id: id }),
-  })
-  if (!res.ok) throw new Error(`API error: ${res.status}`)
-  return res.json()
-}
+export { fetchContext, fetchPrediction, fetchScorer, fetchValue } from './api/detail'
+export type { DetailBundle } from './api/detail'

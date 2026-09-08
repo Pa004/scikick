@@ -8,7 +8,7 @@ const MAX_ENTRIES = 200
 // Ignore sub-threshold noise so rounding jitter never flashes arrows.
 const FLAT_THRESHOLD = 0.005
 
-type SnapshotStore = Record<string, Record<string, number>>
+type SnapshotStore = Record<string, Record<string, number | Record<string, number>>>
 
 function readSnapshots(): SnapshotStore {
   try {
@@ -34,10 +34,11 @@ function writeSnapshots(all: SnapshotStore): void {
 
 // Compares current outcome probabilities against the last seen snapshot
 // (per fixture+market) and reports direction. First view is always flat.
+// Nested group values (ht/ft markets) recurse one level with `parent.child` keys.
 export function useMovement(
   fixtureId: number,
   market: string,
-  data: Record<string, number> | undefined,
+  data: Record<string, number> | Record<string, Record<string, number>> | undefined,
 ): MoveMap {
   const key = `${fixtureId}:${market}`
 
@@ -47,10 +48,22 @@ export function useMovement(
     const prev = readSnapshots()[key]
     const next: MoveMap = {}
     for (const [outcome, curr] of Object.entries(data)) {
+      if (typeof curr === 'object' && curr !== null) {
+        for (const [sub, subCurr] of Object.entries(curr as Record<string, number>)) {
+          const old = (prev?.[outcome] as unknown as Record<string, number> | undefined)?.[sub]
+          next[`${outcome}.${sub}`] =
+            old === undefined || Math.abs(subCurr - old) < FLAT_THRESHOLD
+              ? 'flat'
+              : subCurr > old ? 'up' : 'down'
+        }
+        continue
+      }
       const old = prev?.[outcome]
-      next[outcome] = old === undefined || Math.abs(curr - old) < FLAT_THRESHOLD
+      const oldNum = typeof old === 'number' ? old : undefined
+      const currNum = curr as number
+      next[outcome] = oldNum === undefined || Math.abs(currNum - oldNum) < FLAT_THRESHOLD
         ? 'flat'
-        : curr > old ? 'up' : 'down'
+        : currNum > oldNum ? 'up' : 'down'
     }
     return next
   }, [key, data])

@@ -15,11 +15,6 @@ function renderSelector(selected = '1x2') {
   return onChange
 }
 
-function regionHidden(optionText: string): boolean {
-  const region = screen.getByText(optionText).closest('div[role="region"]')
-  return region?.getAttribute('hidden') !== null
-}
-
 describe('MarketSelector', () => {
   it('renders only groups with available markets', () => {
     renderSelector()
@@ -31,15 +26,16 @@ describe('MarketSelector', () => {
 
   it('opens the group containing the selected market by default', () => {
     renderSelector('ht_1x2')
-    expect(regionHidden('Double chance')).toBe(true)
+    expect(screen.queryByText('Double chance')).toBeNull()
+    expect(screen.getByText('1st Half')).toBeDefined()
   })
 
   it('keeps one group open at a time', () => {
     renderSelector()
-    expect(regionHidden('Double chance')).toBe(false)
+    expect(screen.getByText('Double chance')).toBeDefined()
     fireEvent.click(screen.getByText('Goals'))
-    expect(regionHidden('Double chance')).toBe(true)
-    expect(regionHidden('Over / Under 2.5 goals')).toBe(false)
+    expect(screen.queryByText('Double chance')).toBeNull()
+    expect(screen.getByText('Over / Under 2.5 goals')).toBeDefined()
   })
 
   it('calls onChange with the market key', () => {

@@ -1,17 +1,17 @@
 import { ResponsiveContainer, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from 'recharts'
 import type { CalibrationBin } from '../types'
 import { useLanguage, fillVars } from '../i18n'
+import { useChartTheme } from './charts/chartTheme'
 
 interface CalibrationChartProps {
   data: CalibrationBin[]
 }
 
-const tooltipStyle = { background: '#1a2238', border: '1px solid #2a3350', borderRadius: '8px', color: '#e2e8f0' }
-
 export default function CalibrationChart({ data }: CalibrationChartProps) {
   const { t } = useLanguage()
+  const chart = useChartTheme()
   if (data.length === 0) {
-    return <p style={{ color: 'var(--text-muted)' }}>{t('noCalibrationData')}</p>
+    return <p className="text-sm text-faint">{t('noCalibrationData')}</p>
   }
 
   const chartData = data.map(d => ({
@@ -22,20 +22,20 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
   const summary = `${t('predictedPct')} / ${t('actualPct')}: ${fillVars(t('chartBins'), { n: chartData.length })}`
 
   return (
-    <div className="card-flat" style={{ padding: '0.75rem', height: '280px' }}>
-      <div role="img" aria-label={summary} style={{ height: '100%' }}>
+    <div className="rounded-xl border border-border bg-surface p-3 shadow-sm">
+      <div role="img" aria-label={summary} className="h-70">
       <ResponsiveContainer width="100%" height="100%">
           <ScatterChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#2a3350" />
+          <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
           <XAxis
             type="number"
             dataKey="x"
             name={t('predictedPct')}
             domain={[0, 100]}
             fontSize={12}
-            stroke="#64748b"
-            tick={{ fill: '#94a3b8' }}
-            label={{ value: t('predictedPct'), position: 'bottom', fontSize: 12, fill: '#94a3b8' }}
+            stroke={chart.grid}
+            tick={{ fill: chart.tick }}
+            label={{ value: t('predictedPct'), position: 'bottom', fontSize: 12, fill: chart.tick }}
           />
           <YAxis
             type="number"
@@ -43,12 +43,12 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
             name={t('actualPct')}
             domain={[0, 100]}
             fontSize={12}
-            stroke="#64748b"
-            tick={{ fill: '#94a3b8' }}
-            label={{ value: t('actualPct'), angle: -90, position: 'left', fontSize: 12, fill: '#94a3b8' }}
+            stroke={chart.grid}
+            tick={{ fill: chart.tick }}
+            label={{ value: t('actualPct'), angle: -90, position: 'left', fontSize: 12, fill: chart.tick }}
           />
           <Tooltip
-            contentStyle={tooltipStyle}
+            contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: '8px', color: chart.tooltipText }}
             formatter={(value, name, props) => [
               `${Number(value).toFixed(1)}% (n=${props.payload.count})`,
               name === 'x' ? t('predictedPct') : t('actualPct'),
@@ -56,11 +56,11 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
           />
           <ReferenceLine
             segment={[{ x: 0, y: 0 }, { x: 100, y: 100 }]}
-            stroke="#ef4444"
+            stroke={chart.reference}
             strokeDasharray="5 5"
             name={t('perfect')}
           />
-          <Scatter data={chartData} fill="var(--accent)" />
+          <Scatter data={chartData} fill={chart.accent} />
         </ScatterChart>
       </ResponsiveContainer>
       </div>

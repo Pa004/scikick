@@ -173,8 +173,10 @@ def fetch_scheduled(league_code: str) -> list[dict]:
 
     fixtures = []
     for match in data.get("matches", []):
-        home = (match.get("homeTeam") or {}).get("name")
-        away = (match.get("awayTeam") or {}).get("name")
+        home_team = match.get("homeTeam") or {}
+        away_team = match.get("awayTeam") or {}
+        home = home_team.get("name")
+        away = away_team.get("name")
         date = (match.get("utcDate") or "")[:10]
         if not home or not away or not date:
             continue
@@ -183,6 +185,8 @@ def fetch_scheduled(league_code: str) -> list[dict]:
             "date": match.get("utcDate"),
             "home_team": normalize_team_name(home, league_code),
             "away_team": normalize_team_name(away, league_code),
+            "home_crest": home_team.get("crest"),
+            "away_crest": away_team.get("crest"),
             "league": league_code,
         })
     return fixtures

@@ -140,6 +140,23 @@ const DICTIONARIES = {
     chartBins: '{n} bins',
     skipToContent: 'Skip to main content',
     tabsHintDisabled: 'Choose a fixture to enable the views',
+    themeSwitchToLight: 'Switch to light theme',
+    themeSwitchToDark: 'Switch to dark theme',
+    showMore: 'Show more',
+    showingMatches: 'Showing {shown} of {total} matches',
+    myMatches: 'Followed',
+    valueOnly: 'Value',
+    followTeam: 'Follow {team}',
+    unfollowTeam: 'Unfollow {team}',
+    retry: 'Retry',
+    loadingMatch: 'Loading match story...',
+    matchError: 'Could not load this match. Check your connection and try again.',
+    noFollowed: 'You follow no teams yet. Tap the star on any match to follow its teams.',
+    noValueMatches: 'No value found in the loaded matches yet.',
+    modelTrust: 'Model',
+    close: 'Close',
+    valueEmpty: 'Stored odds will appear here once loaded, or check your own above.',
+    valueAutoFailed: 'Could not load stored odds. Paste your own above.',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -276,6 +293,23 @@ const DICTIONARIES = {
     chartBins: '{n} tramos',
     skipToContent: 'Saltar al contenido principal',
     tabsHintDisabled: 'Elige un partido para activar las vistas',
+    themeSwitchToLight: 'Cambiar a tema claro',
+    themeSwitchToDark: 'Cambiar a tema oscuro',
+    showMore: 'Mostrar más',
+    showingMatches: 'Mostrando {shown} de {total} partidos',
+    myMatches: 'Seguidos',
+    valueOnly: 'Valor',
+    followTeam: 'Seguir a {team}',
+    unfollowTeam: 'Dejar de seguir a {team}',
+    retry: 'Reintentar',
+    loadingMatch: 'Cargando la historia del partido...',
+    matchError: 'No se pudo cargar este partido. Revisa tu conexión e inténtalo de nuevo.',
+    noFollowed: 'Aún no sigues equipos. Toca la estrella de un partido para seguir a sus equipos.',
+    noValueMatches: 'Sin valor en los partidos cargados por ahora.',
+    modelTrust: 'Modelo',
+    close: 'Cerrar',
+    valueEmpty: 'Las cuotas guardadas aparecerán aquí al cargar, o calcula las tuyas arriba.',
+    valueAutoFailed: 'No se pudieron cargar las cuotas guardadas. Pega las tuyas arriba.',
   },
 } as const
 
@@ -300,9 +334,17 @@ export function marketCategoryLabel(category: MarketCategoryKey): TranslationKey
 const STORAGE_KEY = 'scikick.locale'
 
 function detectInitialLocale(): Locale {
-  const saved = localStorage.getItem(STORAGE_KEY)
-  if (saved === 'en' || saved === 'es') return saved
-  return navigator.language.toLowerCase().startsWith('es') ? 'es' : 'en'
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved === 'en' || saved === 'es') return saved
+  } catch {
+    // Private mode: fall through to browser language
+  }
+  try {
+    return navigator.language.toLowerCase().startsWith('es') ? 'es' : 'en'
+  } catch {
+    return 'en'
+  }
 }
 
 interface LanguageContextValue {
@@ -318,7 +360,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.lang = locale
-    localStorage.setItem(STORAGE_KEY, locale)
+    try {
+      localStorage.setItem(STORAGE_KEY, locale)
+    } catch {
+      // Private mode: locale lasts for the session
+    }
   }, [locale])
 
   const t = (key: TranslationKey): string => DICTIONARIES[locale][key as keyof Dictionary]

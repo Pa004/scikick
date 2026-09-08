@@ -75,13 +75,25 @@ def _head_to_head(conn: sqlite3.Connection, team: str, opponent: str) -> dict:
     return record
 
 
+def _team_crest(conn: sqlite3.Connection, team: str) -> str | None:
+    row = conn.execute(
+        "SELECT crest_url FROM teams WHERE canonical_name = ?", (team,)
+    ).fetchone()
+    return row["crest_url"] if row else None
+
+
 @router.get("/context")
 def team_context(team: str, opponent: str = ""):
     conn = get_connection()
     try:
-        body: dict = {"team": team, "form": _team_form(conn, team)}
+        body: dict = {
+            "team": team,
+            "crest": _team_crest(conn, team),
+            "form": _team_form(conn, team),
+        }
         if opponent:
             body["opponent"] = opponent
+            body["opponent_crest"] = _team_crest(conn, opponent)
             body["h2h"] = _head_to_head(conn, team, opponent)
         return body
     finally:

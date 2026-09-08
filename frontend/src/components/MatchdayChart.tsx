@@ -1,17 +1,17 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } from 'recharts'
 import type { MatchdayStats } from '../types'
 import { useLanguage } from '../i18n'
+import { useChartTheme } from './charts/chartTheme'
 
 interface MatchdayChartProps {
   data: MatchdayStats[]
 }
 
-const tooltipStyle = { background: '#1a2238', border: '1px solid #2a3350', borderRadius: '8px', color: '#e2e8f0' }
-
 export default function MatchdayChart({ data }: MatchdayChartProps) {
   const { t } = useLanguage()
+  const chart = useChartTheme()
   if (data.length === 0) {
-    return <p style={{ color: 'var(--text-muted)' }}>{t('noMatchdayData')}</p>
+    return <p className="text-sm text-faint">{t('noMatchdayData')}</p>
   }
 
   const chartData = data.map(d => ({
@@ -22,22 +22,22 @@ export default function MatchdayChart({ data }: MatchdayChartProps) {
   const summary = `${t('brierScore')}: ${chartData[0].brier} → ${chartData[chartData.length - 1].brier}`
 
   return (
-    <div className="card-flat" style={{ padding: '0.75rem', height: '280px' }}>
-      <div role="img" aria-label={summary} style={{ height: '100%' }}>
+    <div className="rounded-xl border border-border bg-surface p-3 shadow-sm">
+      <div role="img" aria-label={summary} className="h-70">
       <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#2a3350" />
-          <XAxis dataKey="date" fontSize={11} angle={-45} textAnchor="end" height={50} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
-          <YAxis fontSize={12} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
+          <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+          <XAxis dataKey="date" fontSize={11} angle={-45} textAnchor="end" height={50} stroke={chart.grid} tick={{ fill: chart.tick }} />
+          <YAxis fontSize={12} stroke={chart.grid} tick={{ fill: chart.tick }} />
           <Tooltip
-            contentStyle={tooltipStyle}
+            contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: '8px', color: chart.tooltipText }}
             formatter={(value, name) => [
               name === 'brier' ? Number(value).toFixed(3) : `${value}%`,
               name === 'brier' ? t('brierScore') : t('accuracyPct'),
             ]}
           />
-          <ReferenceLine y={0.25} stroke="#ef4444" strokeDasharray="5 5" label={{ value: t('baseline'), fontSize: 10, fill: '#94a3b8' }} />
-          <Line type="monotone" dataKey="brier" stroke="var(--accent)" strokeWidth={2.5} dot={{ r: 3, fill: '#a3e635' }} name={t('brierScore')} />
+          <ReferenceLine y={0.25} stroke={chart.reference} strokeDasharray="5 5" label={{ value: t('baseline'), fontSize: 10, fill: chart.tick }} />
+          <Line type="monotone" dataKey="brier" stroke={chart.accent} strokeWidth={2.5} dot={{ r: 3, fill: chart.accentDot }} name={t('brierScore')} />
         </LineChart>
       </ResponsiveContainer>
       </div>
@@ -51,8 +51,8 @@ export default function MatchdayChart({ data }: MatchdayChartProps) {
           </tr>
         </thead>
         <tbody>
-          {chartData.map(row => (
-            <tr key={row.date}>
+          {chartData.map((row, i) => (
+            <tr key={`${row.date}-${i}`}>
               <td>{row.date}</td>
               <td>{row.brier}</td>
               <td>{row.accuracy}%</td>

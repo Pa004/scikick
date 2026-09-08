@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useLanguage, marketCategoryLabel } from '../i18n'
 import { getMarketLabel } from '../utils/marketLabels'
 import { MARKET_CATEGORIES, type MarketCategoryKey } from './marketCategories'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion'
+import { Badge } from './ui/badge'
 
 interface MarketSelectorProps {
   selected: string
@@ -47,51 +49,52 @@ export default function MarketSelector({ selected, onChange, availableMarkets, a
   if (nav.prevSelected !== selected || nav.prevAvailable !== availKey) {
     setNav({ prevSelected: selected, prevAvailable: availKey, open: findCategory(selected, availableMarkets) ?? 'results' })
   }
-  const openCategory = nav.open
-  const setOpenCategory = (open: MarketCategoryKey | null) => setNav(n => ({ ...n, open }))
+
+  const groups = (Object.entries(MARKET_CATEGORIES) as [MarketCategoryKey, string[]][])
+    .map(([category, markets]) => ({
+      category,
+      visible: availableMarkets ? markets.filter(m => availableMarkets.includes(m)) : markets,
+    }))
+    .filter(g => g.visible.length > 0)
 
   return (
-    <div className="market-groups">
-      {(Object.entries(MARKET_CATEGORIES) as [MarketCategoryKey, string[]][]).map(([category, markets]) => {
-        const visible = availableMarkets
-          ? markets.filter(m => availableMarkets.includes(m))
-          : markets
-        if (visible.length === 0) return null
-        const isOpen = openCategory === category
-        return (
-          <div key={category} className="market-group">
-            <button
-              type="button"
-              aria-expanded={isOpen}
-              aria-controls={`market-panel-${category}`}
-              id={`market-header-${category}`}
-              onClick={() => setOpenCategory(isOpen ? null : category)}
-              className="market-group-header"
-            >
-              <span>{t(marketCategoryLabel(category))}</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span aria-hidden="true" className="badge badge-accent" style={{ fontSize: '0.7rem' }}>{visible.length}</span>
-                <span aria-hidden="true" className="market-group-chevron">▾</span>
-              </span>
-            </button>
-            <div role="region" id={`market-panel-${category}`} aria-labelledby={`market-header-${category}`} hidden={!isOpen}>
-              <div className="market-options">
-                {visible.map(m => (
-                  <button
-                    key={m}
-                    type="button"
-                    aria-pressed={m === selected}
-                    onClick={() => onChange(m)}
-                    className={`market-option${m === selected ? ' market-option-active' : ''}`}
-                  >
-                    {getMarketLabel(m, locale)}{analyst ? ` · ${m}` : ''}
-                  </button>
-                ))}
-              </div>
+    <Accordion
+      type="single"
+      collapsible
+      value={nav.open ?? ''}
+      onValueChange={v => setNav(n => ({ ...n, open: (v || null) as MarketCategoryKey | null }))}
+    >
+      {groups.map(({ category, visible }) => (
+        <AccordionItem key={category} value={category}>
+          <AccordionTrigger>
+            <span>{t(marketCategoryLabel(category))}</span>
+            <span className="flex items-center gap-2">
+              <Badge variant="accent" className="text-[0.65rem]" aria-hidden="true">
+                {visible.length}
+              </Badge>
+            </span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="flex flex-wrap gap-1.5">
+              {visible.map(m => (
+                <button
+                  key={m}
+                  type="button"
+                  aria-pressed={m === selected}
+                  onClick={() => onChange(m)}
+                  className={
+                    m === selected
+                      ? 'min-h-9 cursor-pointer rounded-full bg-primary px-3.5 text-[13px] font-semibold text-primary-fg shadow-sm transition-colors duration-150'
+                      : 'min-h-9 cursor-pointer rounded-full border border-border px-3.5 text-[13px] font-medium text-muted transition-colors duration-150 hover:border-border-strong hover:text-foreground'
+                  }
+                >
+                  {getMarketLabel(m, locale)}{analyst ? ` · ${m}` : ''}
+                </button>
+              ))}
             </div>
-          </div>
-        )
-      })}
-    </div>
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
   )
 }

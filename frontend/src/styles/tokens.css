@@ -1,0 +1,225 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── SciKick design tokens ────────────────────────────────────
+   Hue: lima/verde cancha. Los fills usan --primary en ambos
+   temas (texto oscuro encima, contraste ~12:1); el texto y los
+   anillos de foco usan --primary-strong por tema (≥4.5:1). */
+
+:root {
+  color-scheme: light;
+
+  --background: #f3f5fa;
+  --surface: #ffffff;
+  --surface-alt: #eaeef5;
+  --surface-hover: #e2e8f2;
+  --border: #d9e0ec;
+  --border-strong: #b9c4d8;
+  --foreground: #0d1526;
+  --muted: #4c5a75;
+  --faint: #5d687f;
+
+  --primary: #a3e635;
+  --primary-fg: #0c1220;
+  --primary-strong: #47700d;
+  --primary-soft: #e9f7cf;
+  --primary-ring: #47700d;
+
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --warning: #8f5e05;
+  --warning-soft: #fef3c7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --shadow-sm: 0 1px 2px rgb(13 21 38 / 0.06);
+  --shadow-md: 0 4px 16px rgb(13 21 38 / 0.08);
+  --shadow-lg: 0 16px 48px rgb(13 21 38 / 0.14);
+
+  --font-display: 'Space Grotesk Variable', system-ui, sans-serif;
+  --font-body: 'Geist Variable', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, monospace;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #090d18;
+  --surface: #111832;
+  --surface-alt: #182036;
+  --surface-hover: #1e2947;
+  --border: #28324f;
+  --border-strong: #3b4769;
+  --foreground: #e8edf7;
+  --muted: #a3b0c7;
+  --faint: #7e8daa;
+
+  --primary: #a3e635;
+  --primary-fg: #0c1220;
+  --primary-strong: #bef264;
+  --primary-soft: rgb(163 230 53 / 0.12);
+  --primary-ring: #a3e635;
+
+  --success: #4ade80;
+  --success-soft: rgb(74 222 128 / 0.12);
+  --warning: #facc15;
+  --warning-soft: rgb(250 204 21 / 0.12);
+  --danger: #f87171;
+  --danger-soft: rgb(248 113 113 / 0.12);
+
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 16px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  --ease-out-expo: var(--ease-out-expo);
+  --ease-spring: var(--ease-spring);
+
+  --animate-rise: rise 0.5s var(--ease-out-expo) both;
+  --animate-pop: pop 0.35s var(--ease-spring) both;
+  --animate-fade: fade 0.3s ease both;
+  --animate-shimmer: shimmer 1.4s ease-in-out infinite;
+  --animate-accordion-down: accordion-down 0.28s var(--ease-out-expo);
+  --animate-accordion-up: accordion-up 0.2s ease-in;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes shimmer {
+    from { background-position: -200px 0; }
+    to { background-position: 200px 0; }
+  }
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--foreground);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgb(163 230 53 / 0.07), transparent),
+    radial-gradient(ellipse 60% 40% at 85% 105%, rgb(77 124 15 / 0.05), transparent);
+  background-attachment: fixed;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.dark body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgb(163 230 53 / 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgb(148 163 184 / 0.05), transparent);
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+p { margin: 0; }
+code, pre { font-family: var(--font-mono); }
+button { font-family: var(--font-body); }
+::selection { background: var(--primary); color: var(--primary-fg); }
+
+:focus-visible {
+  outline: 2px solid var(--primary-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; border: 2px solid var(--background); }
+::-webkit-scrollbar-thumb:hover { background: var(--faint); }
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  background: var(--primary);
+  color: var(--primary-fg);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
