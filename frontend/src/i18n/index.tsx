@@ -140,6 +140,8 @@ const DICTIONARIES = {
     chartBins: '{n} bins',
     skipToContent: 'Skip to main content',
     tabsHintDisabled: 'Choose a fixture to enable the views',
+    themeSwitchToLight: 'Switch to light theme',
+    themeSwitchToDark: 'Switch to dark theme',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -276,6 +278,8 @@ const DICTIONARIES = {
     chartBins: '{n} tramos',
     skipToContent: 'Saltar al contenido principal',
     tabsHintDisabled: 'Elige un partido para activar las vistas',
+    themeSwitchToLight: 'Cambiar a tema claro',
+    themeSwitchToDark: 'Cambiar a tema oscuro',
   },
 } as const
 

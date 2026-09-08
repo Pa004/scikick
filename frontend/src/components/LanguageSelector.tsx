@@ -1,12 +1,10 @@
 import { useLanguage, type Locale } from '../i18n'
-import type { ComponentProps } from 'react'
+import { cn } from '../lib/cn'
 
 const OPTIONS: { value: Locale; label: string; name: string }[] = [
   { value: 'en', label: 'EN', name: 'English' },
   { value: 'es', label: 'ES', name: 'Español' },
 ]
-
-type ButtonProps = ComponentProps<'button'>
 
 export function LanguageSelector() {
   const { locale, setLocale, t } = useLanguage()
@@ -15,17 +13,23 @@ export function LanguageSelector() {
     <div
       role="group"
       aria-label={t('language')}
-      className="pill"
+      className="flex rounded-full border border-border bg-surface-alt p-0.5"
     >
       {OPTIONS.map(({ value, label, name }) => {
         const isActive = value === locale
-        const common: ButtonProps = {
-          onClick: () => setLocale(value),
-          'aria-pressed': isActive,
-          className: `pill-btn ${isActive ? 'pill-btn-active' : ''}`,
-        }
         return (
-          <button key={value} lang={value} aria-label={name} {...common}>
+          <button
+            key={value}
+            type="button"
+            lang={value}
+            aria-label={name}
+            aria-pressed={isActive}
+            onClick={() => setLocale(value)}
+            className={cn(
+              'min-h-9 cursor-pointer rounded-full px-2.5 text-xs font-bold transition-colors duration-150',
+              isActive ? 'bg-primary text-primary-fg shadow-sm' : 'text-muted hover:text-foreground',
+            )}
+          >
             {label}
           </button>
         )
