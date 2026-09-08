@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { ThemeContext, type Theme } from './theme-context'
 
 const STORAGE_KEY = 'scikick.theme'
@@ -31,11 +31,18 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(initialTheme)
+  // Storage is written on explicit user changes only. Writing on mount
+  // could overwrite the stored value after a failed read.
+  const mounted = useRef(false)
 
   useEffect(() => {
     const root = document.documentElement
     root.classList.toggle('dark', theme === 'dark')
     root.style.colorScheme = theme
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
     try {
       window.localStorage.setItem(STORAGE_KEY, theme)
     } catch {
