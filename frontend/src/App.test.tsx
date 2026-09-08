@@ -1,13 +1,17 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { LanguageProvider } from './i18n'
+import { ThemeProvider } from './theme/ThemeProvider'
+import { clearDetailCaches } from './api/detail'
 import App from './App'
 
 function renderApp() {
   return render(
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>,
+    <ThemeProvider>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </ThemeProvider>,
   )
 }
 
@@ -58,9 +62,20 @@ function stubFetch() {
 
 beforeEach(() => {
   stubFetch()
+  clearDetailCaches()
   window.history.replaceState(null, '', '/')
   localStorage.clear()
 })
+
+// Card toggle buttons share team names with the pick-of-the-day card;
+// scope by the expand semantics only story cards have.
+function cardToggle(re: RegExp): HTMLElement {
+  const found = screen
+    .getAllByRole('button', { name: re })
+    .find(b => b.getAttribute('aria-expanded') !== null)
+  if (!found) throw new Error(`No story toggle matching ${re}`)
+  return found as HTMLElement
+}
 
 describe('App feed', () => {
   it('renders SciKick heading', () => {
@@ -145,5 +160,144 @@ describe('App feed', () => {
     window.history.replaceState(null, '', '/?partido=1')
     renderApp()
     expect(await screen.findByText(/Arsenal win/)).toBeDefined()
+  })
+
+  it('shows story error with retry and recovers', async () => {
+    let failed = false
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/fixtures')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ fixtures: mockFixtures }) })
+      if (url.includes('/predict/scorer')) return Promise.resolve({ ok: false, status: 404 })
+      if (url.includes('/api/value')) return Promise.resolve({ ok: false, status: 404 })
+      if (url.includes('/context')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ team: 'X', form: [], h2h: { wins: 0, draws: 0, losses: 0, matches: [] } }) })
+      if (url.includes('/predict/')) {
+        if (!failed) {
+          failed = true
+          return Promise.resolve({ ok: false, status: 500 })
+        }
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ fixture_id: 1, model_version: 'v', model_agreement: 0.8, probabilities: { '1x2': { home: 0.6, draw: 0.25, away: 0.15 } } }) })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    }))
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
+    expect(await screen.findByText('Could not load this match. Check your connection and try again.')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(await screen.findByText(/Arsenal win/)).toBeDefined()
+  })
+
+  it('collapses the story on second toggle and clears the deep link', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
+    await screen.findByText(/Arsenal win/)
+    expect(window.location.search).toContain('partido=1')
+    fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
+    expect(screen.queryByText(/Arsenal win 6 in 10/)).toBeNull()
+    expect(window.location.search).toBe('')
+  })
+
+  it('ignores deep links to fixtures outside the feed', async () => {
+    window.history.replaceState(null, '', '/?partido=999')
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    expect(screen.queryByLabelText('Loading match story...')).toBeNull()
+    expect(screen.getAllByText(/Arsenal/).length).toBeGreaterThan(0)
+  })
+
+  it('filters to value matches after background prefetch', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string, init?: { body?: string }) => {
+      if (url.includes('/fixtures')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ fixtures: mockFixtures }) })
+      if (url.includes('/api/value')) {
+        const body = JSON.parse(init?.body ?? '{}') as { fixture_id?: number }
+        const edge = body.fixture_id === 1 ? 0.09 : -0.1
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({
+          fixture_id: body.fixture_id,
+          outcomes: {
+            home: { prob: 0.5, odds: 2.1, edge, value: edge > 0, kelly: 0.02 },
+            draw: { prob: 0.25, odds: 3.4, edge: -0.1, value: false, kelly: 0 },
+            away: { prob: 0.25, odds: 3.6, edge: -0.2, value: false, kelly: 0 },
+          },
+        }) })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    }))
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    expect(await screen.findByText('+EV')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Value' }))
+    expect(screen.queryByText(/Liverpool/)).toBeNull()
+    expect(screen.getAllByText(/Arsenal/).length).toBeGreaterThan(0)
+  })
+
+  it('opens the story on the 1x2 market from a bar segment', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.click(screen.getByLabelText('1 · Arsenal: 60.0%'))
+    await screen.findByText(/Arsenal win/)
+    expect(screen.getAllByText('Full-time result').length).toBeGreaterThan(0)
+  })
+
+  it('closes the model drawer with Escape', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.click(screen.getByRole('button', { name: 'Model' }))
+    await screen.findByText('Calibration')
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByText('Calibration')).toBeNull()
+  })
+
+  it('shows scorer data inside the story', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/fixtures')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ fixtures: mockFixtures }) })
+      if (url.includes('/predict/scorer')) return Promise.resolve({ ok: true, json: () => Promise.resolve({
+        fixture_id: 1,
+        data_quality: 'lineup_confirmed',
+        scorers: [{ player_id: 1, name: 'Saka', team: 'Arsenal', position: 'FWD', xg90: 0.5, min_expected: 90, prob_anytime: 0.4, home_away: 'home' }],
+      }) })
+      if (url.includes('/api/value')) return Promise.resolve({ ok: false, status: 404 })
+      if (url.includes('/context')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ team: 'X', form: [], h2h: { wins: 0, draws: 0, losses: 0, matches: [] } }) })
+      if (url.includes('/predict/')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ fixture_id: 1, model_version: 'v', model_agreement: 0.8, probabilities: { '1x2': { home: 0.6, draw: 0.25, away: 0.15 } } }) })
+      return Promise.resolve({ ok: false, status: 404 })
+    }))
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
+    expect(await screen.findByText('Saka')).toBeDefined()
+    expect(screen.getByText('Lineup confirmed')).toBeDefined()
+  })
+
+  it('falls back to local form when context fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/fixtures')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ fixtures: mockFixtures }) })
+      if (url.includes('/predict/scorer')) return Promise.resolve({ ok: false, status: 404 })
+      if (url.includes('/api/value')) return Promise.resolve({ ok: false, status: 404 })
+      if (url.includes('/predict/')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ fixture_id: 1, model_version: 'v', model_agreement: 0.8, probabilities: { '1x2': { home: 0.6, draw: 0.25, away: 0.15 } } }) })
+      return Promise.resolve({ ok: false, status: 404 })
+    }))
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
+    // Server context 404s: form falls back to loaded fixtures (Arsenal W, Chelsea L)
+    const badges = await screen.findAllByRole('listitem', { name: /Win|Loss/ })
+    expect(badges.length).toBe(2)
+    expect(screen.getByText((_c, el) => el?.textContent === 'Arsenal 1 - 0 - 0 Chelsea')).toBeDefined()
+  })
+
+  it('persists the theme toggle across reloads', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    expect(localStorage.getItem('scikick.theme') ?? 'dark').toBe('dark')
+    fireEvent.click(screen.getByRole('button', { name: 'Switch to light theme' }))
+    expect(localStorage.getItem('scikick.theme')).toBe('light')
+  })
+
+  it('switches language across the feed', async () => {
+    renderApp()
+    await screen.findByText('Fixtures')
+    fireEvent.click(screen.getByRole('button', { name: 'ES' }))
+    expect(await screen.findByText('Partidos')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'EN' }))
+    expect(await screen.findByText('Fixtures')).toBeDefined()
   })
 })

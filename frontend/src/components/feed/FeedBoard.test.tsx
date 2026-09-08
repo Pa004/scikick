@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { LanguageProvider } from '../../i18n'
+import { clearDetailCaches } from '../../api/detail'
 import { FeedBoard } from './FeedBoard'
 import type { Fixture } from '../../types'
 
@@ -36,6 +37,7 @@ function renderBoard(fixtures: Fixture[], followed: string[] = []) {
 
 beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 404 }))
+  clearDetailCaches()
   window.history.replaceState(null, '', '/')
   localStorage.clear()
 })

@@ -80,3 +80,39 @@ def test_fixtures_all_and_invalid(tmp_path: Path, monkeypatch):
     assert resp.status_code == 422
     resp = client.get("/api/fixtures", params={"league": "E0", "limit": 500})
     assert resp.status_code == 422
+
+
+def test_fixtures_expose_crests_nullable(tmp_path: Path, monkeypatch):
+    db_path = _setup_db(tmp_path)
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.execute("UPDATE teams SET crest_url = 'https://x.test/arsenal.png' WHERE id = 1")
+        conn.commit()
+    finally:
+        conn.close()
+    client = _client(db_path, monkeypatch)
+    resp = client.get("/api/fixtures", params={"league": "all", "limit": 10})
+    assert resp.status_code == 200
+    rows = resp.json()["fixtures"]
+    assert len(rows) > 0
+    for row in rows:
+        assert "home_crest" in row and "away_crest" in row
+    arsenal_home = [r for r in rows if r["home"] == "Arsenal"]
+    assert arsenal_home and arsenal_home[0]["home_crest"] == "https://x.test/arsenal.png"
+    assert all(r["away_crest"] is None for r in arsenal_home)
+
+
+def test_context_exposes_team_crests(tmp_path: Path, monkeypatch):
+    db_path = _setup_db(tmp_path)
+    conn = sqlite3.connect(db_path)
+    try:
+        conn.execute("UPDATE teams SET crest_url = 'https://x.test/arsenal.png' WHERE id = 1")
+        conn.commit()
+    finally:
+        conn.close()
+    client = _client(db_path, monkeypatch)
+    resp = client.get("/api/context", params={"team": "Arsenal", "opponent": "Chelsea"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["crest"] == "https://x.test/arsenal.png"
+    assert body["opponent_crest"] is None

@@ -58,6 +58,12 @@ export interface DetailBundle {
 const bundleCache = new Map<number, DetailBundle>()
 const valueCache = new Map<number, ValueResponse | null>()
 
+// Test support: suites stub fetch per test, so session caches must reset.
+export function clearDetailCaches(): void {
+  bundleCache.clear()
+  valueCache.clear()
+}
+
 export function getCachedValue(fixtureId: number): ValueResponse | null | undefined {
   return valueCache.get(fixtureId)
 }
