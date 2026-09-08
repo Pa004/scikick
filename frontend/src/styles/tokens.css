@@ -18,17 +18,17 @@
   --border-strong: #b9c4d8;
   --foreground: #0d1526;
   --muted: #4c5a75;
-  --faint: #6b7891;
+  --faint: #5d687f;
 
   --primary: #a3e635;
   --primary-fg: #0c1220;
-  --primary-strong: #4d7c0f;
+  --primary-strong: #47700d;
   --primary-soft: #e9f7cf;
-  --primary-ring: #4d7c0f;
+  --primary-ring: #47700d;
 
   --success: #15803d;
   --success-soft: #dcfce7;
-  --warning: #a16207;
+  --warning: #8f5e05;
   --warning-soft: #fef3c7;
   --danger: #b91c1c;
   --danger-soft: #fee2e2;
