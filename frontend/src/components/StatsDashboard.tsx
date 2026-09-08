@@ -1,6 +1,9 @@
 import type { Stats, MatchdayData, CalibrationData } from '../types'
 import { useLanguage, fillVars as fill } from '../i18n'
 import { useCountUp } from '../hooks/useCountUp'
+import { Badge } from './ui/badge'
+import { Card, CardBody, CardTitle, Eyebrow } from './ui/card'
+import { Table, TableRegion, Td, Th } from './ui/table'
 import CalibrationChart from './CalibrationChart'
 import MatchdayChart from './MatchdayChart'
 
@@ -30,41 +33,40 @@ function TrustBlock({ stats, matchdayData, calibrationData }: StatsDashboardProp
   const brier = meanBrier(matchdayData)
   const cal = calibrationSummary(calibrationData)
   const reading = brier === null ? null : brier <= BRIER_EXCELLENT_MAX
-    ? { key: 'trustBrierExcellent' as const, badge: 'badge-success' }
+    ? { key: 'trustBrierExcellent' as const, variant: 'success' as const }
     : brier <= BRIER_REASONABLE_MAX
-      ? { key: 'trustBrierReasonable' as const, badge: 'badge-warning' }
-      : { key: 'trustBrierWeak' as const, badge: 'badge-danger' }
+      ? { key: 'trustBrierReasonable' as const, variant: 'warning' as const }
+      : { key: 'trustBrierWeak' as const, variant: 'danger' as const }
 
   return (
-    <div className="trust-block">
-      <h3 style={{ margin: '0 0 0.75rem 0', color: 'var(--text)', fontSize: '1rem' }}>
-        {t('trustTitle')}
-      </h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: '0.85rem' }}>
-        <div>
-          <span style={{ color: 'var(--text-secondary)' }}>Brier: </span>
-          {reading ? (
-            <>
-              <span style={{ fontWeight: 600 }}>{brier?.toFixed(3)}</span>
-              {' '}
-              <span className={`badge ${reading.badge}`}>{t(reading.key)}</span>
-            </>
-          ) : (
-            <span style={{ color: 'var(--text-muted)' }}>{t('trustBrierNoData')}</span>
-          )}
+    <Card className="mb-6 border-l-4 border-l-primary">
+      <CardBody>
+        <CardTitle className="mb-3">{t('trustTitle')}</CardTitle>
+        <div className="flex flex-col gap-1.5 text-sm">
+          <div>
+            <span className="text-muted">Brier: </span>
+            {reading ? (
+              <>
+                <span className="font-semibold text-foreground tabular-nums">{brier?.toFixed(3)}</span>{' '}
+                <Badge variant={reading.variant}>{t(reading.key)}</Badge>
+              </>
+            ) : (
+              <span className="text-faint">{t('trustBrierNoData')}</span>
+            )}
+          </div>
+          <div className="text-foreground">
+            {cal ? (
+              <span>{fill(t('trustCalibration'), { good: cal.good, total: cal.total })}</span>
+            ) : (
+              <span className="text-faint">{t('trustCalibrationPending')}</span>
+            )}
+          </div>
+          <div className="text-xs text-faint">
+            {fill(t('trustSample'), { n: stats.total_predictions, m: cal?.n ?? 0 })}
+          </div>
         </div>
-        <div>
-          {cal ? (
-            <span>{fill(t('trustCalibration'), { good: cal.good, total: cal.total })}</span>
-          ) : (
-            <span style={{ color: 'var(--text-muted)' }}>{t('trustCalibrationPending')}</span>
-          )}
-        </div>
-        <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-          {fill(t('trustSample'), { n: stats.total_predictions, m: cal?.n ?? 0 })}
-        </div>
-      </div>
-    </div>
+      </CardBody>
+    </Card>
   )
 }
 
@@ -81,17 +83,17 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
   if (stats.cold_start) {
     return (
       <div>
-        <h2 style={{ color: 'var(--text)', marginBottom: '1rem', fontSize: '1.1rem' }}>{t('stats')}</h2>
-        <p style={{ color: 'var(--text-muted)' }}>{t('noStats')}</p>
+        <h2 className="mb-4 font-display text-lg font-semibold text-foreground">{t('stats')}</h2>
+        <p className="text-sm text-faint">{t('noStats')}</p>
       </div>
     )
   }
 
   return (
     <div>
-      <h2 style={{ color: 'var(--text)', marginBottom: '1rem', fontSize: '1.1rem' }}>{t('stats')}</h2>
+      <h2 className="mb-4 font-display text-lg font-semibold text-foreground">{t('stats')}</h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div className="mb-6 grid grid-cols-3 gap-2 sm:gap-3">
         <StatCard value={stats.total_predictions} label={t('predictions')} format={v => String(Math.round(v))} />
         <StatCard value={stats.accuracy} label={t('accuracy')} format={v => formatProb(v)} />
         <StatCard value={stats.avg_confidence} label={t('avgConfidence')} format={v => formatProb(v)} />
@@ -103,7 +105,7 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
         {matchdayData && !matchdayData.cold_start ? (
           <MatchdayChart data={matchdayData.data} />
         ) : (
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{t('noMatchday')}</p>
+          <p className="text-sm text-faint">{t('noMatchday')}</p>
         )}
       </Section>
 
@@ -111,60 +113,64 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
         {calibrationData && !calibrationData.cold_start ? (
           <CalibrationChart data={calibrationData.data} />
         ) : (
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{t('noCalibration')}</p>
+          <p className="text-sm text-faint">{t('noCalibration')}</p>
         )}
       </Section>
 
       {stats.by_market.length > 0 && (
         <Section title={t('byMarket')}>
-          <div className="card-flat" tabIndex={0} role="region" aria-label={t('byMarket')} style={{ overflowX: 'auto', padding: '0.5rem' }}>
-            <table className="table-dark">
-              <thead>
-                <tr>
-                  <th scope="col">{t('market')}</th>
-                  <th scope="col" style={{ textAlign: 'right' }}>{t('total')}</th>
-                  <th scope="col" style={{ textAlign: 'right' }}>{t('accuracy')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.by_market.map(m => (
-                  <tr key={m.market}>
-                    <td>
-                      {m.market}
-                      {m.cold_start && <span className="badge badge-warning" style={{ marginLeft: '0.5rem', fontSize: '0.7rem' }}>{t('cold')}</span>}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>{m.total}</td>
-                    <td style={{ textAlign: 'right' }}>{formatProb(m.accuracy)}</td>
+          <Card>
+            <TableRegion role="region" aria-label={t('byMarket')} tabIndex={0} className="border-0">
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t('market')}</Th>
+                    <Th align="right">{t('total')}</Th>
+                    <Th align="right">{t('accuracy')}</Th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {stats.by_market.map(m => (
+                    <tr key={m.market} className="transition-colors hover:bg-surface-hover">
+                      <Td>
+                        {m.market}
+                        {m.cold_start && <Badge variant="warning" className="ml-2 text-[0.65rem]">{t('cold')}</Badge>}
+                      </Td>
+                      <Td align="right">{m.total}</Td>
+                      <Td align="right">{formatProb(m.accuracy)}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </TableRegion>
+          </Card>
         </Section>
       )}
 
       {stats.by_league.length > 1 && (
         <Section title={t('byLeague')}>
-          <div className="card-flat" tabIndex={0} role="region" aria-label={t('byLeague')} style={{ overflowX: 'auto', padding: '0.5rem' }}>
-            <table className="table-dark">
-              <thead>
-                <tr>
-                  <th scope="col">{t('league')}</th>
-                  <th scope="col" style={{ textAlign: 'right' }}>{t('total')}</th>
-                  <th scope="col" style={{ textAlign: 'right' }}>{t('accuracy')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.by_league.map(l => (
-                  <tr key={l.league}>
-                    <td>{l.league}</td>
-                    <td style={{ textAlign: 'right' }}>{l.total}</td>
-                    <td style={{ textAlign: 'right' }}>{formatProb(l.accuracy)}</td>
+          <Card>
+            <TableRegion role="region" aria-label={t('byLeague')} tabIndex={0} className="border-0">
+              <Table>
+                <thead>
+                  <tr>
+                    <Th>{t('league')}</Th>
+                    <Th align="right">{t('total')}</Th>
+                    <Th align="right">{t('accuracy')}</Th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {stats.by_league.map(l => (
+                    <tr key={l.league} className="transition-colors hover:bg-surface-hover">
+                      <Td>{l.league}</Td>
+                      <Td align="right">{l.total}</Td>
+                      <Td align="right">{formatProb(l.accuracy)}</Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </TableRegion>
+          </Card>
         </Section>
       )}
     </div>
@@ -174,17 +180,17 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
 function StatCard({ value, label, format }: { value: number; label: string; format: (v: number) => string }) {
   const animated = useCountUp(value)
   return (
-    <div className="stat-card">
-      <div className="stat-card-value">{format(animated)}</div>
-      <div className="stat-card-label">{label}</div>
+    <div className="animate-pop rounded-xl border border-border bg-surface px-2 py-4 text-center shadow-sm">
+      <div className="font-display text-xl font-bold text-primary-strong tabular-nums sm:text-2xl">{format(animated)}</div>
+      <div className="mt-1 text-xs text-muted">{label}</div>
     </div>
   )
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: '1.5rem' }}>
-      <h3 style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem', fontSize: '0.95rem' }}>{title}</h3>
+    <div className="mb-6">
+      <Eyebrow className="mb-2 block">{title}</Eyebrow>
       {children}
     </div>
   )

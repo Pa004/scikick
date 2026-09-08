@@ -122,6 +122,8 @@
   --animate-pop: pop 0.35s var(--ease-spring) both;
   --animate-fade: fade 0.3s ease both;
   --animate-shimmer: shimmer 1.4s ease-in-out infinite;
+  --animate-accordion-down: accordion-down 0.28s var(--ease-out-expo);
+  --animate-accordion-up: accordion-up 0.2s ease-in;
 
   @keyframes rise {
     from { opacity: 0; transform: translateY(14px); }
@@ -138,6 +140,14 @@
   @keyframes shimmer {
     from { background-position: -200px 0; }
     to { background-position: 200px 0; }
+  }
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
   }
 }
 

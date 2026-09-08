@@ -24,13 +24,14 @@ function favoriteSide(f: Fixture): 'home' | 'draw' | 'away' | null {
 
 interface FixtureRowProps {
   fixture: Fixture
+  index: number
   active: boolean
   leagueName: (code: string) => string
   onToggle: (id: number) => void
   onOddsClick: (id: number) => void
 }
 
-function FixtureRow({ fixture: f, active, leagueName, onToggle, onOddsClick }: FixtureRowProps) {
+function FixtureRow({ fixture: f, index, active, leagueName, onToggle, onOddsClick }: FixtureRowProps) {
   const { t, locale } = useLanguage()
   const probs = extract1x2(f.prediction)
   const fav = favoriteSide(f)
@@ -40,9 +41,10 @@ function FixtureRow({ fixture: f, active, leagueName, onToggle, onOddsClick }: F
   return (
     <tr
       className={cn(
-        'transition-colors hover:bg-surface-hover',
+        'animate-fade transition-colors hover:bg-surface-hover',
         active && 'bg-primary-soft hover:bg-primary-soft',
       )}
+      style={{ animationDelay: `${Math.min(index * 25, 300)}ms` }}
     >
       <td className="w-full p-0">
         <button
@@ -143,10 +145,11 @@ function FixtureTable({ label, fixtures, selectedId, leagueName, onToggle, onOdd
           </tr>
         </thead>
         <tbody className="[&_tr:last-child_td]:border-b-0">
-          {fixtures.map(f => (
+          {fixtures.map((f, i) => (
             <FixtureRow
               key={f.id}
               fixture={f}
+              index={i}
               active={selectedId === f.id}
               leagueName={leagueName}
               onToggle={onToggle}
