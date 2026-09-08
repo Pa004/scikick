@@ -1,9 +1,12 @@
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
+import { TrendingDown, TrendingUp } from 'lucide-react'
 import { useLanguage } from '../i18n'
 import { formatDecimal } from '../utils/odds'
 import { getOutcomeLabel } from '../utils/marketLabels'
 import type { DisplayMode } from '../hooks/useDisplayMode'
 import type { MoveDirection } from '../hooks/useMovement'
+import { useChartTheme } from './charts/chartTheme'
+import { cn } from '../lib/cn'
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 
@@ -11,14 +14,14 @@ function MoveArrow({ move }: { move: MoveDirection }) {
   const { t } = useLanguage()
   if (move === 'flat') return null
   const up = move === 'up'
+  const Icon = up ? TrendingUp : TrendingDown
   return (
     <span
       role="img"
       aria-label={up ? t('oddsUp') : t('oddsDown')}
-      className={`move-flash ${up ? 'move-up' : 'move-down'}`}
-      style={{ fontSize: '0.75rem', marginLeft: '0.375rem' }}
+      className={cn('ml-1.5 inline-flex align-middle', up ? 'text-success' : 'text-danger')}
     >
-      <span aria-hidden="true">{up ? '▲' : '▼'}</span>
+      <Icon aria-hidden="true" className="size-3.5" />
     </span>
   )
 }
@@ -27,12 +30,14 @@ function ProbBar({ label, prob, mode, move }: { label: string; prob: number; mod
   const isFavorite = prob > 0.5
   return (
     <div
-      className={`prob-bar ${isFavorite ? 'prob-bar-favorite' : ''}`}
-      style={{ position: 'relative', overflow: 'hidden' }}
+      className={cn(
+        'relative flex min-h-11 items-center justify-between gap-2 overflow-hidden rounded-md border border-border bg-surface px-3.5 py-2 text-sm transition-colors duration-150 hover:border-primary/40',
+        isFavorite && 'border-primary/50',
+      )}
     >
-      <div className="prob-bar-fill" style={{ width: `${prob * 100}%` }} />
-      <span style={{ fontWeight: 500, position: 'relative', zIndex: 1 }}>{label}</span>
-      <span style={{ color: isFavorite ? 'var(--accent)' : 'var(--text-secondary)', fontWeight: isFavorite ? 600 : 400, position: 'relative', zIndex: 1 }}>
+      <div className="prob-bar-fill absolute inset-y-0 left-0 bg-primary/20 transition-[width] duration-500" style={{ width: `${prob * 100}%` }} />
+      <span className="relative z-10 font-medium text-foreground">{label}</span>
+      <span className={cn('relative z-10 tabular-nums', isFavorite ? 'font-semibold text-primary-strong' : 'text-muted')}>
         {mode === 'odds' ? formatDecimal(prob) : formatProb(prob)}
         <MoveArrow move={move} />
       </span>
@@ -54,12 +59,13 @@ function isNestedGroups(data: Record<string, number>): boolean {
 
 function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   const { t, locale } = useLanguage()
+  const chart = useChartTheme()
   const bar = (key: string, prob: number, label?: string) => (
     <ProbBar label={label ?? getOutcomeLabel(market, key, locale)} prob={prob} mode={mode} move={moves[key] ?? 'flat'} />
   )
 
   const threeWay = () => (
-    <div>
+    <div className="flex flex-col gap-1.5">
       {data.home !== undefined && bar('home', data.home)}
       {data.draw !== undefined && bar('draw', data.draw)}
       {data.away !== undefined && bar('away', data.away)}
@@ -68,10 +74,10 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
 
   const overUnder = () => {
     if (data.over === undefined && data.under === undefined) {
-      return <span style={{ color: 'var(--text-muted)' }}>{t('marketMissing')}</span>
+      return <span className="text-sm text-faint">{t('marketMissing')}</span>
     }
     return (
-      <div>
+      <div className="flex flex-col gap-1.5">
         {bar('over', data.over ?? 0)}
         {bar('under', data.under ?? 0)}
       </div>
@@ -79,7 +85,7 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   }
 
   const entries = () => (
-    <div>
+    <div className="flex flex-col gap-1.5">
       {Object.entries(data).map(([k, v]) => (
         <ProbBar key={k} label={getOutcomeLabel(market, k, locale)} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
       ))}
@@ -93,7 +99,7 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
       .slice(0, 6)
     const otherProb = data.other ?? 0
     return (
-      <div>
+      <div className="flex flex-col gap-1.5">
         {sorted.map(([k, v]) => (
           <ProbBar key={k} label={getOutcomeLabel(market, k, locale)} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
         ))}
@@ -103,23 +109,25 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   }
 
   const htGroups = (nested: Record<string, Record<string, number>>) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+    <div className="flex flex-col gap-3">
       {Object.entries(nested).map(([k, group]) => (
         <div key={k}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
+          <div className="mb-1 text-xs font-semibold tracking-wide text-muted uppercase">
             {getOutcomeLabel(market, k, locale)}
           </div>
-          {['home', 'draw', 'away']
-            .filter(o => typeof group[o] === 'number')
-            .map(o => (
-              <ProbBar
-                key={o}
-                label={getOutcomeLabel('1x2', o, locale)}
-                prob={group[o]}
-                mode={mode}
-                move={moves[`${k}.${o}`] ?? 'flat'}
-              />
-            ))}
+          <div className="flex flex-col gap-1.5">
+            {['home', 'draw', 'away']
+              .filter(o => typeof group[o] === 'number')
+              .map(o => (
+                <ProbBar
+                  key={o}
+                  label={getOutcomeLabel('1x2', o, locale)}
+                  prob={group[o]}
+                  mode={mode}
+                  move={moves[`${k}.${o}`] ?? 'flat'}
+                />
+              ))}
+          </div>
         </div>
       ))}
     </div>
@@ -131,16 +139,16 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
       .sort((a, b) => rank(a[0]) - rank(b[0]))
       .map(([k, v]) => ({ goals: k, probability: +(v * 100).toFixed(1) }))
     return (
-      <div style={{ height: '180px' }}>
+      <div className="h-44">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
-            <XAxis dataKey="goals" fontSize={12} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
-            <YAxis fontSize={12} stroke="#64748b" tick={{ fill: '#94a3b8' }} />
+            <XAxis dataKey="goals" fontSize={12} stroke={chart.grid} tick={{ fill: chart.tick }} />
+            <YAxis fontSize={12} stroke={chart.grid} tick={{ fill: chart.tick }} />
             <Tooltip
-              contentStyle={{ background: '#1a2238', border: '1px solid #2a3350', borderRadius: '8px', color: '#e2e8f0' }}
+              contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: '8px', color: chart.tooltipText }}
               formatter={(value) => `${value}%`}
             />
-            <Bar dataKey="probability" fill="var(--accent)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="probability" fill={chart.accent} radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -148,11 +156,11 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   }
 
   const combined = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+    <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
       {Object.entries(data).map(([k, v]) => (
-        <div key={k} className="card-flat" style={{ padding: '0.625rem', fontSize: '0.85rem' }}>
-          <div style={{ color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>{getOutcomeLabel(market, k, locale)}</div>
-          <div style={{ fontWeight: 600, color: 'var(--text)' }}>
+        <div key={k} className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm">
+          <div className="mb-1 text-muted">{getOutcomeLabel(market, k, locale)}</div>
+          <div className="font-semibold text-foreground tabular-nums">
             {mode === 'odds' ? formatDecimal(v) : formatProb(v)}
             <MoveArrow move={moves[k] ?? 'flat'} />
           </div>
@@ -162,7 +170,7 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   )
 
   const fallback = () => (
-    <pre className="card-flat" style={{ fontSize: '0.75rem', padding: '0.75rem', overflow: 'auto' }}>
+    <pre className="overflow-auto rounded-lg border border-border bg-surface p-3 font-mono text-xs text-muted">
       {JSON.stringify(data, null, 2)}
     </pre>
   )
@@ -222,6 +230,6 @@ interface MarketRendererProps {
 export default function MarketRenderer({ market, probabilities, mode = 'prob', moves = {} }: MarketRendererProps) {
   const { t } = useLanguage()
   const data = probabilities[market]
-  if (!data) return <span style={{ color: 'var(--text-muted)' }}>{t('marketMissing')}</span>
+  if (!data) return <span className="text-sm text-faint">{t('marketMissing')}</span>
   return <MarketRendererInner market={market} data={data} mode={mode} moves={moves} />
 }

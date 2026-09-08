@@ -1,5 +1,6 @@
 import { useLanguage } from '../i18n'
 import type { DisplayMode } from '../hooks/useDisplayMode'
+import { SegmentedButton, SegmentedGroup } from './ui/segmented'
 
 interface DisplayModeToggleProps {
   mode: DisplayMode
@@ -10,23 +11,13 @@ export default function DisplayModeToggle({ mode, onChange }: DisplayModeToggleP
   const { t } = useLanguage()
 
   return (
-    <div role="group" aria-label={t('displayModeLabel')} className="pill">
-      <button
-        type="button"
-        aria-pressed={mode === 'prob'}
-        onClick={() => onChange('prob')}
-        className={`pill-btn${mode === 'prob' ? ' pill-btn-active' : ''}`}
-      >
+    <SegmentedGroup label={t('displayModeLabel')}>
+      <SegmentedButton active={mode === 'prob'} onClick={() => onChange('prob')}>
         {t('displayProb')}
-      </button>
-      <button
-        type="button"
-        aria-pressed={mode === 'odds'}
-        onClick={() => onChange('odds')}
-        className={`pill-btn${mode === 'odds' ? ' pill-btn-active' : ''}`}
-      >
+      </SegmentedButton>
+      <SegmentedButton active={mode === 'odds'} onClick={() => onChange('odds')}>
         {t('displayOdds')}
-      </button>
-    </div>
+      </SegmentedButton>
+    </SegmentedGroup>
   )
 }
