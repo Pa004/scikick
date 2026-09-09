@@ -58,6 +58,8 @@ API_NAME_OVERRIDES = {
         "FSV Mainz 05": "Mainz",
         "VfB Stuttgart": "Stuttgart",
         "Elversberg": "SV 07 Elversberg",
+        "1. FC Köln": "1. FC Köln",
+        "Hamburger SV": "Hamburger SV",
     },
     "I1": {
         "AC Milan": "Milan",
@@ -77,6 +79,8 @@ API_NAME_OVERRIDES = {
         "Saint Etienne": "St Etienne",
         "Troyes": "ES Troyes AC",
         "RC Lens": "Racing Club de Lens",
+        "Lorient": "Lorient",
+        "Le Mans": "Le Mans",
     },
 }
 
