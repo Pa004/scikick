@@ -3,6 +3,7 @@ import { Search, X } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
 import { getCachedValue, prefetchValues } from '../../api/detail'
+import { matchesQuery } from '../fixtures/fixtureUtils'
 import { getDeepLinkedFixtureId, syncDeepLink } from '../../lib/deeplink'
 import { selectPickOfDay } from '../../utils/matchCenter'
 import { MatchCard } from './MatchCard'
@@ -15,12 +16,6 @@ import { Skeleton } from '../ui/skeleton'
 // Top predicted cards get their +EV badge without opening the story.
 const PREFETCH_COUNT = 15
 const PAGE_SIZE = 20
-
-function matchesQuery(f: Fixture, query: string): boolean {
-  const q = query.trim().toLowerCase()
-  if (!q) return true
-  return `${f.home} ${f.away} ${f.league}`.toLowerCase().includes(q)
-}
 
 function hasStoredValue(id: number): boolean | null {
   const entry = getCachedValue(id)

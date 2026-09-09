@@ -8,6 +8,7 @@ import { useFixtureDetail } from '../../hooks/useFixtureDetail'
 import { SegmentedBar } from './SegmentedBar'
 import { VerdictHero } from './VerdictHero'
 import { TeamAvatar } from './TeamAvatar'
+import { displayTeam } from '../../utils/teamNames'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Skeleton } from '../ui/skeleton'
@@ -40,6 +41,7 @@ function FollowStar({
 }) {
   const { t } = useLanguage()
   const active = followed.includes(home) && followed.includes(away)
+  const bothLabel = `${displayTeam(home)} / ${displayTeam(away)}`
   return (
     <button
       type="button"
@@ -48,8 +50,8 @@ function FollowStar({
         onToggle()
       }}
       aria-pressed={active}
-      aria-label={fillVars(active ? t('unfollowTeam') : t('followTeam'), { team: `${home} / ${away}` })}
-      title={fillVars(active ? t('unfollowTeam') : t('followTeam'), { team: `${home} / ${away}` })}
+      aria-label={fillVars(active ? t('unfollowTeam') : t('followTeam'), { team: bothLabel })}
+      title={fillVars(active ? t('unfollowTeam') : t('followTeam'), { team: bothLabel })}
       className={cn(
         'flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full transition-colors',
         active ? 'text-primary-strong' : 'text-faint hover:bg-surface-hover hover:text-foreground',
@@ -100,7 +102,7 @@ export function MatchCard({
           <h2 id={`match-title-${f.id}`} className="mt-0.5 flex min-w-0 items-center gap-2 font-display text-lg font-semibold text-foreground">
             <TeamAvatar team={f.home} crest={f.home_crest} />
             <span className="min-w-0 flex-1 truncate">
-              {f.home} vs {f.away}
+              {displayTeam(f.home)} vs {displayTeam(f.away)}
               {f.home_score !== null && (
                 <span className="ml-2 font-mono text-base font-medium text-muted tabular-nums">
                   {f.home_score} - {f.away_score}
@@ -150,7 +152,7 @@ export function MatchCard({
       )}
 
       {expanded && (
-        <div role="region" aria-label={`${f.home} vs ${f.away}`} id={storyId} className="animate-fade border-t border-border px-4 py-4">
+        <div role="region" aria-label={`${displayTeam(f.home)} vs ${displayTeam(f.away)}`} id={storyId} className="animate-fade border-t border-border px-4 py-4">
           {detail.loading && (
             <div role="status" aria-label={t('loadingMatch')} className="flex flex-col gap-2">
               <Skeleton className="h-8 w-3/4" />

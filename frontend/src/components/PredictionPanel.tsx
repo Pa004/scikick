@@ -13,6 +13,7 @@ import {
   getSuperCombo,
   type FormOutcome,
 } from '../utils/matchCenter'
+import { displayTeam } from '../utils/teamNames'
 import MarketRenderer from './MarketRenderer'
 import MarketSelector from './MarketSelector'
 import DisplayModeToggle from './DisplayModeToggle'
@@ -103,6 +104,8 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
       }
     : getHeadToHead(home, away, fixtures)
   const momentum = getMomentum(homeForm, awayForm)
+  const homeLabel = displayTeam(home)
+  const awayLabel = displayTeam(away)
 
   return (
     <Card className="mb-4">
@@ -111,11 +114,11 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
         <SectionHeading>{t('form')} · {t('last5')}</SectionHeading>
         <div className="mb-3 flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm text-foreground">{home}</span>
+            <span className="text-sm text-foreground">{homeLabel}</span>
             <FormBadges form={homeForm} emptyLabel={t('noFormData')} />
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm text-foreground">{away}</span>
+            <span className="text-sm text-foreground">{awayLabel}</span>
             <FormBadges form={awayForm} emptyLabel={t('noFormData')} />
           </div>
         </div>
@@ -125,19 +128,19 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
         ) : (
           <div className="mb-3">
             <div className="mb-1 text-sm font-semibold text-foreground tabular-nums">
-              {home} {h2h.homeWins} - {h2h.draws} - {h2h.awayWins} {away}
+              {homeLabel} {h2h.homeWins} - {h2h.draws} - {h2h.awayWins} {awayLabel}
             </div>
             {h2h.meetings.map(m => (
               <div key={`${m.date}-${m.home}-${m.away}`} className="text-xs text-faint tabular-nums">
-                {m.date} · {m.home} {m.homeScore} - {m.awayScore} {m.away}
+                {m.date} · {displayTeam(m.home)} {m.homeScore} - {m.awayScore} {displayTeam(m.away)}
               </div>
             ))}
           </div>
         )}
         <SectionHeading>{t('momentum')}</SectionHeading>
         <div className="flex flex-col gap-1.5">
-          <MomentumRow label={home} pct={momentum.homePct} />
-          <MomentumRow label={away} pct={momentum.awayPct} />
+          <MomentumRow label={homeLabel} pct={momentum.homePct} />
+          <MomentumRow label={awayLabel} pct={momentum.awayPct} />
         </div>
       </CardBody>
     </Card>
@@ -244,6 +247,11 @@ export default function PredictionPanel({ prediction, selectedMarket, onMarketCh
             {getMarketLabel(selectedMarket, locale)}{analyst ? ` · ${selectedMarket}` : ''}
           </CardTitle>
           <MarketRenderer market={selectedMarket} probabilities={prediction.probabilities} mode={mode} moves={moves} />
+          {Object.values(moves).some(m => m !== 'flat') && (
+            <p className="mt-2 mb-0 text-xs text-faint" aria-hidden="true">
+              ▲ {t('oddsUp')} · ▼ {t('oddsDown')}
+            </p>
+          )}
         </CardBody>
       </Card>
 
