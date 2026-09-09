@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { MoreHorizontal } from 'lucide-react'
 import { useLanguage, type Locale } from '../../i18n'
 import { useTheme } from '../../theme/theme-context'
@@ -17,13 +18,15 @@ const LOCALES: { value: Locale; label: string; name: string }[] = [
 export function OverflowMenu({ analyst, onAnalystChange, onOpenModel }: OverflowMenuProps) {
   const { t, locale, setLocale } = useLanguage()
   const { theme, toggle } = useTheme()
+  const [open, setOpen] = useState(false)
 
   return (
-    <Menu>
+    <Menu open={open} onOpenChange={setOpen}>
       <MenuTrigger asChild>
         <button
           type="button"
           aria-label={t('moreOptions')}
+          aria-expanded={open}
           title={t('moreOptions')}
           className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
         >

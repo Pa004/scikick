@@ -7,6 +7,7 @@ import { fetchFixtures } from '../../api'
 import { useLanguage } from '../../i18n'
 import { displayTeam, teamMatchesQuery } from '../../utils/teamNames'
 import { matchesQuery } from '../fixtures/fixtureUtils'
+import { getRecentVisits, type Visit } from '../../lib/visits'
 import { fixtureVerdict } from '../fixtures/fixtureUtils'
 import { TeamAvatar } from '../feed/TeamAvatar'
 import { Input } from '../ui/input'
@@ -27,7 +28,10 @@ interface MatchEntry {
   label: string
 }
 
-type ActiveItem = { kind: 'team'; entry: TeamEntry } | { kind: 'match'; entry: MatchEntry }
+type ActiveItem =
+  | { kind: 'team'; entry: TeamEntry }
+  | { kind: 'match'; entry: MatchEntry }
+  | { kind: 'recent'; entry: Visit }
 
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const { t } = useLanguage()
@@ -36,11 +40,13 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [active, setActive] = useState(0)
   const [fixtures, setFixtures] = useState<Fixture[] | null>(null)
   const cache = useRef<Fixture[] | null>(null)
+  const [recents, setRecents] = useState<ReturnType<typeof getRecentVisits>>([])
 
   useEffect(() => {
     if (!open) return
     setQuery('')
     setActive(0)
+    setRecents(getRecentVisits())
     if (cache.current) {
       setFixtures(cache.current)
       return
@@ -90,10 +96,15 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       })
   }, [fixtures, query, t])
 
-  const items = useMemo<ActiveItem[]>(() => [
-    ...teams.map((entry): ActiveItem => ({ kind: 'team', entry })),
-    ...matches.map((entry): ActiveItem => ({ kind: 'match', entry })),
+  type SearchItem = Extract<ActiveItem, { kind: 'team' | 'match' }>
+  const searchItems = useMemo<SearchItem[]>(() => [
+    ...teams.map((entry): SearchItem => ({ kind: 'team', entry })),
+    ...matches.map((entry): SearchItem => ({ kind: 'match', entry })),
   ], [teams, matches])
+
+  const items: ActiveItem[] = query.trim() === ''
+    ? recents.map((entry): ActiveItem => ({ kind: 'recent', entry }))
+    : searchItems
 
   useEffect(() => {
     setActive(0)
@@ -103,8 +114,12 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     onOpenChange(false)
     if (item.kind === 'team') {
       navigate(`/equipo/${encodeURIComponent(item.entry.name)}`)
-    } else {
+    } else if (item.kind === 'match') {
       navigate(`/partido/${item.entry.fixture.id}`)
+    } else if (item.entry.kind === 'team') {
+      navigate(`/equipo/${encodeURIComponent(item.entry.id)}`)
+    } else {
+      navigate(`/partido/${item.entry.id}`)
     }
   }
 
@@ -158,9 +173,31 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           </div>
           <div id="command-results" role="listbox" aria-label={t('searchCommand')} className="max-h-[50vh] overflow-y-auto p-2">
             {fixtures === null ? (
-              <p role="status" className="px-3 py-4 text-sm text-faint">{t('loading')}</p>
+              <p role="status" aria-label={t('loading')} className="px-3 py-4 text-sm text-faint">{t('loading')}</p>
             ) : query.trim() === '' ? (
-              <p className="px-3 py-4 text-sm text-faint">{t('searchHint')}</p>
+              <>
+                {items.length > 0 && (
+                  <>
+                    <p className="px-3 pt-2 pb-1 text-xs font-semibold tracking-[0.08em] text-faint uppercase">
+                      {t('recentTitle')}
+                    </p>
+                    {items.map((item, i) => (
+                      <CommandRow
+                        key={`r-${item.kind}-${i}`}
+                        id={`command-item-${i}`}
+                        active={i === active}
+                        onHover={() => setActive(i)}
+                        onSelect={() => go(item)}
+                      >
+                        <span className="truncate text-sm font-medium text-foreground">
+                          {item.kind === 'recent' ? item.entry.label : ''}
+                        </span>
+                      </CommandRow>
+                    ))}
+                  </>
+                )}
+                <p className="px-3 py-4 text-sm text-faint">{t('searchHint')}</p>
+              </>
             ) : items.length === 0 ? (
               <p role="status" className="px-3 py-4 text-sm text-faint">{t('searchNoResults')}</p>
             ) : (

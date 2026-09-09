@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import type { Fixture, TeamContext } from '../types'
 import { fetchContext, fetchFixtures } from '../api'
+import { recordVisit } from '../lib/visits'
 import { useLanguage } from '../i18n'
 import { displayTeam } from '../utils/teamNames'
 import { useAnalystMode } from '../hooks/useAnalystMode'
@@ -50,6 +51,7 @@ export function TeamPage() {
       setFixtures(all)
       setContext(ctx)
       if (all.length === 0 && ctx === null) setFailed(true)
+      else recordVisit({ kind: 'team', id: team, label: team })
     })
     return () => {
       active = false

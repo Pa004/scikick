@@ -89,6 +89,17 @@ describe('FeedBoard', () => {
     expect(screen.getByText('No matches for this search.')).toBeDefined()
   })
 
+  it('groups cards under date headings', () => {
+    const dated = [
+      { ...makeFixtures(1)[0], id: 1, date: '2026-09-12' },
+      { ...makeFixtures(1)[0], id: 2, date: '2026-09-13' },
+      { ...makeFixtures(1)[0], id: 3, date: '2026-09-12' },
+    ]
+    renderBoard(dated)
+    const headings = screen.getAllByRole('heading', { level: 3 })
+    expect(headings).toHaveLength(2)
+  })
+
   it('resets pagination when toggling filters', () => {
     renderBoard(makeFixtures(25))
     fireEvent.click(screen.getByRole('button', { name: /Show more/ }))

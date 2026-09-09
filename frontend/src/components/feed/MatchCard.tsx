@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { ChevronDown, Star } from 'lucide-react'
+import { ArrowLeft, ChevronDown, Star } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
-import { extract1x2, asOutcomeProbs } from '../../utils/matchCenter'
+import { extract1x2, asOutcomeProbs, getTeamForm, type FormOutcome } from '../../utils/matchCenter'
 import { formatHumanDate } from '../fixtures/fixtureUtils'
 import { useFixtureDetail } from '../../hooks/useFixtureDetail'
 import { SegmentedBar } from './SegmentedBar'
@@ -57,6 +57,24 @@ function FollowStar({
     >
       <Star aria-hidden="true" className="size-5" fill={active ? 'currentColor' : 'none'} />
     </button>
+  )
+}
+
+function FormStrip({ form, label }: { form: FormOutcome[]; label: string }) {
+  if (form.length === 0) return null
+  return (
+    <span className="flex items-center gap-0.5" role="img" aria-label={label}>
+      {form.map((o, i) => (
+        <span
+          key={i}
+          aria-hidden="true"
+          className={cn(
+            'h-1.5 w-4 rounded-full',
+            o === 'W' ? 'bg-success' : o === 'D' ? 'bg-warning' : 'bg-danger/60',
+          )}
+        />
+      ))}
+    </span>
   )
 }
 
@@ -142,7 +160,7 @@ export function MatchCard({
       </div>
 
       {probs && (
-        <div className="px-4 pb-3">
+        <div className="space-y-2 px-4 pb-3">
           <SegmentedBar
             probs={probs}
             home={f.home}
@@ -152,11 +170,31 @@ export function MatchCard({
               if (!expanded) onToggle()
             }}
           />
+          {!expanded && (
+            <div className="flex items-center justify-between gap-2">
+              <FormStrip form={getTeamForm(fixtures, f.home)} label={`${displayTeam(f.home)}: ${t('form')}`} />
+              <FormStrip form={getTeamForm(fixtures, f.away)} label={`${displayTeam(f.away)}: ${t('form')}`} />
+            </div>
+          )}
         </div>
       )}
 
       {expanded && (
         <div role="region" aria-label={`${displayTeam(f.home)} vs ${displayTeam(f.away)}`} id={storyId} className="animate-fade border-t border-border px-4 py-4">
+          <div className="mb-3 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onToggle}
+              aria-label={t('backToFeed')}
+              title={t('backToFeed')}
+              className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+            >
+              <ArrowLeft aria-hidden="true" className="size-5" />
+            </button>
+            <span className="text-xs font-semibold tracking-[0.08em] text-faint uppercase">
+              {formatHumanDate(f.date, locale)} · {leagueName}
+            </span>
+          </div>
           {detail.loading && (
             <div role="status" aria-label={t('loadingMatch')} className="flex flex-col gap-2">
               <Skeleton className="h-8 w-3/4" />

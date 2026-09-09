@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import type { Fixture } from '../types'
 import { fetchFixtures } from '../api'
 import { getCachedValue, prefetchValues } from '../api/detail'
+import { recordVisit } from '../lib/visits'
 import { useLanguage } from '../i18n'
 import { useAnalystMode } from '../hooks/useAnalystMode'
 import { useFollowedTeams } from '../hooks/useFollowedTeams'
@@ -37,6 +38,12 @@ export function MatchPage() {
         setMeta(found)
         if (found) {
           setContextFixtures(all.filter(f => f.league === found.league))
+          recordVisit({
+            kind: 'match',
+            id: String(found.id),
+            label: `${found.home} vs ${found.away}`,
+            sub: found.league,
+          })
           void prefetchValues([found.id]).then(() => {
             if (active) setValuesTick(x => x + 1)
           })

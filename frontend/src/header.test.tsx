@@ -81,6 +81,21 @@ describe('header', () => {
     expect(screen.getByText(/2 upcoming/)).toBeDefined()
   })
 
+  it('renders the mobile bottom bar with four destinations', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    const bars = screen.getAllByRole('navigation', { name: 'Sections' })
+    expect(bars.length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByRole('link', { name: 'Fixtures' }).length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('opens the palette with Ctrl+K', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.keyDown(window, { key: 'k', ctrlKey: true })
+    expect(await screen.findByRole('combobox')).toBeDefined()
+  })
+
   it('toggles analyst mode from the overflow menu', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
@@ -115,7 +130,7 @@ describe('command palette', () => {
   it('searches teams and navigates to the team page', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('button', { name: 'Search team or league' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Search team or league' })[0])
     const box = await screen.findByRole('combobox')
     fireEvent.change(box, { target: { value: 'ars' } })
     expect(await screen.findByText('Teams')).toBeDefined()
@@ -126,7 +141,7 @@ describe('command palette', () => {
   it('searches matches and opens the story with keyboard', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('button', { name: 'Search team or league' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Search team or league' })[0])
     const box = await screen.findByRole('combobox')
     fireEvent.change(box, { target: { value: 'chelsea' } })
     expect(await screen.findByText('Matches')).toBeDefined()
@@ -138,9 +153,22 @@ describe('command palette', () => {
   it('shows empty state for unknown queries', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('button', { name: 'Search team or league' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Search team or league' })[0])
     const box = await screen.findByRole('combobox')
     fireEvent.change(box, { target: { value: 'zzz' } })
     expect(await screen.findByText('No results. Try another name.')).toBeDefined()
+  })
+
+  it('shows recent visits when the query is empty', async () => {
+    localStorage.setItem('scikick.recent-visits', JSON.stringify([
+      { kind: 'team', id: 'Arsenal', label: 'Arsenal' },
+    ]))
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Search team or league' })[0])
+    await screen.findByRole('combobox')
+    expect(screen.getByText('Recent')).toBeDefined()
+    fireEvent.click(screen.getByRole('option', { name: 'Arsenal' }))
+    expect(await screen.findByText('Upcoming')).toBeDefined()
   })
 })

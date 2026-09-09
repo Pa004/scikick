@@ -118,7 +118,7 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
       </Section>
 
       {stats.by_market.length > 0 && (
-        <Section title={t('byMarket')}>
+        <Section title={`${t('byMarket')} · ${stats.by_market.length}`}>
           <Card>
             <TableRegion role="region" aria-label={t('byMarket')} tabIndex={0} className="border-0">
               <Table>
@@ -148,7 +148,7 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
       )}
 
       {stats.by_league.length > 1 && (
-        <Section title={t('byLeague')}>
+        <Section title={`${t('byLeague')} · ${stats.by_league.length}`}>
           <Card>
             <TableRegion role="region" aria-label={t('byLeague')} tabIndex={0} className="border-0">
               <Table>
