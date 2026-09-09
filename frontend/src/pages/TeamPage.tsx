@@ -105,11 +105,11 @@ export function TeamPage() {
       <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm">
         <TeamAvatar team={team} crest={crest} className="size-12 text-sm" />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-display text-2xl font-bold tracking-tight text-foreground">
+          <h2 className="truncate font-display text-2xl font-bold tracking-tight text-foreground" title={displayTeam(team)}>
             {displayTeam(team)}
           </h2>
           {form.length > 0 && (
-            <p className="mt-0.5 text-sm text-muted tabular-nums">
+            <p className="mt-1 text-sm text-muted tabular-nums">
               {t('form')} · {t('last5')}: {recordLine(form)}
             </p>
           )}

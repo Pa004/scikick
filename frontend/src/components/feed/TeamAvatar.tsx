@@ -29,7 +29,7 @@ export function TeamAvatar({ team, crest, className }: TeamAvatarProps) {
       aria-hidden="true"
       className={cn(
         'inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full',
-        !showImg && 'text-[0.65rem] font-bold text-white',
+        !showImg && 'text-xs font-bold text-white',
         className,
       )}
       style={

@@ -42,7 +42,7 @@ function TrustBlock({ stats, matchdayData, calibrationData }: Omit<StatsDashboar
     <Card className="mb-6 border-l-4 border-l-primary">
       <CardBody>
         <CardTitle className="mb-3">{t('trustTitle')}</CardTitle>
-        <div className="flex flex-col gap-1.5 text-sm">
+        <div className="flex flex-col gap-2 text-sm">
           <div>
             <span className="text-muted">Brier: </span>
             {reading ? (
@@ -132,9 +132,9 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
                 <tbody>
                   {stats.by_market.map(m => (
                     <tr key={m.market} className="transition-colors hover:bg-surface-hover">
-                      <Td>
+                      <Td title={m.market}>
                         {m.market}
-                        {m.cold_start && <Badge variant="warning" className="ml-2 text-[0.65rem]">{t('cold')}</Badge>}
+                        {m.cold_start && <Badge variant="warning" className="ml-2 text-xs">{t('cold')}</Badge>}
                       </Td>
                       <Td align="right">{m.total}</Td>
                       <Td align="right">{formatProb(m.accuracy)}</Td>
@@ -182,7 +182,7 @@ function StatCard({ value, label, format }: { value: number; label: string; form
   const animated = useCountUp(safe ?? 0)
   return (
     <div className="animate-pop rounded-xl border border-border bg-surface px-2 py-4 text-center shadow-sm">
-      <div className="font-display text-xl font-bold text-primary-strong tabular-nums sm:text-2xl">{safe === null ? '—' : format(animated)}</div>
+      <div className="font-display text-2xl font-bold text-primary-strong tabular-nums">{safe === null ? '—' : format(animated)}</div>
       <div className="mt-1 text-xs text-muted">{label}</div>
     </div>
   )

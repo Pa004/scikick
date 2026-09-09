@@ -13,7 +13,7 @@ export function AccordionItem({
 }: ComponentProps<typeof AccordionPrimitive.Item>) {
   return (
     <AccordionPrimitive.Item
-      className={cn('overflow-hidden rounded-lg border border-border bg-surface', className)}
+      className={cn('overflow-hidden rounded-xl border border-border bg-surface', className)}
       {...props}
     />
   )

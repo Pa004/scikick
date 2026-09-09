@@ -74,7 +74,7 @@ function probVariant(p: number): 'success' | 'warning' | 'neutral' {
 function ScorerRow({ s }: { s: ScorerPlayer }) {
   return (
     <tr className="transition-colors hover:bg-surface-hover">
-      <Td className="font-medium">
+      <Td className="font-medium" title={`${s.name} · ${displayTeam(s.team)}`}>
         {s.name}
         <span className="ml-1 text-xs text-faint">{s.position}</span>
       </Td>
@@ -128,7 +128,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
 
       <Badge
         variant={scorer.data_quality === 'lineup_confirmed' ? 'success' : 'warning'}
-        className="mb-3 px-3 py-1 text-[0.8rem]"
+        className="mb-3 px-3 py-1 text-xs"
       >
         {scorer.data_quality === 'lineup_confirmed' ? t('lineupConfirmed') : t('lineupProjected')}
       </Badge>
@@ -156,13 +156,12 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
                             type="button"
                             onClick={() => handleSort(col.key)}
                             aria-label={`${t('sortBy')} ${t(col.labelKey)}${sortKey === col.key ? `, ${sortDir === 'asc' ? t('sortAsc') : t('sortDesc')}` : ''}`}
-                            className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1 bg-transparent p-1 font-medium text-inherit hover:text-foreground"
-                          >
+                            className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1 bg-transparent p-1 font-medium text-inherit hover:text-foreground"                          >
                             {t(col.labelKey)}
                             {sortKey === col.key && (
                               sortDir === 'asc'
-                                ? <ArrowUp aria-hidden="true" className="size-3 text-primary-strong" />
-                                : <ArrowDown aria-hidden="true" className="size-3 text-primary-strong" />
+                                ? <ArrowUp aria-hidden="true" className="size-4 text-primary-strong" />
+                                : <ArrowDown aria-hidden="true" className="size-4 text-primary-strong" />
                             )}
                           </button>
                         </Th>

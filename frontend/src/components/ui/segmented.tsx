@@ -28,11 +28,11 @@ interface SegmentedButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export function SegmentedButton({ active, className, ...props }: SegmentedButtonProps) {
   return (
-    <button
+      <button
       type="button"
       aria-pressed={active}
       className={cn(
-        'min-h-9 cursor-pointer rounded-full px-3 text-sm font-semibold whitespace-nowrap transition-colors duration-150',
+        'min-h-11 cursor-pointer rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors duration-150',
         active
           ? 'bg-primary text-primary-fg shadow-sm'
           : 'text-muted hover:text-foreground',

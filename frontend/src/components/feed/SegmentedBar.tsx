@@ -38,11 +38,11 @@ export function SegmentedBar({ probs, home, away, onSelect }: SegmentedBarProps)
             aria-label={`${s.label}: ${s.pct.toFixed(1)}%`}
             title={`${s.label}: ${s.pct.toFixed(1)}%`}
             style={{ width: `${s.pct}%` }}
-            className={cn('h-full min-w-2 cursor-pointer rounded-full transition-transform duration-150 hover:scale-y-125', s.className)}
+            className={cn('relative h-full min-w-2 cursor-pointer rounded-full transition-transform duration-150 hover:scale-y-125', 'after:absolute after:inset-x-0 after:-inset-y-4 after:content-[""]', s.className)}
           />
         ))}
       </span>
-      <span className="mt-1 flex justify-between text-[0.7rem] font-medium text-muted tabular-nums">
+      <span className="mt-1 flex justify-between text-xs font-medium text-muted tabular-nums">
         <span>1 · {(probs.home * 100).toFixed(0)}%</span>
         <span>X · {(probs.draw * 100).toFixed(0)}%</span>
         <span>2 · {(probs.away * 100).toFixed(0)}%</span>

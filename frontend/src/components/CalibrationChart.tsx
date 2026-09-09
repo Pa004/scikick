@@ -48,7 +48,7 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
             label={{ value: t('actualPct'), angle: -90, position: 'left', fontSize: 12, fill: chart.tick }}
           />
           <Tooltip
-            contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: '8px', color: chart.tooltipText }}
+            contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: '12px', color: chart.tooltipText }}
             formatter={(value, name, props) => [
               `${Number(value).toFixed(1)}% (n=${props.payload.count})`,
               name === 'x' ? t('predictedPct') : t('actualPct'),

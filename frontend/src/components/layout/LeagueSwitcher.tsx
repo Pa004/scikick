@@ -29,7 +29,7 @@ interface LeagueSwitcherProps {
 export function LeagueSwitcher({ league, onChange }: LeagueSwitcherProps) {
   const { t } = useLanguage()
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       <span id="league-switcher-label" className="text-xs font-medium text-faint">
         {t('league')}
       </span>
@@ -47,7 +47,7 @@ export function LeagueSwitcher({ league, onChange }: LeagueSwitcherProps) {
               aria-pressed={active}
               onClick={() => onChange(l.code)}
               className={cn(
-                'min-h-9 cursor-pointer rounded-full px-3.5 text-sm font-semibold whitespace-nowrap transition-colors duration-150',
+                'min-h-11 cursor-pointer rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors duration-150',
                 active
                   ? 'bg-primary text-primary-fg shadow-sm'
                   : 'text-muted hover:bg-surface-hover hover:text-foreground',

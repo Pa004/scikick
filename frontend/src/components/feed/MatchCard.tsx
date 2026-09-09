@@ -97,9 +97,9 @@ export function MatchCard({
           <span className="block text-xs font-medium text-faint">
             {formatHumanDate(f.date, locale)} · {leagueName}
           </span>
-          <h2 id={`match-title-${f.id}`} className="mt-0.5 flex min-w-0 items-center gap-2 font-display text-lg font-semibold text-foreground">
+          <h2 id={`match-title-${f.id}`} className="mt-1 flex min-w-0 items-center gap-2 font-display text-lg font-semibold text-foreground">
             <TeamAvatar team={f.home} crest={f.home_crest} />
-            <span className="min-w-0 flex-1 truncate">
+            <span className="min-w-0 flex-1 truncate" title={`${displayTeam(f.home)} vs ${displayTeam(f.away)}`}>
               {displayTeam(f.home)} vs {displayTeam(f.away)}
               {f.home_score !== null && (
                 <span className="ml-2 font-mono text-base font-medium text-muted tabular-nums">
@@ -109,14 +109,14 @@ export function MatchCard({
             </span>
             <TeamAvatar team={f.away} crest={f.away_crest} />
           </h2>
-          <span className="mt-0.5 flex flex-wrap items-center gap-1.5">
+          <span className="mt-0.5 flex flex-wrap items-center gap-2">
             {f.prediction != null && (
-              <Badge variant="accent" className="text-[0.65rem]">
+              <Badge variant="accent" className="text-xs">
                 {t('predicted')}
               </Badge>
             )}
             {hasValue === true && (
-              <Badge variant="success" className="text-[0.65rem]">
+              <Badge variant="success" className="text-xs">
                 {t('valueIsValue')}
               </Badge>
             )}

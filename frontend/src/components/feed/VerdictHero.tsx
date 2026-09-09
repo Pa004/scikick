@@ -35,7 +35,7 @@ export function VerdictHero({ fixture, probableScore, probs }: VerdictHeroProps)
 
   return (
     <div className="mb-4">
-      <p className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-[1.7rem]">
+      <p className="font-display text-2xl font-bold tracking-tight text-balance text-foreground sm:text-3xl">
         {text}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
