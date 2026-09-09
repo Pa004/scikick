@@ -157,6 +157,8 @@ const DICTIONARIES = {
     close: 'Close',
     valueEmpty: 'Stored odds will appear here once loaded, or check your own above.',
     valueAutoFailed: 'Could not load stored odds. Paste your own above.',
+    deepLinkMiss: 'That match is not in the current list.',
+    dismiss: 'Dismiss',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -310,6 +312,8 @@ const DICTIONARIES = {
     close: 'Cerrar',
     valueEmpty: 'Las cuotas guardadas aparecerán aquí al cargar, o calcula las tuyas arriba.',
     valueAutoFailed: 'No se pudieron cargar las cuotas guardadas. Pega las tuyas arriba.',
+    deepLinkMiss: 'Ese partido no está en la lista actual.',
+    dismiss: 'Descartar',
   },
 } as const
 

@@ -92,8 +92,8 @@ describe('MatchCard', () => {
         />
       </LanguageProvider>,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Follow Liverpool / Fulham' }))
-    expect(onToggleFollow).toHaveBeenCalledWith('Liverpool', 'Fulham')
+    fireEvent.click(screen.getByRole('button', { name: 'Follow Liverpool' }))
+    expect(onToggleFollow).toHaveBeenCalledWith('Liverpool')
   })
 })
 

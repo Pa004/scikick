@@ -48,9 +48,8 @@ function App() {
     setLeague(value)
   }
 
-  const handleToggleFollow = (home: string, away: string) => {
-    toggle(home)
-    toggle(away)
+  const handleToggleFollow = (team: string) => {
+    toggle(team)
   }
 
   const leagueName = (code: string) => {
