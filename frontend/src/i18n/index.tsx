@@ -159,6 +159,13 @@ const DICTIONARIES = {
     valueAutoFailed: 'Could not load stored odds. Paste your own above.',
     deepLinkMiss: 'That match is not in the current list.',
     dismiss: 'Dismiss',
+    upcoming: 'Upcoming',
+    noUpcoming: 'No upcoming matches for this team.',
+    teamNotFound: 'No data for this team yet.',
+    notFoundTitle: 'Page not found',
+    notFoundText: 'That address does not exist. Back to the matches.',
+    backToFeed: 'Back to matches',
+    navMain: 'Sections',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -314,6 +321,13 @@ const DICTIONARIES = {
     valueAutoFailed: 'No se pudieron cargar las cuotas guardadas. Pega las tuyas arriba.',
     deepLinkMiss: 'Ese partido no está en la lista actual.',
     dismiss: 'Descartar',
+    upcoming: 'Próximos',
+    noUpcoming: 'Sin próximos partidos para este equipo.',
+    teamNotFound: 'Aún no hay datos de este equipo.',
+    notFoundTitle: 'Página no encontrada',
+    notFoundText: 'Esa dirección no existe. Vuelve a los partidos.',
+    backToFeed: 'Volver a partidos',
+    navMain: 'Secciones',
   },
 } as const
 

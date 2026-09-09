@@ -4,11 +4,19 @@
 
 const PARAM = 'partido'
 
-export function getDeepLinkedFixtureId(): number | null {
+export function parseDeepLinkId(search: string): number | null {
   try {
-    const raw = new URLSearchParams(window.location.search).get(PARAM)
+    const raw = new URLSearchParams(search).get(PARAM)
     const id = raw === null ? NaN : Number.parseInt(raw, 10)
     return Number.isFinite(id) && id > 0 ? id : null
+  } catch {
+    return null
+  }
+}
+
+export function getDeepLinkedFixtureId(): number | null {
+  try {
+    return parseDeepLinkId(window.location.search)
   } catch {
     return null
   }

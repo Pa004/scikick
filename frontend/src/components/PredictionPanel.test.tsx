@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
+import { MemoryRouter } from 'react-router'
 import { LanguageProvider } from '../i18n'
 import type { Prediction } from '../types'
 import PredictionPanel from './PredictionPanel'
@@ -18,8 +19,9 @@ const prediction: Prediction = {
 
 function renderPanel(analyst: boolean) {
   render(
-    <LanguageProvider>
-      <PredictionPanel
+    <MemoryRouter>
+      <LanguageProvider>
+        <PredictionPanel
         prediction={prediction}
         selectedMarket="1x2"
         onMarketChange={() => {}}
@@ -28,7 +30,8 @@ function renderPanel(analyst: boolean) {
         fixtures={[]}
         analyst={analyst}
       />
-    </LanguageProvider>,
+      </LanguageProvider>
+    </MemoryRouter>,
   )
 }
 

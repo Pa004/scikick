@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { MemoryRouter } from 'react-router'
 import { LanguageProvider } from '../../i18n'
 import { MatchCard } from './MatchCard'
 import { SegmentedBar } from './SegmentedBar'
@@ -16,19 +17,21 @@ const fixture: Fixture = {
 
 function renderCard(expanded = false, onToggle = vi.fn()) {
   return render(
-    <LanguageProvider>
-      <MatchCard
-        fixture={fixture}
-        expanded={expanded}
-        onToggle={onToggle}
-        leagueName="Premier League"
-        followed={[]}
-        onToggleFollow={vi.fn()}
-        hasValue={null}
-        analyst={false}
-        fixtures={[fixture]}
-      />
-    </LanguageProvider>,
+    <MemoryRouter>
+      <LanguageProvider>
+        <MatchCard
+          fixture={fixture}
+          expanded={expanded}
+          onToggle={onToggle}
+          leagueName="Premier League"
+          followed={[]}
+          onToggleFollow={vi.fn()}
+          hasValue={null}
+          analyst={false}
+          fixtures={[fixture]}
+        />
+      </LanguageProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -57,19 +60,21 @@ describe('MatchCard', () => {
       prediction: { probabilities: { home: 0.4, draw: 0.3, away: 0.3 } },
     }
     render(
-      <LanguageProvider>
-        <MatchCard
-          fixture={alaves}
-          expanded={false}
-          onToggle={vi.fn()}
-          leagueName="La Liga"
-          followed={[]}
-          onToggleFollow={vi.fn()}
-          hasValue={null}
-          analyst={false}
-          fixtures={[alaves]}
-        />
-      </LanguageProvider>,
+      <MemoryRouter>
+        <LanguageProvider>
+          <MatchCard
+            fixture={alaves}
+            expanded={false}
+            onToggle={vi.fn()}
+            leagueName="La Liga"
+            followed={[]}
+            onToggleFollow={vi.fn()}
+            hasValue={null}
+            analyst={false}
+            fixtures={[alaves]}
+          />
+        </LanguageProvider>
+      </MemoryRouter>,
     )
     expect(screen.getByRole('heading', { name: /Alavés vs Español/ })).toBeDefined()
     expect(screen.getByLabelText('1 · Alavés: 40.0%')).toBeDefined()
@@ -78,19 +83,21 @@ describe('MatchCard', () => {
   it('toggles follow with accessible name', () => {
     const onToggleFollow = vi.fn()
     render(
-      <LanguageProvider>
-        <MatchCard
-          fixture={fixture}
-          expanded={false}
-          onToggle={vi.fn()}
-          leagueName="Premier League"
-          followed={[]}
-          onToggleFollow={onToggleFollow}
-          hasValue={null}
-          analyst={false}
-          fixtures={[fixture]}
-        />
-      </LanguageProvider>,
+      <MemoryRouter>
+        <LanguageProvider>
+          <MatchCard
+            fixture={fixture}
+            expanded={false}
+            onToggle={vi.fn()}
+            leagueName="Premier League"
+            followed={[]}
+            onToggleFollow={onToggleFollow}
+            hasValue={null}
+            analyst={false}
+            fixtures={[fixture]}
+          />
+        </LanguageProvider>
+      </MemoryRouter>,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Follow Liverpool' }))
     expect(onToggleFollow).toHaveBeenCalledWith('Liverpool')
