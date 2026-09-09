@@ -37,6 +37,12 @@ def sync_odds_for_league(
         candidates = by_date.get(event["date"], [])
         fixture_id = _match_event(candidates, league, event)
         if fixture_id is None:
+            logger.warning(
+                "Odds event without fixture: %s %s vs %s "
+                "(available %s dates: %s)",
+                event.get("date"), event.get("home_team"), event.get("away_team"),
+                league, sorted(by_date.keys())[:8],
+            )
             continue
         best = _to_1x2(event)
         if not best:

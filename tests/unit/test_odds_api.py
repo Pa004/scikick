@@ -162,3 +162,53 @@ def test_sync_odds_skips_unmatched_date(tmp_path, monkeypatch, caplog):
         assert "without fixture" in caplog.text
     finally:
         conn.close()
+
+
+def test_promoted_teams_resolve_via_overrides():
+    from app.ingestion.adapters.api_football import normalize_api_name
+
+    assert normalize_api_name("1. FC Köln", "D1") == "1. FC Köln"
+    assert normalize_api_name("Lorient", "F1") == "Lorient"
+    assert normalize_api_name("Hamburger SV", "D1") == "Hamburger SV"
+    assert normalize_api_name("Le Mans", "F1") == "Le Mans"
+    assert normalize_api_name("Real Racing Club de Santander", "SP1") == "Real Racing Club de Santander"
+    assert normalize_api_name("Málaga", "SP1") == "Málaga"
+    assert normalize_api_name("Malaga", "SP1") == "Málaga"
+
+
+def test_match_event_matches_names_date_bucketed_upstream(tmp_path, monkeypatch):
+    from app.ingestion import odds_sync as sync_module
+
+    conn = _setup_odds_db(tmp_path)
+    try:
+        candidates = [
+            {"id": 7, "match_date": "2026-09-12",
+             "home_name": "Man City", "away_name": "Arsenal"},
+        ]
+        hit = {"date": "2026-09-12", "home_team": "Manchester City", "away_team": "Arsenal"}
+        assert sync_module._match_event(candidates, "E0", hit) == 7
+        wrong_name = dict(hit, away_team="Chelsea")
+        assert sync_module._match_event(candidates, "E0", wrong_name) is None
+    finally:
+        conn.close()
+
+
+def test_sync_odds_ignores_events_outside_date_bucket(tmp_path, monkeypatch):
+    from app.ingestion import odds_sync as sync_module
+
+    monkeypatch.setattr(
+        sync_module, "fetch_h2h", lambda league: [
+            {"event_id": "e", "date": "2026-09-13", "home_team": "Manchester City",
+             "away_team": "Arsenal", "books": {},
+             "best": {"Manchester City": {"price": 1.75, "book": "p"},
+                      "Draw": {"price": 4.0, "book": "p"},
+                      "Arsenal": {"price": 4.6, "book": "p"}}}
+        ]
+    )
+    conn = _setup_odds_db(tmp_path)
+    try:
+        result = sync_module.sync_odds_for_league(conn, "E0")
+        assert result == {"league": "E0", "matched": 0, "events": 1}
+        assert conn.execute("SELECT COUNT(*) FROM fixture_odds").fetchone()[0] == 0
+    finally:
+        conn.close()
