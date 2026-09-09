@@ -10,6 +10,7 @@ import {
   type SortDir,
   type TeamFilter,
 } from '../utils/scorer'
+import { displayTeam } from '../utils/teamNames'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
@@ -77,7 +78,7 @@ function ScorerRow({ s }: { s: ScorerPlayer }) {
         {s.name}
         <span className="ml-1 text-xs text-faint">{s.position}</span>
       </Td>
-      <Td className="text-muted">{s.team}</Td>
+      <Td className="text-muted">{displayTeam(s.team)}</Td>
       <Td align="center">{typeof s.xg90 === 'number' ? s.xg90.toFixed(2) : '—'}</Td>
       <Td align="center">{typeof s.min_expected === 'number' ? `${s.min_expected.toFixed(0)}'` : '—'}</Td>
       <Td align="right">

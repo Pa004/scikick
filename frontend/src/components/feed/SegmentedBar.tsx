@@ -1,4 +1,5 @@
 import type { OutcomeProbs } from '../../utils/matchCenter'
+import { displayTeam } from '../../utils/teamNames'
 import { useLanguage } from '../../i18n'
 import { cn } from '../../lib/cn'
 
@@ -14,11 +15,13 @@ interface SegmentedBarProps {
 // information; the text legend (not color alone) names each share.
 export function SegmentedBar({ probs, home, away, onSelect }: SegmentedBarProps) {
   const { t } = useLanguage()
+  const homeLabel = displayTeam(home)
+  const awayLabel = displayTeam(away)
   const total = probs.home + probs.draw + probs.away || 1
   const segments = [
-    { key: 'home', label: `1 · ${home}`, pct: (probs.home / total) * 100, className: 'bg-primary' },
+    { key: 'home', label: `1 · ${homeLabel}`, pct: (probs.home / total) * 100, className: 'bg-primary' },
     { key: 'draw', label: `X · ${t('draw')}`, pct: (probs.draw / total) * 100, className: 'bg-faint/50' },
-    { key: 'away', label: `2 · ${away}`, pct: (probs.away / total) * 100, className: 'bg-primary-strong' },
+    { key: 'away', label: `2 · ${awayLabel}`, pct: (probs.away / total) * 100, className: 'bg-primary-strong' },
   ] as const
 
   return (

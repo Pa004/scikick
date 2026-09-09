@@ -3,6 +3,7 @@ import { useLanguage } from '../../i18n'
 import type { OutcomeProbs } from '../../utils/matchCenter'
 import { fixtureVerdict } from '../fixtures/fixtureUtils'
 import { getVerdict, formatFrequency } from '../../utils/verdict'
+import { displayTeam } from '../../utils/teamNames'
 import { Dots10 } from '../fixtures/Dots10'
 import { Badge } from '../ui/badge'
 
@@ -22,7 +23,7 @@ export function VerdictHero({ fixture, probableScore, probs }: VerdictHeroProps)
   const v = probs
     ? (() => {
         const fresh = getVerdict(fixture.home, fixture.away, probs)
-        return { outcome: fresh.outcome, teamLabel: fresh.teamLabel, frequency: formatFrequency(fresh.prob) }
+        return { outcome: fresh.outcome, teamLabel: displayTeam(fresh.teamLabel), frequency: formatFrequency(fresh.prob) }
       })()
     : embedded
   if (!v) return null

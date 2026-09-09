@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchValue } from '../api'
 import type { ValueOutcome, ValueResponse } from '../types'
+import { displayTeam } from '../utils/teamNames'
 import { useLanguage } from '../i18n'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
@@ -86,7 +87,7 @@ export default function ValueChecker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fixtureId])
 
-  const labels: Record<Side, string> = { home, draw: t('draw'), away }
+  const labels: Record<Side, string> = { home: displayTeam(home), draw: t('draw'), away: displayTeam(away) }
   const parsed = {
     home: parseOdds(odds.home),
     draw: parseOdds(odds.draw),

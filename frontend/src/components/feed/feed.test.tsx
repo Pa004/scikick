@@ -51,6 +51,30 @@ describe('MatchCard', () => {
     expect(screen.getByText('2 · 19%')).toBeDefined()
   })
 
+  it('renders display names with diacritics', () => {
+    const alaves: Fixture = {
+      ...fixture, id: 9, home: 'Alaves', away: 'Espanol',
+      prediction: { probabilities: { home: 0.4, draw: 0.3, away: 0.3 } },
+    }
+    render(
+      <LanguageProvider>
+        <MatchCard
+          fixture={alaves}
+          expanded={false}
+          onToggle={vi.fn()}
+          leagueName="La Liga"
+          followed={[]}
+          onToggleFollow={vi.fn()}
+          hasValue={null}
+          analyst={false}
+          fixtures={[alaves]}
+        />
+      </LanguageProvider>,
+    )
+    expect(screen.getByRole('heading', { name: /Alavés vs Español/ })).toBeDefined()
+    expect(screen.getByLabelText('1 · Alavés: 40.0%')).toBeDefined()
+  })
+
   it('toggles follow with accessible name', () => {
     const onToggleFollow = vi.fn()
     render(
