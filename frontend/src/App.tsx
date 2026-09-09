@@ -14,6 +14,7 @@ import { FollowedPage } from './pages/FollowedPage'
 import { NotFound } from './pages/NotFound'
 import { ScrollToTop } from './components/layout/ScrollToTop'
 import { ModelDrawer } from './components/feed/ModelDrawer'
+import { CommandPalette } from './components/search/CommandPalette'
 
 function App() {
   const { t } = useLanguage()
@@ -23,6 +24,9 @@ function App() {
   const [error, setError] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const [analyst, setAnalyst] = useAnalystMode()
+  const [modelOpen, setModelOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [fetchedAt, setFetchedAt] = useState<number | null>(null)
   const { followed, toggle } = useFollowedTeams()
 
   const leagueRequestId = useRef(0)
@@ -39,6 +43,7 @@ function App() {
       .then(data => {
         if (requestId !== leagueRequestId.current) return
         setFixtures(data)
+        setFetchedAt(Date.now())
         setLoading(false)
       })
       .catch(() => {
@@ -64,7 +69,17 @@ function App() {
       onLeagueChange={handleLeagueChange}
       analyst={analyst}
       onAnalystChange={setAnalyst}
-      actions={<ModelDrawer league={league} />}
+      onOpenModel={() => setModelOpen(true)}
+      onOpenSearch={() => setSearchOpen(true)}
+      searchLabel={t('searchCommand')}
+      statusCount={fixtures.length}
+      statusUpdatedAt={fetchedAt}
+      actions={
+        <>
+          <ModelDrawer league={league} open={modelOpen} onOpenChange={setModelOpen} />
+          <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
+        </>
+      }
     >
       <ScrollToTop />
       <Routes>

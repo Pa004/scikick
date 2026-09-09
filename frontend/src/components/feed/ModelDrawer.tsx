@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react'
-import { Gauge } from 'lucide-react'
 import type { CalibrationData, MatchdayData, Stats } from '../../types'
 import { fetchCalibration, fetchMatchdayStats, fetchStats } from '../../api'
 import { useLanguage } from '../../i18n'
 import StatsDashboard from '../StatsDashboard'
 import { Button } from '../ui/button'
-import { Drawer, DrawerContent, DrawerTrigger } from '../ui/drawer'
+import { Drawer, DrawerContent } from '../ui/drawer'
 import { Skeleton } from '../ui/skeleton'
 
 // Model trust lives outside the story flow: a side drawer with its
-// own data lifecycle, opened from the header.
-export function ModelDrawer({ league }: { league: string }) {
+// own data lifecycle. Open state is lifted so header tabs, the overflow
+// menu and shortcuts can all open the same drawer.
+export function ModelDrawer({ league, open, onOpenChange }: {
+  league: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}) {
   const { t } = useLanguage()
-  const [open, setOpen] = useState(false)
   const [stats, setStats] = useState<Stats | null>(null)
   const [matchdayData, setMatchdayData] = useState<MatchdayData | null>(null)
   const [calibrationData, setCalibrationData] = useState<CalibrationData | null>(null)
@@ -47,13 +50,7 @@ export function ModelDrawer({ league }: { league: string }) {
   }, [open, league, attempt])
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <Button type="button" size="sm" variant="secondary">
-          <Gauge aria-hidden="true" />
-          {t('modelTrust')}
-        </Button>
-      </DrawerTrigger>
+    <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent
         title={t('modelTrust')}
         description={t('trustTitle')}

@@ -24,13 +24,14 @@ export const LEAGUES: LeagueOption[] = [
 interface LeagueSwitcherProps {
   league: string
   onChange: (code: string) => void
+  compact?: boolean
 }
 
-export function LeagueSwitcher({ league, onChange }: LeagueSwitcherProps) {
+export function LeagueSwitcher({ league, onChange, compact = false }: LeagueSwitcherProps) {
   const { t } = useLanguage()
   return (
-    <div className="flex flex-col gap-2">
-      <span id="league-switcher-label" className="text-xs font-medium text-faint">
+    <div className="flex min-w-0 flex-col gap-2">
+      <span id="league-switcher-label" className={compact ? 'sr-only' : 'text-xs font-medium text-faint'}>
         {t('league')}
       </span>
       <div

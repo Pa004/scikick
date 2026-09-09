@@ -1,10 +1,38 @@
 import { render, screen, fireEvent } from '@testing-library/react'
+import type { ReactNode } from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { LanguageProvider } from './i18n'
 import { ThemeProvider } from './theme/ThemeProvider'
 import { clearDetailCaches } from './api/detail'
 import App from './App'
+
+// Radix Menu hangs jsdom workers (verified live instead); mock the shell,
+// test our wiring.
+vi.mock('@radix-ui/react-dropdown-menu', async () => {
+  const passthrough = ({ children }: { children: ReactNode }) => <>{children}</>
+  return {
+    Root: passthrough,
+    Trigger: passthrough,
+    Portal: passthrough,
+    Content: ({ children, ...props }: { children: ReactNode }) => (
+      <div role="menu" {...props}>{children}</div>
+    ),
+    Item: ({ children, onSelect, ...props }: { children: ReactNode; onSelect?: () => void }) => (
+      <div role="menuitem" onClick={onSelect} {...props}>{children}</div>
+    ),
+    CheckboxItem: ({ children, checked, onCheckedChange, ...props }: {
+      children: ReactNode; checked?: boolean; onCheckedChange?: (v: boolean) => void
+    }) => (
+      <div role="menuitemcheckbox" aria-checked={checked} onClick={() => onCheckedChange?.(!checked)} {...props}>
+        {children}
+      </div>
+    ),
+    ItemIndicator: passthrough,
+    Label: ({ children, ...props }: { children: ReactNode }) => <div {...props}>{children}</div>,
+    Separator: (props: object) => <hr {...props} />,
+  }
+})
 
 function renderApp(entries: string[] = ['/']) {
   return render(
@@ -101,10 +129,11 @@ describe('App feed', () => {
   it('filters cards via search and shows empty state', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.change(screen.getByLabelText(/Search team or league/), { target: { value: 'Liverpool' } })
+    const search = screen.getByRole('searchbox')
+    fireEvent.change(search, { target: { value: 'Liverpool' } })
     expect(screen.queryByText(/Arsenal/)).toBeNull()
     expect(screen.getAllByText(/Liverpool/).length).toBeGreaterThan(0)
-    fireEvent.change(screen.getByLabelText(/Search team or league/), { target: { value: 'zzz' } })
+    fireEvent.change(search, { target: { value: 'zzz' } })
     expect(screen.getByText('No matches for this search.')).toBeDefined()
   })
 
@@ -130,7 +159,7 @@ describe('App feed', () => {
   it('opens the model drawer with calibration', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('button', { name: 'Model' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Model' })[0])
     expect(await screen.findByText('Well calibrated. Predictions land close to actual outcomes.')).toBeDefined()
   })
 
@@ -251,7 +280,7 @@ describe('App feed', () => {
   it('closes the model drawer with Escape', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('button', { name: 'Model' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Model' })[0])
     await screen.findByText('Calibration')
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByText('Calibration')).toBeNull()
@@ -305,9 +334,9 @@ describe('App feed', () => {
   it('switches language across the feed', async () => {
     renderApp()
     await screen.findByRole('heading', { name: 'Fixtures' })
-    fireEvent.click(screen.getByRole('button', { name: 'ES' }))
+    fireEvent.click(screen.getByRole('menuitemcheckbox', { name: /Español/ }))
     expect(await screen.findByRole('heading', { name: 'Partidos' })).toBeDefined()
-    fireEvent.click(screen.getByRole('button', { name: 'EN' }))
+    fireEvent.click(screen.getByRole('menuitemcheckbox', { name: /English/ }))
     expect(await screen.findByRole('heading', { name: 'Fixtures' })).toBeDefined()
   })
 })
