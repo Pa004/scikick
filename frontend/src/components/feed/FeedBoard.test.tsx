@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { MemoryRouter } from 'react-router'
 import { LanguageProvider } from '../../i18n'
 import { clearDetailCaches } from '../../api/detail'
 import { FeedBoard } from './FeedBoard'
@@ -19,10 +20,11 @@ function makeFixtures(n: number): Fixture[] {
   }))
 }
 
-function renderBoard(fixtures: Fixture[], followed: string[] = []) {
+function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: string[] = ['/']) {
   return render(
-    <LanguageProvider>
-      <FeedBoard
+    <MemoryRouter initialEntries={entries}>
+      <LanguageProvider>
+        <FeedBoard
         fixtures={fixtures}
         loading={false}
         leagueName={() => 'Premier League'}
@@ -31,7 +33,8 @@ function renderBoard(fixtures: Fixture[], followed: string[] = []) {
         analyst={false}
         fixturesForContext={fixtures}
       />
-    </LanguageProvider>,
+      </LanguageProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -96,8 +99,7 @@ describe('FeedBoard', () => {
   })
 
   it('notices deep links missing from the feed and dismisses', () => {
-    window.history.replaceState(null, '', '/?partido=999')
-    renderBoard(makeFixtures(2))
+    renderBoard(makeFixtures(2), [], ['/?partido=999'])
     expect(screen.getByText('That match is not in the current list.')).toBeDefined()
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
     expect(screen.queryByText('That match is not in the current list.')).toBeNull()

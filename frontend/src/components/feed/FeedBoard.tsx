@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { Search, X } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
 import { getCachedValue, prefetchValues } from '../../api/detail'
 import { matchesQuery } from '../fixtures/fixtureUtils'
-import { getDeepLinkedFixtureId, syncDeepLink } from '../../lib/deeplink'
+import { parseDeepLinkId, syncDeepLink } from '../../lib/deeplink'
 import { selectPickOfDay } from '../../utils/matchCenter'
 import { MatchCard } from './MatchCard'
 import { PickOfDayCard } from '../fixtures/PickOfDayCard'
@@ -45,6 +46,8 @@ interface FeedBoardProps {
   onToggleFollow: (team: string) => void
   analyst: boolean
   fixturesForContext: Fixture[]
+  // When provided (routed feed), deep links navigate instead of expanding inline.
+  onDeepLink?: (id: number) => void
 }
 
 export function FeedBoard({
@@ -55,6 +58,7 @@ export function FeedBoard({
   onToggleFollow,
   analyst,
   fixturesForContext,
+  onDeepLink,
 }: FeedBoardProps) {
   const { t } = useLanguage()
   const [query, setQuery] = useState('')
@@ -64,6 +68,7 @@ export function FeedBoard({
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [valuesReady, setValuesReady] = useState(false)
   const [deepLinkMiss, setDeepLinkMiss] = useState(false)
+  const [searchParams] = useSearchParams()
 
   const filtered = useMemo(() => {
     return fixtures.filter(f => {
@@ -97,11 +102,15 @@ export function FeedBoard({
   // Shareable link (?partido=) opens that story on load.
   useEffect(() => {
     if (loading || fixtures.length === 0) return
-    const deepId = getDeepLinkedFixtureId()
+    const deepId = parseDeepLinkId(`?${searchParams.toString()}`)
     if (deepId === null) return
     if (fixtures.some(f => f.id === deepId)) {
-      setExpandedId(deepId)
-      scrollCardIntoView(deepId)
+      if (onDeepLink) {
+        onDeepLink(deepId)
+      } else {
+        setExpandedId(deepId)
+        scrollCardIntoView(deepId)
+      }
     } else {
       setDeepLinkMiss(true)
     }

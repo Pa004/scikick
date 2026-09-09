@@ -1,17 +1,20 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { MemoryRouter } from 'react-router'
 import { LanguageProvider } from './i18n'
 import { ThemeProvider } from './theme/ThemeProvider'
 import { clearDetailCaches } from './api/detail'
 import App from './App'
 
-function renderApp() {
+function renderApp(entries: string[] = ['/']) {
   return render(
-    <ThemeProvider>
-      <LanguageProvider>
-        <App />
-      </LanguageProvider>
-    </ThemeProvider>,
+    <MemoryRouter initialEntries={entries}>
+      <ThemeProvider>
+        <LanguageProvider>
+          <App />
+        </LanguageProvider>
+      </ThemeProvider>
+    </MemoryRouter>,
   )
 }
 
@@ -156,10 +159,17 @@ describe('App feed', () => {
     expect(screen.getByRole('main')).toBeDefined()
   })
 
-  it('auto-expands the deep-linked fixture', async () => {
-    window.history.replaceState(null, '', '/?partido=1')
-    renderApp()
+  it('routes legacy deep links to the match page', async () => {
+    renderApp(['/?partido=1'])
     expect(await screen.findByText(/Arsenal win/)).toBeDefined()
+    expect(screen.getByText('Match Center')).toBeDefined()
+  })
+
+  it('shows a miss notice for unknown match routes', async () => {
+    renderApp(['/partido/999'])
+    expect(await screen.findByText('That match is not in the current list.')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Back to matches' }))
+    await screen.findAllByText(/Arsenal/)
   })
 
   it('shows story error with retry and recovers', async () => {
@@ -294,10 +304,10 @@ describe('App feed', () => {
 
   it('switches language across the feed', async () => {
     renderApp()
-    await screen.findByText('Fixtures')
+    await screen.findByRole('heading', { name: 'Fixtures' })
     fireEvent.click(screen.getByRole('button', { name: 'ES' }))
-    expect(await screen.findByText('Partidos')).toBeDefined()
+    expect(await screen.findByRole('heading', { name: 'Partidos' })).toBeDefined()
     fireEvent.click(screen.getByRole('button', { name: 'EN' }))
-    expect(await screen.findByText('Fixtures')).toBeDefined()
+    expect(await screen.findByRole('heading', { name: 'Fixtures' })).toBeDefined()
   })
 })

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Route, Routes } from 'react-router'
 import type { Fixture } from './types'
 import { fetchFixtures } from './api'
 import { useLanguage } from './i18n'
@@ -6,9 +7,13 @@ import { useAnalystMode } from './hooks/useAnalystMode'
 import { useFollowedTeams } from './hooks/useFollowedTeams'
 import { AppShell } from './components/layout/AppShell'
 import { LEAGUES } from './components/layout/LeagueSwitcher'
-import { FeedBoard } from './components/feed/FeedBoard'
+import { FeedPage } from './pages/FeedPage'
+import { MatchPage } from './pages/MatchPage'
+import { TeamPage } from './pages/TeamPage'
+import { FollowedPage } from './pages/FollowedPage'
+import { NotFound } from './pages/NotFound'
+import { ScrollToTop } from './components/layout/ScrollToTop'
 import { ModelDrawer } from './components/feed/ModelDrawer'
-import { Button } from './components/ui/button'
 
 function App() {
   const { t } = useLanguage()
@@ -48,10 +53,6 @@ function App() {
     setLeague(value)
   }
 
-  const handleToggleFollow = (team: string) => {
-    toggle(team)
-  }
-
   const leagueName = (code: string) => {
     const found = LEAGUES.find(l => l.code === code)
     return found ? t(found.labelKey) : code
@@ -65,33 +66,29 @@ function App() {
       onAnalystChange={setAnalyst}
       actions={<ModelDrawer league={league} />}
     >
-      <main id="main-content">
-        <h2 className="mb-3 font-display text-lg font-semibold text-foreground">
-          {t('fixtures')}
-        </h2>
-        {error ? (
-          <div
-            role="alert"
-            className="animate-fade rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger"
-          >
-            <p className="mb-2 font-medium">{t('backendError')}</p>
-            <Button type="button" size="sm" variant="secondary" onClick={() => setAttempt(a => a + 1)}>
-              {t('retry')}
-            </Button>
-          </div>
-        ) : (
-          <FeedBoard
-            key={league}
-            fixtures={fixtures}
-            loading={loading}
-            leagueName={leagueName}
-            followed={followed}
-            onToggleFollow={handleToggleFollow}
-            analyst={analyst}
-            fixturesForContext={fixtures}
-          />
-        )}
-      </main>
+      <ScrollToTop />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <FeedPage
+              key={league}
+              fixtures={fixtures}
+              loading={loading}
+              error={error}
+              onRetry={() => setAttempt(a => a + 1)}
+              leagueName={leagueName}
+              followed={followed}
+              onToggleFollow={toggle}
+              analyst={analyst}
+            />
+          }
+        />
+        <Route path="/partido/:id" element={<MatchPage />} />
+        <Route path="/equipo/:name" element={<TeamPage />} />
+        <Route path="/seguidos" element={<FollowedPage />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </AppShell>
   )
 }

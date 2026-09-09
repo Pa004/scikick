@@ -1,5 +1,6 @@
 import type { Fixture, Prediction, TeamContext, ValueResponse } from '../types'
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { fetchContext } from '../api'
 import { useLanguage } from '../i18n'
 import { useDisplayMode, type DisplayMode } from '../hooks/useDisplayMode'
@@ -114,11 +115,21 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
         <SectionHeading>{t('form')} · {t('last5')}</SectionHeading>
         <div className="mb-3 flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm text-foreground">{homeLabel}</span>
+            <Link
+              to={`/equipo/${encodeURIComponent(home)}`}
+              className="rounded text-sm text-foreground underline decoration-border-strong underline-offset-2 hover:text-primary-strong"
+            >
+              {homeLabel}
+            </Link>
             <FormBadges form={homeForm} emptyLabel={t('noFormData')} />
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm text-foreground">{awayLabel}</span>
+            <Link
+              to={`/equipo/${encodeURIComponent(away)}`}
+              className="rounded text-sm text-foreground underline decoration-border-strong underline-offset-2 hover:text-primary-strong"
+            >
+              {awayLabel}
+            </Link>
             <FormBadges form={awayForm} emptyLabel={t('noFormData')} />
           </div>
         </div>

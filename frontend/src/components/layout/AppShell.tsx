@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react'
+import { NavLink } from 'react-router'
 import { useLanguage } from '../../i18n'
 import { LeagueSwitcher } from './LeagueSwitcher'
 import { LanguageSelector } from '../LanguageSelector'
 import AnalystToggle from '../AnalystToggle'
 import { ThemeToggle } from '../ThemeToggle'
+import { cn } from '../../lib/cn'
 
 interface AppShellProps {
   league: string
@@ -27,6 +29,28 @@ export function AppShell({ league, onLeagueChange, analyst, onAnalystChange, act
             SciKick
           </h1>
           <p className="mt-1 text-sm text-muted">{t('tagline')}</p>
+          <nav aria-label={t('navMain')} className="mt-2 flex gap-1">
+            {[
+              { to: '/', label: t('fixtures'), end: true },
+              { to: '/seguidos', label: t('myMatches'), end: false },
+            ].map(l => (
+              <NavLink
+                key={l.to}
+                to={l.to}
+                end={l.end}
+                className={({ isActive }) =>
+                  cn(
+                    'rounded-md px-3 py-2 text-sm font-semibold transition-colors',
+                    isActive
+                      ? 'bg-primary-soft text-primary-strong'
+                      : 'text-muted hover:bg-surface-hover hover:text-foreground',
+                  )
+                }
+              >
+                {l.label}
+              </NavLink>
+            ))}
+          </nav>
         </div>
         <div className="flex min-w-0 flex-wrap items-end gap-x-4 gap-y-3">
           <div className="min-w-0 flex-1">
