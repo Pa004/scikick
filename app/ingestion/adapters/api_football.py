@@ -44,6 +44,9 @@ API_NAME_OVERRIDES = {
         "Deportivo La Coruña": "RC Deportivo La Coruña",
         "Atlético Madrid": "Ath Madrid",
         "Espanyol": "Espanol",
+        "Real Racing Club de Santander": "Real Racing Club de Santander",
+        "Málaga": "Málaga",
+        "Malaga": "Málaga",
     },
     "D1": {
         "Borussia Dortmund": "Dortmund",
