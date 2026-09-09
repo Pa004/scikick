@@ -134,7 +134,7 @@ describe('App feed', () => {
   it('follows teams and filters to followed only', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('button', { name: /Follow Arsenal/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Follow Arsenal' }))
     fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
     expect(screen.queryByText(/Liverpool/)).toBeNull()
     expect(screen.getAllByText(/Arsenal/).length).toBeGreaterThan(0)

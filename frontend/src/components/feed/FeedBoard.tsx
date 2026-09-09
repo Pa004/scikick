@@ -42,7 +42,7 @@ interface FeedBoardProps {
   loading: boolean
   leagueName: (code: string) => string
   followed: string[]
-  onToggleFollow: (home: string, away: string) => void
+  onToggleFollow: (team: string) => void
   analyst: boolean
   fixturesForContext: Fixture[]
 }
@@ -63,6 +63,7 @@ export function FeedBoard({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [valuesReady, setValuesReady] = useState(false)
+  const [deepLinkMiss, setDeepLinkMiss] = useState(false)
 
   const filtered = useMemo(() => {
     return fixtures.filter(f => {
@@ -97,9 +98,12 @@ export function FeedBoard({
   useEffect(() => {
     if (loading || fixtures.length === 0) return
     const deepId = getDeepLinkedFixtureId()
-    if (deepId !== null && fixtures.some(f => f.id === deepId)) {
+    if (deepId === null) return
+    if (fixtures.some(f => f.id === deepId)) {
       setExpandedId(deepId)
       scrollCardIntoView(deepId)
+    } else {
+      setDeepLinkMiss(true)
     }
     // Only on first load of this league feed
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -150,14 +154,31 @@ export function FeedBoard({
 
       <div className="mb-4 flex flex-wrap gap-2">
         <SegmentedGroup label={t('fixtures')}>
-          <SegmentedButton active={showFollowed} onClick={() => setShowFollowed(v => !v)}>
+          <SegmentedButton active={showFollowed} onClick={() => { setShowFollowed(v => !v); setVisibleCount(PAGE_SIZE) }}>
             {t('myMatches')}
           </SegmentedButton>
-          <SegmentedButton active={showValue} onClick={() => setShowValue(v => !v)}>
+          <SegmentedButton active={showValue} onClick={() => { setShowValue(v => !v); setVisibleCount(PAGE_SIZE) }}>
             {t('valueOnly')}
           </SegmentedButton>
         </SegmentedGroup>
       </div>
+
+      {deepLinkMiss && (
+        <div role="alert" className="animate-fade mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-warning/30 bg-warning-soft px-4 py-2.5 text-sm text-warning">
+          <span className="flex-1">{t('deepLinkMiss')}</span>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              syncDeepLink(null)
+              setDeepLinkMiss(false)
+            }}
+          >
+            {t('dismiss')}
+          </Button>
+        </div>
+      )}
 
       {loading ? (
         <div role="status" aria-label={t('loading')} aria-busy="true" className="flex flex-col gap-3">

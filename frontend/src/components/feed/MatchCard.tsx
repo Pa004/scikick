@@ -22,26 +22,24 @@ interface MatchCardProps {
   onToggle: () => void
   leagueName: string
   followed: string[]
-  onToggleFollow: (home: string, away: string) => void
+  onToggleFollow: (team: string) => void
   hasValue: boolean | null
   analyst: boolean
   fixtures: Fixture[]
 }
 
 function FollowStar({
-  home,
-  away,
+  team,
   followed,
   onToggle,
 }: {
-  home: string
-  away: string
+  team: string
   followed: string[]
   onToggle: () => void
 }) {
   const { t } = useLanguage()
-  const active = followed.includes(home) && followed.includes(away)
-  const bothLabel = `${displayTeam(home)} / ${displayTeam(away)}`
+  const active = followed.includes(team)
+  const label = fillVars(active ? t('unfollowTeam') : t('followTeam'), { team: displayTeam(team) })
   return (
     <button
       type="button"
@@ -50,8 +48,8 @@ function FollowStar({
         onToggle()
       }}
       aria-pressed={active}
-      aria-label={fillVars(active ? t('unfollowTeam') : t('followTeam'), { team: bothLabel })}
-      title={fillVars(active ? t('unfollowTeam') : t('followTeam'), { team: bothLabel })}
+      aria-label={label}
+      title={label}
       className={cn(
         'flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full transition-colors',
         active ? 'text-primary-strong' : 'text-faint hover:bg-surface-hover hover:text-foreground',
@@ -124,12 +122,18 @@ export function MatchCard({
             )}
           </span>
         </button>
-        <FollowStar
-          home={f.home}
-          away={f.away}
-          followed={followed}
-          onToggle={() => onToggleFollow(f.home, f.away)}
-        />
+        <div className="flex shrink-0 items-center" role="group" aria-label={t('myMatches')}>
+          <FollowStar
+            team={f.home}
+            followed={followed}
+            onToggle={() => onToggleFollow(f.home)}
+          />
+          <FollowStar
+            team={f.away}
+            followed={followed}
+            onToggle={() => onToggleFollow(f.away)}
+          />
+        </div>
         <span aria-hidden="true" className="flex min-h-11 min-w-8 items-center justify-center text-faint">
           <ChevronDown
             className={cn('size-5 transition-transform duration-200', expanded && 'rotate-180')}

@@ -85,4 +85,22 @@ describe('FeedBoard', () => {
     fireEvent.change(screen.getByLabelText(/Search team or league/), { target: { value: 'zzz' } })
     expect(screen.getByText('No matches for this search.')).toBeDefined()
   })
+
+  it('resets pagination when toggling filters', () => {
+    renderBoard(makeFixtures(25))
+    fireEvent.click(screen.getByRole('button', { name: /Show more/ }))
+    expect(screen.getByText('Showing 25 of 25 matches')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
+    expect(screen.getByText('Showing 20 of 25 matches')).toBeDefined()
+  })
+
+  it('notices deep links missing from the feed and dismisses', () => {
+    window.history.replaceState(null, '', '/?partido=999')
+    renderBoard(makeFixtures(2))
+    expect(screen.getByText('That match is not in the current list.')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+    expect(screen.queryByText('That match is not in the current list.')).toBeNull()
+    expect(window.location.search).toBe('')
+  })
 })
