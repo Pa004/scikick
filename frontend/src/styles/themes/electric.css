@@ -33,6 +33,10 @@
   --danger-ink: #641723;
   --danger-soft: #feebec;
 
+  --info: #0d74ce;
+  --info-ink: #113264;
+  --info-soft: #e6f4fe;
+
   --glow-1: rgb(13 116 206 / 0.08);
   --glow-2: rgb(0 144 255 / 0.05);
 }
@@ -66,6 +70,10 @@
   --danger: #ff9592;
   --danger-ink: #ffd1d9;
   --danger-soft: #3b1219;
+
+  --info: #70b8ff;
+  --info-ink: #c2e6ff;
+  --info-soft: #0d2847;
 
   --glow-1: rgb(112 184 255 / 0.12);
   --glow-2: rgb(59 158 255 / 0.05);

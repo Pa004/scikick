@@ -26,6 +26,8 @@ const PAIRS = [
   ['--warning-ink', '--warning-soft', TEXT_MIN, 'warning text on tint'],
   ['--danger', '--surface', TEXT_MIN, 'danger text on card'],
   ['--danger-ink', '--danger-soft', TEXT_MIN, 'danger text on tint'],
+  ['--info', '--surface', TEXT_MIN, 'info text on card'],
+  ['--info-ink', '--info-soft', TEXT_MIN, 'info text on tint'],
   ['--primary-ring', '--background', UI_MIN, 'focus ring on app bg'],
   ['--primary-ring', '--surface', UI_MIN, 'focus ring on card'],
   ['--border-strong', '--surface', 1.5, 'strong border visible (decorative)'],

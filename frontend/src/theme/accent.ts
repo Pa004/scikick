@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react'
 export const ACCENTS = ['iris', 'ember', 'electric'] as const
 export type Accent = (typeof ACCENTS)[number]
 
-export const DEFAULT_ACCENT: Accent = 'iris'
+export const DEFAULT_ACCENT: Accent = 'ember'
 
 const STORAGE_KEY = 'scikick.accent'
 

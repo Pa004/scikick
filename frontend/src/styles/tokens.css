@@ -37,6 +37,10 @@
   --danger-ink: #0d1526;
   --danger-soft: #fee2e2;
 
+  --info: #0d74ce;
+  --info-ink: #0d1526;
+  --info-soft: #e6f4fe;
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 14px;
@@ -87,6 +91,10 @@
   --danger-ink: #e8edf7;
   --danger-soft: rgb(248 113 113 / 0.12);
 
+  --info: #70b8ff;
+  --info-ink: #e8edf7;
+  --info-soft: #0d2847;
+
   --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
   --shadow-md: 0 4px 16px rgb(0 0 0 / 0.5);
   --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.6);
@@ -119,6 +127,9 @@
   --color-danger: var(--danger);
   --color-danger-ink: var(--danger-ink);
   --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-ink: var(--info-ink);
+  --color-info-soft: var(--info-soft);
 
   --font-display: var(--font-display);
   --font-body: var(--font-body);

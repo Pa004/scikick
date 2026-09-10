@@ -20,7 +20,7 @@ function makeFixtures(n: number): Fixture[] {
   }))
 }
 
-function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: string[] = ['/']) {
+function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: string[] = ['/'], onDeepLink?: (id: number) => void) {
   return render(
     <MemoryRouter initialEntries={entries}>
       <LanguageProvider>
@@ -32,6 +32,7 @@ function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: stri
         onToggleFollow={vi.fn()}
         analyst={false}
         fixturesForContext={fixtures}
+        onDeepLink={onDeepLink}
       />
       </LanguageProvider>
     </MemoryRouter>,
@@ -39,10 +40,12 @@ function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: stri
 }
 
 beforeEach(() => {
+  vi.unstubAllGlobals()
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 404 }))
   clearDetailCaches()
   window.history.replaceState(null, '', '/')
   localStorage.clear()
+  sessionStorage.clear()
 })
 
 describe('FeedBoard', () => {
@@ -115,5 +118,28 @@ describe('FeedBoard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
     expect(screen.queryByText('That match is not in the current list.')).toBeNull()
     expect(window.location.search).toBe('')
+  })
+
+  it('navigates instead of expanding on desktop when routed', () => {
+    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }))
+    const onDeepLink = vi.fn()
+    renderBoard(makeFixtures(2), [], ['/'], onDeepLink)
+    const cardToggle = screen
+      .getAllByRole('button', { name: /Home1 vs Away1/ })
+      .find(b => b.getAttribute('aria-expanded') !== null) as HTMLElement
+    fireEvent.click(cardToggle)
+    expect(onDeepLink).toHaveBeenCalledWith(1)
+    expect(screen.queryByText(/Home1 win 6 in 10/)).toBeNull()
+    const saved = JSON.parse(sessionStorage.getItem('scikick.feed-state') ?? '{}')
+    expect(saved.visibleCount).toBe(20)
+  })
+
+  it('restores saved scroll state once on mount', () => {
+    sessionStorage.setItem('scikick.feed-state', JSON.stringify({ y: 500, visibleCount: 40, query: '' }))
+    const scrollTo = vi.fn()
+    vi.stubGlobal('scrollTo', scrollTo)
+    renderBoard(makeFixtures(50))
+    expect(screen.getByText('Showing 40 of 50 matches')).toBeDefined()
+    expect(sessionStorage.getItem('scikick.feed-state')).toBeNull()
   })
 })
