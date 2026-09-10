@@ -1,4 +1,5 @@
 import { useTheme } from '../../theme/theme-context'
+import { useAccent } from '../../theme/accent'
 
 export interface ChartTheme {
   grid: string
@@ -11,29 +12,39 @@ export interface ChartTheme {
   reference: string
 }
 
-const LIGHT: ChartTheme = {
+const FALLBACK: ChartTheme = {
   grid: '#d9e0ec',
   tick: '#4c5a75',
   tooltipBg: '#ffffff',
   tooltipBorder: '#d9e0ec',
   tooltipText: '#0d1526',
-  accent: '#65a30d',
-  accentDot: '#4d7c0f',
-  reference: '#b91c1c',
+  accent: '#0d74ce',
+  accentDot: '#0d74ce',
+  reference: '#ce2c31',
 }
 
-const DARK: ChartTheme = {
-  grid: '#28324f',
-  tick: '#a3b0c7',
-  tooltipBg: '#111832',
-  tooltipBorder: '#28324f',
-  tooltipText: '#e8edf7',
-  accent: '#a3e635',
-  accentDot: '#bef264',
-  reference: '#f87171',
+function readVar(name: string, fallback: string): string {
+  try {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+    return v || fallback
+  } catch {
+    return fallback
+  }
 }
 
+// Resolves live theme tokens so charts follow any accent switch.
+// Recharts receives computed strings (SVG attributes ignore var()).
 export function useChartTheme(): ChartTheme {
-  const { theme } = useTheme()
-  return theme === 'dark' ? DARK : LIGHT
+  useTheme()
+  useAccent()
+  return {
+    grid: readVar('--border', FALLBACK.grid),
+    tick: readVar('--muted', FALLBACK.tick),
+    tooltipBg: readVar('--surface', FALLBACK.tooltipBg),
+    tooltipBorder: readVar('--border', FALLBACK.tooltipBorder),
+    tooltipText: readVar('--foreground', FALLBACK.tooltipText),
+    accent: readVar('--primary-strong', FALLBACK.accent),
+    accentDot: readVar('--primary-strong', FALLBACK.accentDot),
+    reference: readVar('--danger', FALLBACK.reference),
+  }
 }

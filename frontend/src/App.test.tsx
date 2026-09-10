@@ -29,6 +29,10 @@ vi.mock('@radix-ui/react-dropdown-menu', async () => {
       </div>
     ),
     ItemIndicator: passthrough,
+    RadioGroup: ({ children }: { children: ReactNode }) => <div role="radiogroup">{children}</div>,
+    RadioItem: ({ children, value, ...props }: { children: ReactNode; value?: string }) => (
+      <div role="menuitemradio" data-value={value} {...props}>{children}</div>
+    ),
     Label: ({ children, ...props }: { children: ReactNode }) => <div {...props}>{children}</div>,
     Separator: (props: object) => <hr {...props} />,
   }

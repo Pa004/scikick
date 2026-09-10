@@ -28,6 +28,14 @@ vi.mock('@radix-ui/react-dropdown-menu', () => {
       </div>
     ),
     ItemIndicator: passthrough,
+    RadioGroup: ({ children }: { children: ReactNode }) => <div role="radiogroup">{children}</div>,
+    RadioItem: ({ children, value, onSelect, ...props }: {
+      children: ReactNode; value?: string; onSelect?: () => void
+    }) => (
+      <div role="menuitemradio" aria-checked={undefined} data-value={value} onClick={onSelect} {...props}>
+        {children}
+      </div>
+    ),
     Label: ({ children, ...props }: { children: ReactNode }) => <div {...props}>{children}</div>,
     Separator: (props: object) => <hr {...props} />,
   }
@@ -94,6 +102,13 @@ describe('header', () => {
     await screen.findAllByText(/Arsenal/)
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true })
     expect(await screen.findByRole('combobox')).toBeDefined()
+  })
+
+  it('offers the three accent prototypes in the overflow menu', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    expect(screen.getByRole('radiogroup')).toBeDefined()
+    expect(screen.getAllByRole('menuitemradio')).toHaveLength(3)
   })
 
   it('toggles analyst mode from the overflow menu', async () => {

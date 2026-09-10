@@ -28,7 +28,7 @@ export function PickOfDayCard({ pick, leagueName, onSelect }: PickOfDayCardProps
       aria-label={`${t('pickOfDay')}: ${homeLabel} vs ${awayLabel}, ${league}, ${label} ${(pick.prob * 100).toFixed(1)}%, ${freq}`}
       className="animate-rise mb-4 w-full cursor-pointer rounded-xl border border-primary/30 bg-primary-soft p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
     >
-      <span className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-primary-strong uppercase">
+      <span className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-primary-ink uppercase">
         <Trophy aria-hidden="true" className="size-3.5" />
         {t('pickOfDay')}
       </span>

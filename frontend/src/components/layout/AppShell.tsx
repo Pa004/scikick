@@ -61,7 +61,7 @@ export function AppShell({
                   cn(
                     'rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
                     isActive
-                      ? 'bg-primary-soft text-primary-strong'
+                      ? 'bg-primary-soft text-primary-ink'
                       : 'text-muted hover:bg-surface-hover hover:text-foreground',
                   )
                 }

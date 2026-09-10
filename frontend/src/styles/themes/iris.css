@@ -1,0 +1,71 @@
+/* ── Theme A · Iris editorial ────────────────────────────────
+   Referente: Linear. Gris mauve, fill iris-9 con blanco encima.
+   Ratios medidos con scripts/audit-contrast.mjs (umbral 4.5:1 texto). */
+
+:root[data-accent='iris'] {
+  color-scheme: light;
+
+  --background: #fdfdff;
+  --surface: #ffffff;
+  --surface-alt: #f0f1fe;
+  --surface-hover: #e6e7ff;
+  --border: #cbcdff;
+  --border-strong: #9b9ef0;
+  --foreground: #272962;
+  --muted: #65636d;
+  --faint: #6e6b7a;
+
+  --primary: #5b5bd6;
+  --primary-fg: #ffffff;
+  --primary-strong: #5753c6;
+  --primary-ink: #272962;
+  --primary-soft: #f0f1fe;
+  --primary-ring: #5b5bd6;
+
+  --success: #218358;
+  --success-ink: #193b2d;
+  --success-soft: #e6f6eb;
+  --warning: #ab6400;
+  --warning-ink: #4f3422;
+  --warning-soft: #fff7c2;
+  --danger: #ce2c31;
+  --danger-ink: #641723;
+  --danger-soft: #feebec;
+
+  --glow-1: rgb(91 91 214 / 0.08);
+  --glow-2: rgb(87 83 198 / 0.05);
+}
+
+:root.dark[data-accent='iris'] {
+  color-scheme: dark;
+
+  --background: #13131e;
+  --surface: #171625;
+  --surface-alt: #202248;
+  --surface-hover: #262a65;
+  --border: #3d3e82;
+  --border-strong: #5958b1;
+  --foreground: #e0dffe;
+  --muted: #b1a9ff;
+  --faint: #9c97b8;
+
+  --primary: #5b5bd6;
+  --primary-fg: #ffffff;
+  --primary-strong: #b1a9ff;
+  --primary-ink: #e0dffe;
+  --primary-soft: #202248;
+  --primary-ring: #6e6ade;
+
+  --success: #3dd68c;
+  --success-ink: #b1f1cb;
+  --success-soft: #132d21;
+  --warning: #ffca16;
+  --warning-ink: #ffe7b3;
+  --warning-soft: #302008;
+  --danger: #ff9592;
+  --danger-ink: #ffd1d9;
+  --danger-soft: #3b1219;
+
+  --glow-1: rgb(91 91 214 / 0.14);
+  --glow-2: rgb(176 169 255 / 0.05);
+}

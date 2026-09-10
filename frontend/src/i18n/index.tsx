@@ -181,6 +181,10 @@ const DICTIONARIES = {
     analystSwitch: 'Analyst',
     aboutModel: 'About the model',
     languageName: 'Language',
+    accentName: 'Accent color',
+    accent_iris: 'Iris',
+    accent_ember: 'Ember',
+    accent_electric: 'Electric',
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -358,6 +362,10 @@ const DICTIONARIES = {
     analystSwitch: 'Analista',
     aboutModel: 'Acerca del modelo',
     languageName: 'Idioma',
+    accentName: 'Color de acento',
+    accent_iris: 'Iris',
+    accent_ember: 'Brasa',
+    accent_electric: 'Eléctrico',
   },
 } as const
 
