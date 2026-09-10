@@ -19,7 +19,6 @@ const LOCALES: { value: Locale; label: string; name: string }[] = [
 // Decorative brand dots (not text: no contrast requirement).
 const ACCENT_DOTS: Record<Accent, string> = {
   iris: '#5b5bd6',
-  ember: '#f76b15',
   electric: '#0090ff',
 }
 

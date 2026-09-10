@@ -70,7 +70,7 @@ export function FormStrip({ form, label }: { form: FormOutcome[]; label: string 
           aria-hidden="true"
           className={cn(
             'h-1.5 w-4 rounded-full',
-            o === 'W' ? 'bg-success' : o === 'D' ? 'bg-warning' : 'bg-danger/60',
+            o === 'W' ? 'bg-success' : o === 'D' ? 'bg-muted' : 'bg-faint/60',
           )}
         />
       ))}
