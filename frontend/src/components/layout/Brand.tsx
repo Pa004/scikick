@@ -3,7 +3,7 @@ import { useLanguage } from '../../i18n'
 
 // Probability-ring mark: stroked ring (a neutral ~62% share) around a
 // centered ball dot, all in primary-fg on a primary tile. Pure inline
-// SVG, no assets, 12:1 contrast on lime in both themes.
+// SVG, no assets.
 export function BrandMark({ size = 32 }: { size?: number }) {
   return (
     <span

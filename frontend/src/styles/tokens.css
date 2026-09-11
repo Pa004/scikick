@@ -3,38 +3,38 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ── SciKick design tokens ────────────────────────────────────
-   Hue: lima/verde cancha. Los fills usan --primary en ambos
-   temas (texto oscuro encima, contraste ~12:1); el texto y los
-   anillos de foco usan --primary-strong por tema (≥4.5:1). */
+   Fallback pre-paint (tierra). La verdad vive en styles/themes/.
+   Regla: texto sobre tints usa ink (step 12), fills claros llevan
+   tinta oscura. Todo medido en scripts/audit-contrast.mjs. */
 
 :root {
   color-scheme: light;
 
-  --background: #f3f5fa;
+  --background: #faf8f5;
   --surface: #ffffff;
-  --surface-alt: #eaeef5;
-  --surface-hover: #e2e8f2;
-  --border: #d9e0ec;
-  --border-strong: #b9c4d8;
-  --foreground: #0d1526;
-  --muted: #4c5a75;
-  --faint: #5d687f;
+  --surface-alt: #f1e9e1;
+  --surface-hover: #e9dccf;
+  --border: #e0d2c4;
+  --border-strong: #c9b3a1;
+  --foreground: #2a1f1a;
+  --muted: #5e4f47;
+  --faint: #6e6058;
 
-  --primary: #a3e635;
-  --primary-fg: #0c1220;
-  --primary-strong: #47700d;
-  --primary-ink: #0d1526;
-  --primary-soft: #e9f7cf;
-  --primary-ring: #47700d;
+  --primary: #b94a2b;
+  --primary-fg: #ffffff;
+  --primary-strong: #8a3e27;
+  --primary-ink: #4e2415;
+  --primary-soft: #f9e9e0;
+  --primary-ring: #8a3e27;
 
-  --success: #15803d;
-  --success-ink: #0d1526;
-  --success-soft: #dcfce7;
-  --danger: #b91c1c;
-  --danger-ink: #0d1526;
-  --danger-soft: #fee2e2;
+  --success: #35704f;
+  --success-ink: #234a33;
+  --success-soft: #e2eee5;
+  --danger: #9d2c3a;
+  --danger-ink: #5e1e27;
+  --danger-soft: #f9e5e8;
   --value: #256a6a;
-  --value-ink: #0d1526;
+  --value-ink: #173e3e;
   --value-soft: #dff0f0;
 
   --radius-sm: 6px;
@@ -50,8 +50,8 @@
   --font-body: 'Geist Variable', system-ui, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, monospace;
 
-  --glow-1: rgb(163 230 53 / 0.07);
-  --glow-2: rgb(77 124 15 / 0.05);
+  --glow-1: rgb(185 74 43 / 0.06);
+  --glow-2: rgb(138 62 39 / 0.04);
 
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
@@ -60,39 +60,39 @@
 .dark {
   color-scheme: dark;
 
-  --background: #090d18;
-  --surface: #111832;
-  --surface-alt: #182036;
-  --surface-hover: #1e2947;
-  --border: #28324f;
-  --border-strong: #3b4769;
-  --foreground: #e8edf7;
-  --muted: #a3b0c7;
-  --faint: #7e8daa;
+  --background: #101414;
+  --surface: #1a2221;
+  --surface-alt: #22302d;
+  --surface-hover: #2a3a36;
+  --border: #33403b;
+  --border-strong: #4a5a53;
+  --foreground: #ece9e2;
+  --muted: #bfae9f;
+  --faint: #a08e7e;
 
-  --primary: #a3e635;
-  --primary-fg: #0c1220;
-  --primary-strong: #bef264;
-  --primary-ink: #e8edf7;
-  --primary-soft: rgb(163 230 53 / 0.12);
-  --primary-ring: #a3e635;
+  --primary: #e07a4f;
+  --primary-fg: #1a120c;
+  --primary-strong: #e5b294;
+  --primary-ink: #f6ddcc;
+  --primary-soft: #3a2620;
+  --primary-ring: #e07a4f;
 
-  --success: #4ade80;
-  --success-ink: #e8edf7;
-  --success-soft: rgb(74 222 128 / 0.12);
-  --danger: #f87171;
-  --danger-ink: #e8edf7;
-  --danger-soft: rgb(248 113 113 / 0.12);
+  --success: #8ac39e;
+  --success-ink: #c2e5cc;
+  --success-soft: #18291e;
+  --danger: #e58a96;
+  --danger-ink: #f3c2c9;
+  --danger-soft: #351a1f;
   --value: #7fc2c2;
-  --value-ink: #e8edf7;
+  --value-ink: #bfe3e3;
   --value-soft: #143031;
 
   --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
   --shadow-md: 0 4px 16px rgb(0 0 0 / 0.5);
   --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.6);
 
-  --glow-1: rgb(163 230 53 / 0.06);
-  --glow-2: rgb(148 163 184 / 0.05);
+  --glow-1: rgb(224 122 79 / 0.08);
+  --glow-2: rgb(229 178 148 / 0.04);
 }
 
 @theme inline {

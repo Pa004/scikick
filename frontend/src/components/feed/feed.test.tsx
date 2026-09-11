@@ -166,6 +166,20 @@ describe('SegmentedBar', () => {
     expect(screen.getByLabelText('1 · A: 50.0%')).toBeDefined()
     expect(screen.getByLabelText('X · Draw: 30.0%')).toBeDefined()
   })
+
+  it('uses semantic 1X2 fills without presentation wrapper', () => {
+    const { container } = render(
+      <LanguageProvider>
+        <SegmentedBar probs={{ home: 0.5, draw: 0.3, away: 0.2 }} home="A" away="B" onSelect={vi.fn()} />
+      </LanguageProvider>,
+    )
+    const buttons = container.querySelectorAll('button')
+    expect(buttons).toHaveLength(3)
+    expect(buttons[0].className).toContain('bg-primary')
+    expect(buttons[1].className).toContain('bg-surface-alt')
+    expect(buttons[2].className).toContain('bg-value')
+    expect(container.querySelector('[role="presentation"]')).toBeNull()
+  })
 })
 
 describe('Dots10', () => {
