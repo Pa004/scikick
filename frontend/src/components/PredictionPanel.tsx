@@ -44,7 +44,7 @@ function FormBadges({ form, emptyLabel }: { form: FormOutcome[]; emptyLabel: str
           role="listitem"
           aria-label={word(o)}
           title={word(o)}
-          variant={o === 'W' ? 'success' : o === 'D' ? 'warning' : 'danger'}
+          variant={o === 'W' ? 'success' : o === 'D' ? 'neutral' : 'danger'}
           className="min-w-7 justify-center font-mono"
         >
           {o}

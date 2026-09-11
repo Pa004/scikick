@@ -35,7 +35,7 @@ function TrustBlock({ stats, matchdayData, calibrationData }: Omit<StatsDashboar
   const reading = brier === null ? null : brier <= BRIER_EXCELLENT_MAX
     ? { key: 'trustBrierExcellent' as const, variant: 'success' as const }
     : brier <= BRIER_REASONABLE_MAX
-      ? { key: 'trustBrierReasonable' as const, variant: 'warning' as const }
+      ? { key: 'trustBrierReasonable' as const, variant: 'neutral' as const }
       : { key: 'trustBrierWeak' as const, variant: 'danger' as const }
 
   return (
@@ -134,7 +134,7 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
                     <tr key={m.market} className="transition-colors hover:bg-surface-hover">
                       <Td title={m.market}>
                         {m.market}
-                        {m.cold_start && <Badge variant="warning" className="ml-2 text-xs">{t('cold')}</Badge>}
+                        {m.cold_start && <Badge variant="neutral" className="ml-2 text-xs">{t('cold')}</Badge>}
                       </Td>
                       <Td align="right">{m.total}</Td>
                       <Td align="right">{formatProb(m.accuracy)}</Td>

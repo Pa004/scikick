@@ -18,8 +18,8 @@ const LOCALES: { value: Locale; label: string; name: string }[] = [
 
 // Decorative brand dots (not text: no contrast requirement).
 const ACCENT_DOTS: Record<Accent, string> = {
+  tierra: '#b94a2b',
   iris: '#5b5bd6',
-  electric: '#0090ff',
 }
 
 export function OverflowMenu({ analyst, onAnalystChange, onOpenModel }: OverflowMenuProps) {

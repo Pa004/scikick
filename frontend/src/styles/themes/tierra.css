@@ -1,0 +1,72 @@
+/* ── Theme · Tierra ────────────────────────────────────────────
+   Papel cálido + terracota mate en claro; petróleo nocturno en oscuro.
+   Sin ámbar, sin azul electric, sin lima. Un acento por pantalla.
+   Ratios medidos con scripts/audit-contrast.mjs (umbral 4.5:1 texto). */
+
+:root[data-accent='tierra'] {
+  color-scheme: light;
+
+  --background: #faf8f5;
+  --surface: #ffffff;
+  --surface-alt: #f1e9e1;
+  --surface-hover: #e9dccf;
+  --border: #e0d2c4;
+  --border-strong: #c9b3a1;
+  --foreground: #2a1f1a;
+  --muted: #5e4f47;
+  --faint: #6e6058;
+
+  --primary: #b94a2b;
+  --primary-fg: #ffffff;
+  --primary-strong: #8a3e27;
+  --primary-ink: #4e2415;
+  --primary-soft: #f9e9e0;
+  --primary-ring: #8a3e27;
+
+  --success: #35704f;
+  --success-ink: #234a33;
+  --success-soft: #e2eee5;
+  --danger: #9d2c3a;
+  --danger-ink: #5e1e27;
+  --danger-soft: #f9e5e8;
+  --value: #256a6a;
+  --value-ink: #173e3e;
+  --value-soft: #dff0f0;
+
+  --glow-1: rgb(185 74 43 / 0.06);
+  --glow-2: rgb(138 62 39 / 0.04);
+}
+
+:root.dark[data-accent='tierra'] {
+  color-scheme: dark;
+
+  --background: #101414;
+  --surface: #1a2221;
+  --surface-alt: #22302d;
+  --surface-hover: #2a3a36;
+  --border: #33403b;
+  --border-strong: #4a5a53;
+  --foreground: #ece9e2;
+  --muted: #bfae9f;
+  --faint: #a08e7e;
+
+  --primary: #e07a4f;
+  --primary-fg: #1a120c;
+  --primary-strong: #e5b294;
+  --primary-ink: #f6ddcc;
+  --primary-soft: #3a2620;
+  --primary-ring: #e07a4f;
+
+  --success: #8ac39e;
+  --success-ink: #c2e5cc;
+  --success-soft: #18291e;
+  --danger: #e58a96;
+  --danger-ink: #f3c2c9;
+  --danger-soft: #351a1f;
+  --value: #7fc2c2;
+  --value-ink: #bfe3e3;
+  --value-soft: #143031;
+
+  --glow-1: rgb(224 122 79 / 0.08);
+  --glow-2: rgb(229 178 148 / 0.04);
+}
