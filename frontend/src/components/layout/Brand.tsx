@@ -16,14 +16,14 @@ export function BrandMark({ size = 32 }: { size?: number }) {
           cx="12"
           cy="12"
           r="8.5"
-          stroke="var(--primary-fg)"
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeDasharray="33 54"
           transform="rotate(-90 12 12)"
+          style={{ stroke: 'var(--primary-fg)' }}
         />
-        <circle cx="12" cy="12" r="3.5" fill="var(--primary-fg)" />
-        <circle cx="17.5" cy="6" r="1.5" fill="var(--primary-fg)" />
+        <circle cx="12" cy="12" r="3.5" style={{ fill: 'var(--primary-fg)' }} />
+        <circle cx="17.5" cy="6" r="1.5" style={{ fill: 'var(--primary-fg)' }} />
       </svg>
     </span>
   )

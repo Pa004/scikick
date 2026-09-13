@@ -76,7 +76,7 @@ export function MatchPage() {
   if (meta === null) {
     return (
       <main id="main-content">
-        <div role="alert" className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning">
+        <div role="alert" className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning-ink">
           <p className="mb-2 font-medium">{t('deepLinkMiss')}</p>
           <Button type="button" size="sm" variant="secondary" onClick={() => navigate('/')}>
             {t('backToFeed')}

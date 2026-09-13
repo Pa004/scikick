@@ -12,8 +12,8 @@ const buttonVariants = cva(
         secondary:
           'border border-border bg-surface text-foreground hover:border-border-strong hover:bg-surface-hover',
         ghost: 'text-muted hover:bg-surface-alt hover:text-foreground',
-        dangerSoft: 'bg-danger-soft text-danger hover:brightness-95',
-        successSoft: 'bg-success-soft text-success hover:brightness-95',
+        dangerSoft: 'bg-danger-soft text-danger-ink hover:brightness-95',
+        successSoft: 'bg-success-soft text-success-ink hover:brightness-95',
       },
       size: {
         sm: 'min-h-9 px-3 text-sm',

@@ -55,7 +55,7 @@ export function FollowedPage() {
   if (failed) {
     return (
       <main id="main-content">
-        <div role="alert" className="rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger">
+        <div role="alert" className="rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger-ink">
           <p className="m-0 font-medium">{t('backendError')}</p>
         </div>
       </main>

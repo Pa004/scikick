@@ -36,7 +36,7 @@ export function FeedPage({
       {error ? (
         <div
           role="alert"
-          className="animate-fade rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger"
+          className="animate-fade rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger-ink"
         >
           <p className="mb-2 font-medium">{t('backendError')}</p>
           <Button type="button" size="sm" variant="secondary" onClick={onRetry}>

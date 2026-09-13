@@ -57,7 +57,7 @@ export function ModelDrawer({ league, open, onOpenChange }: {
         closeLabel={t('close')}
       >
         {failed ? (
-          <div role="alert" className="rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger">
+          <div role="alert" className="rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger-ink">
             <p className="mb-2">{t('matchError')}</p>
             <Button type="button" size="sm" variant="secondary" onClick={() => setAttempt(a => a + 1)}>
               {t('retry')}

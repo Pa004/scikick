@@ -53,6 +53,27 @@ export function MenuCheckboxItem({
   )
 }
 
+export function MenuRadioGroup({ ...props }: ComponentProps<typeof DropdownPrimitive.RadioGroup>) {
+  return <DropdownPrimitive.RadioGroup {...props} />
+}
+
+export function MenuRadioItem({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof DropdownPrimitive.RadioItem>) {
+  return (
+    <DropdownPrimitive.RadioItem className={cn(itemClasses, className)} {...props}>
+      <span className="flex w-4 shrink-0 items-center justify-center">
+        <DropdownPrimitive.ItemIndicator>
+          <Check aria-hidden="true" className="size-4 text-primary-strong" />
+        </DropdownPrimitive.ItemIndicator>
+      </span>
+      {children}
+    </DropdownPrimitive.RadioItem>
+  )
+}
+
 export function MenuLabel({ className, ...props }: ComponentProps<typeof DropdownPrimitive.Label>) {
   return (
     <DropdownPrimitive.Label

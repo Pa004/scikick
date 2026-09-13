@@ -1,0 +1,72 @@
+/* ── Theme B · Ember deportivo ───────────────────────────────
+   Referente: apps live-score. Gris sand, fill naranja quemado.
+   El step 9 no da AA con blanco: el fill usa un naranja profundo
+   medido (≥4.5:1). Ratios: scripts/audit-contrast.mjs. */
+
+:root[data-accent='ember'] {
+  color-scheme: light;
+
+  --background: #fefcfb;
+  --surface: #ffffff;
+  --surface-alt: #ffefd6;
+  --surface-hover: #ffdfb5;
+  --border: #ffc182;
+  --border-strong: #ec9455;
+  --foreground: #582d1d;
+  --muted: #63635e;
+  --faint: #6f6d66;
+
+  --primary: #b54600;
+  --primary-fg: #ffffff;
+  --primary-strong: #a63f00;
+  --primary-ink: #582d1d;
+  --primary-soft: #ffefd6;
+  --primary-ring: #b54600;
+
+  --success: #218358;
+  --success-ink: #193b2d;
+  --success-soft: #e6f6eb;
+  --warning: #8f5e05;
+  --warning-ink: #4f3422;
+  --warning-soft: #fff7c2;
+  --danger: #ce2c31;
+  --danger-ink: #641723;
+  --danger-soft: #feebec;
+
+  --glow-1: rgb(181 70 0 / 0.07);
+  --glow-2: rgb(247 107 21 / 0.05);
+}
+
+:root.dark[data-accent='ember'] {
+  color-scheme: dark;
+
+  --background: #17120e;
+  --surface: #1e160f;
+  --surface-alt: #331e0b;
+  --surface-hover: #462100;
+  --border: #66350c;
+  --border-strong: #a35829;
+  --foreground: #ffe0c2;
+  --muted: #ffa057;
+  --faint: #a09d94;
+
+  --primary: #ff801f;
+  --primary-fg: #582d1d;
+  --primary-strong: #ffa057;
+  --primary-ink: #ffe0c2;
+  --primary-soft: #331e0b;
+  --primary-ring: #ff801f;
+
+  --success: #3dd68c;
+  --success-ink: #b1f1cb;
+  --success-soft: #132d21;
+  --warning: #ffca16;
+  --warning-ink: #ffe7b3;
+  --warning-soft: #302008;
+  --danger: #ff9592;
+  --danger-ink: #ffd1d9;
+  --danger-soft: #3b1219;
+
+  --glow-1: rgb(255 128 31 / 0.12);
+  --glow-2: rgb(255 160 87 / 0.05);
+}
