@@ -1,14 +1,14 @@
 import { useCallback, useState } from 'react'
 
-export const ACCENTS = ['iris', 'ember', 'electric'] as const
+export const ACCENTS = ['iris', 'electric'] as const
 export type Accent = (typeof ACCENTS)[number]
 
-export const DEFAULT_ACCENT: Accent = 'ember'
+export const DEFAULT_ACCENT: Accent = 'electric'
 
 const STORAGE_KEY = 'scikick.accent'
 
 function isAccent(v: string | null): v is Accent {
-  return v === 'iris' || v === 'ember' || v === 'electric'
+  return v === 'iris' || v === 'electric'
 }
 
 export function readStoredAccent(): Accent {
