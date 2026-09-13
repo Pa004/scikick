@@ -30,7 +30,7 @@ export default function MatchdayChart({ data }: MatchdayChartProps) {
           <XAxis dataKey="date" fontSize={11} angle={-45} textAnchor="end" height={50} stroke={chart.grid} tick={{ fill: chart.tick }} />
           <YAxis fontSize={12} stroke={chart.grid} tick={{ fill: chart.tick }} />
           <Tooltip
-            contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: '8px', color: chart.tooltipText }}
+            contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: '12px', color: chart.tooltipText }}
             formatter={(value, name) => [
               name === 'brier' ? Number(value).toFixed(3) : `${value}%`,
               name === 'brier' ? t('brierScore') : t('accuracyPct'),

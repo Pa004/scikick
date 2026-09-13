@@ -19,7 +19,7 @@ function MoveArrow({ move }: { move: MoveDirection }) {
     <span
       role="img"
       aria-label={up ? t('oddsUp') : t('oddsDown')}
-      className={cn('ml-1.5 inline-flex align-middle', up ? 'text-success' : 'text-danger')}
+      className={cn('ml-2 inline-flex align-middle', up ? 'text-success' : 'text-danger')}
     >
       <Icon aria-hidden="true" className="size-3.5" />
     </span>
@@ -32,8 +32,8 @@ function ProbBar({ label, prob, mode, move }: { label: string; prob: number; mod
   return (
     <div
       className={cn(
-        'relative flex min-h-11 items-center justify-between gap-2 overflow-hidden rounded-md border border-border bg-surface px-3.5 py-2 text-sm transition-colors duration-150 hover:border-primary/40',
-        isFavorite && 'border-primary/50',
+        'relative flex min-h-11 items-center justify-between gap-2 overflow-hidden rounded-md border border-border bg-surface px-4 py-2 text-sm transition-colors duration-150 hover:border-primary/40',
+        isFavorite && 'border-primary/40',
       )}
     >
       <div className="prob-bar-fill absolute inset-y-0 left-0 bg-primary/20 transition-[width] duration-500" style={{ width: `${prob * 100}%` }} />
@@ -69,7 +69,7 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   )
 
   const threeWay = () => (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       {data.home !== undefined && bar('home', data.home)}
       {data.draw !== undefined && bar('draw', data.draw)}
       {data.away !== undefined && bar('away', data.away)}
@@ -82,14 +82,14 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
       return <span className="text-sm text-faint">{t('marketMissing')}</span>
     }
     return (
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         {sides.map(k => bar(k, data[k]))}
       </div>
     )
   }
 
   const entries = () => (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       {Object.entries(data).map(([k, v]) => (
         <ProbBar key={k} label={getOutcomeLabel(market, k, locale)} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
       ))}
@@ -103,7 +103,7 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
       .slice(0, 6)
     const otherProb = data.other ?? 0
     return (
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         {sorted.map(([k, v]) => (
           <ProbBar key={k} label={getOutcomeLabel(market, k, locale)} prob={v} mode={mode} move={moves[k] ?? 'flat'} />
         ))}
@@ -116,10 +116,10 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
     <div className="flex flex-col gap-3">
       {Object.entries(nested).map(([k, group]) => (
         <div key={k}>
-          <div className="mb-1 text-xs font-semibold tracking-wide text-muted uppercase">
+          <div className="mb-1 text-xs font-semibold tracking-[0.08em] text-muted uppercase">
             {getOutcomeLabel(market, k, locale)}
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-2">
             {['home', 'draw', 'away']
               .filter(o => typeof group[o] === 'number')
               .map(o => (
@@ -151,7 +151,7 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
             <XAxis dataKey="goals" fontSize={12} stroke={chart.grid} tick={{ fill: chart.tick }} />
             <YAxis fontSize={12} stroke={chart.grid} tick={{ fill: chart.tick }} />
             <Tooltip
-              contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: '8px', color: chart.tooltipText }}
+              contentStyle={{ background: chart.tooltipBg, border: `1px solid ${chart.tooltipBorder}`, borderRadius: '12px', color: chart.tooltipText }}
               formatter={(value) => `${value}%`}
             />
             <Bar dataKey="probability" fill={chart.accent} radius={[4, 4, 0, 0]} />
@@ -176,7 +176,7 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   const combined = () => (
     <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
       {Object.entries(data).map(([k, v]) => (
-        <div key={k} className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm">
+        <div key={k} className="rounded-lg border border-border bg-surface px-3 py-2 text-sm">
           <div className="mb-1 text-muted">{getOutcomeLabel(market, k, locale)}</div>
           <div className="font-semibold text-foreground tabular-nums">
             {mode === 'odds' ? formatDecimal(v) : formatProb(v)}

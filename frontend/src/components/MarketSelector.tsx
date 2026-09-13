@@ -69,13 +69,13 @@ export default function MarketSelector({ selected, onChange, availableMarkets, a
           <AccordionTrigger>
             <span>{t(marketCategoryLabel(category))}</span>
             <span className="flex items-center gap-2">
-              <Badge variant="accent" className="text-[0.65rem]" aria-hidden="true">
+              <Badge variant="accent" className="text-xs" aria-hidden="true">
                 {visible.length}
               </Badge>
             </span>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {visible.map(m => (
                 <button
                   key={m}
@@ -84,8 +84,8 @@ export default function MarketSelector({ selected, onChange, availableMarkets, a
                   onClick={() => onChange(m)}
                   className={
                     m === selected
-                      ? 'min-h-9 cursor-pointer rounded-full bg-primary px-3.5 text-[13px] font-semibold text-primary-fg shadow-sm transition-colors duration-150'
-                      : 'min-h-9 cursor-pointer rounded-full border border-border px-3.5 text-[13px] font-medium text-muted transition-colors duration-150 hover:border-border-strong hover:text-foreground'
+                      ? 'min-h-11 cursor-pointer rounded-full bg-primary px-4 text-sm font-semibold text-primary-fg shadow-sm transition-colors duration-150'
+                      : 'min-h-11 cursor-pointer rounded-full border border-border px-4 text-sm font-medium text-muted transition-colors duration-150 hover:border-border-strong hover:text-foreground'
                   }
                 >
                   {getMarketLabel(m, locale)}{analyst ? ` · ${m}` : ''}

@@ -4,7 +4,7 @@ import { cn } from '../../lib/cn'
 export function TableRegion({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('overflow-x-auto rounded-lg border border-border bg-surface', className)}
+      className={cn('overflow-x-auto rounded-xl border border-border bg-surface', className)}
       {...props}
     />
   )
@@ -28,7 +28,7 @@ export function Th({
     <th
       scope="col"
       className={cn(
-        'border-b border-border px-3 py-2.5 font-medium text-muted',
+        'border-b border-border px-3 py-2 font-medium text-muted',
         align === 'left' && 'text-left',
         align === 'center' && 'text-center',
         align === 'right' && 'text-right',
@@ -47,7 +47,7 @@ export function Td({
   return (
     <td
       className={cn(
-        'border-b border-border/60 px-3 py-2.5 text-foreground tabular-nums',
+        'border-b border-border/60 px-3 py-2 text-foreground tabular-nums',
         align === 'left' && 'text-left',
         align === 'center' && 'text-center',
         align === 'right' && 'text-right',

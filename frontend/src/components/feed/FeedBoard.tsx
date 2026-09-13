@@ -4,7 +4,7 @@ import { Search, X } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
 import { getCachedValue, prefetchValues } from '../../api/detail'
-import { matchesQuery } from '../fixtures/fixtureUtils'
+import { matchesQuery, formatHumanDate } from '../fixtures/fixtureUtils'
 import { parseDeepLinkId, syncDeepLink } from '../../lib/deeplink'
 import { selectPickOfDay } from '../../utils/matchCenter'
 import { MatchCard } from './MatchCard'
@@ -60,7 +60,7 @@ export function FeedBoard({
   fixturesForContext,
   onDeepLink,
 }: FeedBoardProps) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
   const [query, setQuery] = useState('')
   const [showFollowed, setShowFollowed] = useState(false)
   const [showValue, setShowValue] = useState(false)
@@ -81,6 +81,16 @@ export function FeedBoard({
 
   const pick = useMemo(() => selectPickOfDay(filtered), [filtered])
   const visible = filtered.slice(0, visibleCount)
+
+  const groups = useMemo(() => {
+    const byDate = new Map<string, Fixture[]>()
+    for (const f of visible) {
+      const items = byDate.get(f.date)
+      if (items) items.push(f)
+      else byDate.set(f.date, [f])
+    }
+    return [...byDate.entries()].map(([date, items]) => ({ date, items }))
+  }, [visible])
 
   // +EV badges for the top predicted stories, best-effort in background.
   useEffect(() => {
@@ -173,7 +183,7 @@ export function FeedBoard({
       </div>
 
       {deepLinkMiss && (
-        <div role="alert" className="animate-fade mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-warning/30 bg-warning-soft px-4 py-2.5 text-sm text-warning">
+        <div role="alert" className="animate-fade mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning">
           <span className="flex-1">{t('deepLinkMiss')}</span>
           <Button
             type="button"
@@ -214,20 +224,29 @@ export function FeedBoard({
               onSelect={expandPick}
             />
           )}
-          <div className="flex flex-col gap-3">
-            {visible.map(f => (
-              <MatchCard
-                key={f.id}
-                fixture={f}
-                expanded={expandedId === f.id}
-                onToggle={() => toggle(f.id)}
-                leagueName={leagueName(f.league)}
-                followed={followed}
-                onToggleFollow={onToggleFollow}
-                hasValue={hasStoredValue(f.id)}
-                analyst={analyst}
-                fixtures={fixturesForContext}
-              />
+          <div className="flex flex-col gap-4">
+            {groups.map(g => (
+              <section key={g.date} aria-label={formatHumanDate(g.date, locale)}>
+                <h3 className="mb-2 text-xs font-semibold tracking-[0.08em] text-faint uppercase">
+                  {formatHumanDate(g.date, locale)}
+                </h3>
+                <div className="flex flex-col gap-3">
+                  {g.items.map(f => (
+                    <MatchCard
+                      key={f.id}
+                      fixture={f}
+                      expanded={expandedId === f.id}
+                      onToggle={() => toggle(f.id)}
+                      leagueName={leagueName(f.league)}
+                      followed={followed}
+                      onToggleFollow={onToggleFollow}
+                      hasValue={hasStoredValue(f.id)}
+                      analyst={analyst}
+                      fixtures={fixturesForContext}
+                    />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
           <p aria-live="polite" className="mt-3 text-xs text-faint">

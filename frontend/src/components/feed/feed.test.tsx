@@ -80,8 +80,7 @@ describe('MatchCard', () => {
     expect(screen.getByLabelText('1 · Alavés: 40.0%')).toBeDefined()
   })
 
-  it('toggles follow with accessible name', () => {
-    const onToggleFollow = vi.fn()
+  it('toggles follow with accessible name', () => {    const onToggleFollow = vi.fn()
     render(
       <MemoryRouter>
         <LanguageProvider>
@@ -101,6 +100,59 @@ describe('MatchCard', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Follow Liverpool' }))
     expect(onToggleFollow).toHaveBeenCalledWith('Liverpool')
+  })
+})
+
+describe('MatchCard story', () => {
+  const historyProps = {
+    leagueName: 'Premier League',
+    followed: [] as string[],
+    onToggleFollow: vi.fn(),
+    hasValue: null as boolean | null,
+    analyst: false,
+  }
+  const withHistory: Fixture = {
+    ...fixture,
+    id: 11,
+    prediction: { probabilities: { home: 0.5, draw: 0.3, away: 0.2 } },
+  }
+  const played: Fixture = {
+    ...fixture, id: 12, status: 'post', home_score: 2, away_score: 0, home: 'Liverpool', away: 'Everton',
+    prediction: null,
+  }
+
+  it('shows form strips when collapsed', () => {
+    render(
+      <MemoryRouter>
+        <LanguageProvider>
+          <MatchCard
+            fixture={withHistory}
+            expanded={false}
+            onToggle={vi.fn()}
+            fixtures={[withHistory, played]}
+            {...historyProps}
+          />
+        </LanguageProvider>
+      </MemoryRouter>,
+    )
+    expect(screen.getByRole('img', { name: 'Liverpool: Form' })).toBeDefined()
+  })
+
+  it('shows a back control when expanded', () => {
+    render(
+      <MemoryRouter>
+        <LanguageProvider>
+          <MatchCard
+            fixture={withHistory}
+            expanded
+            onToggle={vi.fn()}
+            fixtures={[withHistory, played]}
+            {...historyProps}
+          />
+        </LanguageProvider>
+      </MemoryRouter>,
+    )
+    expect(screen.getByRole('button', { name: 'Back to matches' })).toBeDefined()
   })
 })
 

@@ -56,7 +56,7 @@ function FormBadges({ form, emptyLabel }: { form: FormOutcome[]; emptyLabel: str
 
 function MomentumRow({ label, pct }: { label: string; pct: number }) {
   return (
-    <div className="relative flex min-h-10 items-center justify-between gap-2 overflow-hidden rounded-md border border-border bg-surface px-3 py-1.5 text-sm">
+    <div className="relative flex min-h-11 items-center justify-between gap-2 overflow-hidden rounded-md border border-border bg-surface px-3 py-2 text-sm">
       <div className="absolute inset-y-0 left-0 bg-primary/20 transition-[width] duration-500" style={{ width: `${pct}%` }} />
       <span className="relative z-10 font-medium text-foreground">{label}</span>
       <span className="relative z-10 text-muted tabular-nums">{pct.toFixed(0)}%</span>
@@ -113,11 +113,11 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
       <CardBody>
         <CardTitle className="mb-3">{t('matchCenter')}</CardTitle>
         <SectionHeading>{t('form')} · {t('last5')}</SectionHeading>
-        <div className="mb-3 flex flex-col gap-1.5">
+        <div className="mb-3 flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <Link
               to={`/equipo/${encodeURIComponent(home)}`}
-              className="rounded text-sm text-foreground underline decoration-border-strong underline-offset-2 hover:text-primary-strong"
+              className="rounded-md text-sm text-foreground underline decoration-border-strong underline-offset-2 hover:text-primary-strong"
             >
               {homeLabel}
             </Link>
@@ -126,7 +126,7 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
           <div className="flex items-center justify-between gap-2">
             <Link
               to={`/equipo/${encodeURIComponent(away)}`}
-              className="rounded text-sm text-foreground underline decoration-border-strong underline-offset-2 hover:text-primary-strong"
+              className="rounded-md text-sm text-foreground underline decoration-border-strong underline-offset-2 hover:text-primary-strong"
             >
               {awayLabel}
             </Link>
@@ -149,7 +149,7 @@ function MatchCenter({ home, away, fixtures }: { home: string; away: string; fix
           </div>
         )}
         <SectionHeading>{t('momentum')}</SectionHeading>
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <MomentumRow label={homeLabel} pct={momentum.homePct} />
           <MomentumRow label={awayLabel} pct={momentum.awayPct} />
         </div>
@@ -172,7 +172,7 @@ function SuperCombo({ probabilities, mode, analyst }: { probabilities: Record<st
           <>
             <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-3">
               {combo.legs.map(leg => (
-                <div key={leg.market} className="rounded-lg border border-border bg-surface-alt/50 px-3 py-2.5 text-sm">
+                <div key={leg.market} className="rounded-lg border border-border bg-surface-alt/50 px-3 py-2 text-sm">
                   <div className="mb-1 text-xs text-muted">
                     {getMarketLabel(leg.market, locale)}{analyst ? ` · ${leg.market}` : ''}
                   </div>

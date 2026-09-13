@@ -44,13 +44,13 @@ describe('routes', () => {
   it('navigates between feed and followed via nav with aria-current', async () => {
     renderAt(['/'])
     await screen.findAllByText(/Arsenal/)
-    const nav = screen.getByRole('navigation', { name: 'Sections' })
-    expect(nav).toBeDefined()
-    const feedLink = screen.getByRole('link', { name: 'Fixtures' })
-    expect(feedLink.getAttribute('aria-current')).toBe('page')
-    fireEvent.click(screen.getByRole('link', { name: 'Followed' }))
+    const navs = screen.getAllByRole('navigation', { name: 'Sections' })
+    expect(navs.length).toBe(2)
+    const feedLinks = screen.getAllByRole('link', { name: 'Fixtures' })
+    expect(feedLinks.every(l => l.getAttribute('aria-current') === 'page')).toBe(true)
+    fireEvent.click(screen.getAllByRole('link', { name: 'Followed' })[0])
     expect(await screen.findByText('You follow no teams yet. Tap the star on any match to follow its teams.')).toBeDefined()
-    expect(screen.getByRole('link', { name: 'Followed' }).getAttribute('aria-current')).toBe('page')
+    expect(screen.getAllByRole('link', { name: 'Followed' }).every(l => l.getAttribute('aria-current') === 'page')).toBe(true)
   })
 
   it('renders the team page with upcoming matches', async () => {
