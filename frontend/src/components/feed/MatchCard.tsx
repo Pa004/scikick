@@ -134,7 +134,7 @@ export function MatchCard({
               </Badge>
             )}
             {hasValue === true && (
-              <Badge variant="info" className="text-xs">
+              <Badge variant="value" className="text-xs">
                 {t('valueIsValue')}
               </Badge>
             )}

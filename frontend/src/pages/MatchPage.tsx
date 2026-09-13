@@ -80,7 +80,7 @@ export function MatchPage() {
   if (meta === null) {
     return (
       <main id="main-content">
-        <div role="alert" className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning-ink">
+        <div role="alert" className="rounded-lg border border-primary/30 bg-primary-soft px-4 py-3 text-sm text-primary-ink">
           <p className="mb-2 font-medium">{t('deepLinkMiss')}</p>
           <Button type="button" size="sm" variant="secondary" onClick={() => navigate('/')}>
             {t('backToFeed')}
@@ -119,7 +119,7 @@ export function MatchPage() {
             <p className="text-sm font-semibold text-foreground">{leagueName(meta.league)}</p>
             <p className="text-sm text-muted">{formatHumanDate(meta.date, locale)}</p>
             {hasValue === true && (
-              <Badge variant="info" className="mt-2 text-xs">{t('valueIsValue')}</Badge>
+              <Badge variant="value" className="mt-2 text-xs">{t('valueIsValue')}</Badge>
             )}
           </section>
           <section aria-label={t('form')} className="rounded-xl border border-border bg-surface p-4 shadow-sm">

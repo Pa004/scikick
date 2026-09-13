@@ -65,9 +65,9 @@ function ScorerControls({
   )
 }
 
-function probVariant(p: number): 'success' | 'warning' | 'neutral' {
+function probVariant(p: number): 'success' | 'accent' | 'neutral' {
   if (p > 0.3) return 'success'
-  if (p > 0.15) return 'warning'
+  if (p > 0.15) return 'accent'
   return 'neutral'
 }
 
@@ -127,7 +127,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
       <h3 className="mb-3 font-display text-base font-semibold text-foreground">{t('goalscorer')}</h3>
 
       <Badge
-        variant={scorer.data_quality === 'lineup_confirmed' ? 'success' : 'warning'}
+        variant={scorer.data_quality === 'lineup_confirmed' ? 'success' : 'neutral'}
         className="mb-3 px-3 py-1 text-xs"
       >
         {scorer.data_quality === 'lineup_confirmed' ? t('lineupConfirmed') : t('lineupProjected')}

@@ -248,7 +248,7 @@ export function FeedBoard({
       </div>
 
       {deepLinkMiss && (
-        <div role="alert" className="animate-fade mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning-ink">
+        <div role="alert" className="animate-fade mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary-soft px-4 py-3 text-sm text-primary-ink">
           <span className="flex-1">{t('deepLinkMiss')}</span>
           <Button
             type="button"

@@ -86,7 +86,7 @@ export function TeamPage() {
   if (failed || teamFixtures.length === 0) {
     return (
       <main id="main-content">
-        <div role="alert" className="rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning-ink">
+        <div role="alert" className="rounded-lg border border-primary/30 bg-primary-soft px-4 py-3 text-sm text-primary-ink">
           <p className="mb-2 font-medium">{t('teamNotFound')}</p>
           <Button type="button" size="sm" variant="secondary" asChild>
             <Link to="/">{t('backToFeed')}</Link>

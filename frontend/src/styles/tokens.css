@@ -30,16 +30,12 @@
   --success: #15803d;
   --success-ink: #0d1526;
   --success-soft: #dcfce7;
-  --warning: #8f5e05;
-  --warning-ink: #0d1526;
-  --warning-soft: #fef3c7;
   --danger: #b91c1c;
   --danger-ink: #0d1526;
   --danger-soft: #fee2e2;
-
-  --info: #0d74ce;
-  --info-ink: #0d1526;
-  --info-soft: #e6f4fe;
+  --value: #256a6a;
+  --value-ink: #0d1526;
+  --value-soft: #dff0f0;
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -84,16 +80,12 @@
   --success: #4ade80;
   --success-ink: #e8edf7;
   --success-soft: rgb(74 222 128 / 0.12);
-  --warning: #facc15;
-  --warning-ink: #e8edf7;
-  --warning-soft: rgb(250 204 21 / 0.12);
   --danger: #f87171;
   --danger-ink: #e8edf7;
   --danger-soft: rgb(248 113 113 / 0.12);
-
-  --info: #70b8ff;
-  --info-ink: #e8edf7;
-  --info-soft: #0d2847;
+  --value: #7fc2c2;
+  --value-ink: #e8edf7;
+  --value-soft: #143031;
 
   --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
   --shadow-md: 0 4px 16px rgb(0 0 0 / 0.5);
@@ -121,15 +113,12 @@
   --color-success: var(--success);
   --color-success-ink: var(--success-ink);
   --color-success-soft: var(--success-soft);
-  --color-warning: var(--warning);
-  --color-warning-ink: var(--warning-ink);
-  --color-warning-soft: var(--warning-soft);
   --color-danger: var(--danger);
   --color-danger-ink: var(--danger-ink);
   --color-danger-soft: var(--danger-soft);
-  --color-info: var(--info);
-  --color-info-ink: var(--info-ink);
-  --color-info-soft: var(--info-soft);
+  --color-value: var(--value);
+  --color-value-ink: var(--value-ink);
+  --color-value-soft: var(--value-soft);
 
   --font-display: var(--font-display);
   --font-body: var(--font-body);
