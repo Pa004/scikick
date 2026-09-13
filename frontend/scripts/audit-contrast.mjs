@@ -26,6 +26,11 @@ const PAIRS = [
   ['--danger-ink', '--danger-soft', TEXT_MIN, 'danger text on tint'],
   ['--value', '--surface', TEXT_MIN, 'value text on card'],
   ['--value-ink', '--value-soft', TEXT_MIN, 'value text on tint'],
+  // Bar fills as UI graphics (3:1). Adjacent home-vs-away is NOT gated:
+  // it fails 3:1 by design in every palette; the visible gap + 1X2
+  // legend + aria-labels compensate (documented, not waived silently).
+  ['--primary', '--surface', UI_MIN, 'home fill on card (UI)'],
+  ['--value', '--surface', UI_MIN, 'away fill on card (UI)'],
   ['--primary-ring', '--background', UI_MIN, 'focus ring on app bg'],
   ['--primary-ring', '--surface', UI_MIN, 'focus ring on card'],
   ['--border-strong', '--surface', 1.5, 'strong border visible (decorative)'],
