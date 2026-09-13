@@ -7,9 +7,9 @@ describe('accent', () => {
     delete document.documentElement.dataset.accent
   })
 
-  it('defaults to iris without stored value', () => {
+  it('defaults to ember without stored value', () => {
     expect(readStoredAccent()).toBe(DEFAULT_ACCENT)
-    expect(DEFAULT_ACCENT).toBe('iris')
+    expect(DEFAULT_ACCENT).toBe('ember')
   })
 
   it('exposes the three prototype accents', () => {
@@ -25,6 +25,6 @@ describe('accent', () => {
     localStorage.setItem('scikick.accent', 'electric')
     expect(readStoredAccent()).toBe('electric')
     localStorage.setItem('scikick.accent', 'lime')
-    expect(readStoredAccent()).toBe('iris')
+    expect(readStoredAccent()).toBe('ember')
   })
 })

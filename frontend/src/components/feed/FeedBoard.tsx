@@ -17,6 +17,34 @@ import { Skeleton } from '../ui/skeleton'
 // Top predicted cards get their +EV badge without opening the story.
 const PREFETCH_COUNT = 15
 const PAGE_SIZE = 20
+const SCROLL_KEY = 'scikick.feed-state'
+const DESKTOP_QUERY = '(min-width: 1024px)'
+
+interface SavedFeedState {
+  y: number
+  visibleCount: number
+  query: string
+}
+
+function readSavedState(): SavedFeedState | null {
+  try {
+    const raw = sessionStorage.getItem(SCROLL_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<SavedFeedState>
+    if (typeof parsed.y !== 'number' || typeof parsed.visibleCount !== 'number') return null
+    return { y: parsed.y, visibleCount: parsed.visibleCount, query: typeof parsed.query === 'string' ? parsed.query : '' }
+  } catch {
+    return null
+  }
+}
+
+function isDesktopStory(): boolean {
+  try {
+    return window.matchMedia(DESKTOP_QUERY).matches
+  } catch {
+    return false
+  }
+}
 
 function hasStoredValue(id: number): boolean | null {
   const entry = getCachedValue(id)
@@ -69,6 +97,28 @@ export function FeedBoard({
   const [valuesReady, setValuesReady] = useState(false)
   const [deepLinkMiss, setDeepLinkMiss] = useState(false)
   const [searchParams] = useSearchParams()
+
+  // Back from /partido/:id restores scroll, pagination and search once.
+  useEffect(() => {
+    const saved = readSavedState()
+    if (!saved) return
+    setQuery(saved.query)
+    setVisibleCount(Math.max(PAGE_SIZE, saved.visibleCount))
+    try {
+      sessionStorage.removeItem(SCROLL_KEY)
+    } catch {
+      // Private mode: harmless if it persists
+    }
+    requestAnimationFrame(() => {
+      try {
+        window.scrollTo(0, saved.y)
+      } catch {
+        // Non-visual env
+      }
+    })
+    // Only on first mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const filtered = useMemo(() => {
     return fixtures.filter(f => {
@@ -128,7 +178,21 @@ export function FeedBoard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading])
 
+  const saveStateAndGo = (id: number) => {
+    if (!onDeepLink) return false
+    try {
+      const state: SavedFeedState = { y: window.scrollY, visibleCount, query }
+      sessionStorage.setItem(SCROLL_KEY, JSON.stringify(state))
+    } catch {
+      // Private mode: navigation still works, restore is skipped
+    }
+    onDeepLink(id)
+    return true
+  }
+
   const toggle = (id: number) => {
+    // Desktop opens the routed story; mobile expands inline.
+    if (isDesktopStory() && saveStateAndGo(id)) return
     setExpandedId(prev => {
       const next = prev === id ? null : id
       syncDeepLink(next)
@@ -138,6 +202,7 @@ export function FeedBoard({
   }
 
   const expandPick = (id: number) => {
+    if (isDesktopStory() && saveStateAndGo(id)) return
     setExpandedId(id)
     syncDeepLink(id)
     scrollCardIntoView(id)

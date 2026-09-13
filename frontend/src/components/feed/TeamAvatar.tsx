@@ -7,12 +7,6 @@ function initials(team: string): string {
   return (words[0][0] + words[1][0]).toUpperCase()
 }
 
-function hueFor(team: string): number {
-  let hash = 0
-  for (let i = 0; i < team.length; i++) hash = (hash * 31 + team.charCodeAt(i)) % 360
-  return hash
-}
-
 interface TeamAvatarProps {
   team: string
   crest?: string | null
@@ -20,7 +14,7 @@ interface TeamAvatarProps {
 }
 
 // Fixed-size crest with graceful fallback: a failed or missing image
-// swaps to team initials on a stable hue, never shifting layout.
+// swaps to team initials on audited theme tokens, never shifting layout.
 export function TeamAvatar({ team, crest, className }: TeamAvatarProps) {
   const [failed, setFailed] = useState(false)
   const showImg = crest != null && crest !== '' && !failed
@@ -28,15 +22,10 @@ export function TeamAvatar({ team, crest, className }: TeamAvatarProps) {
     <span
       aria-hidden="true"
       className={cn(
-        'inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full',
-        !showImg && 'text-xs font-bold text-white',
+        'inline-flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-alt',
+        !showImg && 'text-xs font-bold text-muted',
         className,
       )}
-      style={
-        !showImg
-          ? { backgroundColor: `hsl(${hueFor(team)} 45% 38%)` }
-          : { backgroundColor: 'var(--surface-alt)' }
-      }
     >
       {showImg ? (
         <img

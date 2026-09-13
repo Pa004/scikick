@@ -11,6 +11,7 @@ const badgeVariants = cva(
         success: 'bg-success-soft text-success-ink',
         warning: 'bg-warning-soft text-warning-ink',
         danger: 'bg-danger-soft text-danger-ink',
+        info: 'bg-info-soft text-info-ink',
         neutral: 'bg-surface-alt text-muted',
       },
     },

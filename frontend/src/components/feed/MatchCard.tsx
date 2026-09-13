@@ -28,7 +28,7 @@ interface MatchCardProps {
   fixtures: Fixture[]
 }
 
-function FollowStar({
+export function FollowStar({
   team,
   followed,
   onToggle,
@@ -60,7 +60,7 @@ function FollowStar({
   )
 }
 
-function FormStrip({ form, label }: { form: FormOutcome[]; label: string }) {
+export function FormStrip({ form, label }: { form: FormOutcome[]; label: string }) {
   if (form.length === 0) return null
   return (
     <span className="flex items-center gap-0.5" role="img" aria-label={label}>
@@ -134,7 +134,7 @@ export function MatchCard({
               </Badge>
             )}
             {hasValue === true && (
-              <Badge variant="success" className="text-xs">
+              <Badge variant="info" className="text-xs">
                 {t('valueIsValue')}
               </Badge>
             )}

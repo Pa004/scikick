@@ -185,6 +185,9 @@ const DICTIONARIES = {
     accent_iris: 'Iris',
     accent_ember: 'Ember',
     accent_electric: 'Electric',
+    matchContext: 'Match context',
+    matchMeta: 'Details',
+    dismissPick: "Dismiss today's pick",
   },
   es: {
     tagline: 'Motor de Estimación de Probabilidades de Fútbol',
@@ -366,6 +369,9 @@ const DICTIONARIES = {
     accent_iris: 'Iris',
     accent_ember: 'Brasa',
     accent_electric: 'Eléctrico',
+    matchContext: 'Contexto del partido',
+    matchMeta: 'Detalles',
+    dismissPick: 'Descartar el pick de hoy',
   },
 } as const
 
