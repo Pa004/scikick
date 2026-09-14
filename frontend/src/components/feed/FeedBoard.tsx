@@ -16,13 +16,13 @@ import { Skeleton } from '../ui/skeleton'
 
 // Top predicted cards get their +EV badge without opening the story.
 const PREFETCH_COUNT = 15
-const PAGE_SIZE = 20
+const PAGE_SIZE = 12
 const SCROLL_KEY = 'scikick.feed-state'
 const DESKTOP_QUERY = '(min-width: 1024px)'
 
 interface SavedFeedState {
   y: number
-  visibleCount: number
+  page: number
   query: string
 }
 
@@ -30,9 +30,11 @@ function readSavedState(): SavedFeedState | null {
   try {
     const raw = sessionStorage.getItem(SCROLL_KEY)
     if (!raw) return null
-    const parsed = JSON.parse(raw) as Partial<SavedFeedState>
-    if (typeof parsed.y !== 'number' || typeof parsed.visibleCount !== 'number') return null
-    return { y: parsed.y, visibleCount: parsed.visibleCount, query: typeof parsed.query === 'string' ? parsed.query : '' }
+    const parsed = JSON.parse(raw) as Partial<SavedFeedState> & { visibleCount?: number }
+    if (typeof parsed.y !== 'number') return null
+    // Backward compat: visibleCount → page
+    const page = typeof parsed.page === 'number' ? parsed.page : typeof parsed.visibleCount === 'number' ? Math.max(1, Math.ceil(parsed.visibleCount / PAGE_SIZE)) : 1
+    return { y: parsed.y, page, query: typeof parsed.query === 'string' ? parsed.query : '' }
   } catch {
     return null
   }
@@ -92,18 +94,18 @@ export function FeedBoard({
   const [query, setQuery] = useState('')
   const [showFollowed, setShowFollowed] = useState(false)
   const [showValue, setShowValue] = useState(false)
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [currentPage, setCurrentPage] = useState(1)
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [valuesReady, setValuesReady] = useState(false)
   const [deepLinkMiss, setDeepLinkMiss] = useState(false)
   const [searchParams] = useSearchParams()
 
-  // Back from /partido/:id restores scroll, pagination and search once.
+  // Back from /partido/:id restores search and page once.
   useEffect(() => {
     const saved = readSavedState()
     if (!saved) return
     setQuery(saved.query)
-    setVisibleCount(Math.max(PAGE_SIZE, saved.visibleCount))
+    setCurrentPage(Math.max(1, saved.page))
     try {
       sessionStorage.removeItem(SCROLL_KEY)
     } catch {
@@ -130,7 +132,15 @@ export function FeedBoard({
   }, [fixtures, query, showFollowed, showValue, followed, valuesReady])
 
   const pick = useMemo(() => selectPickOfDay(filtered), [filtered])
-  const visible = filtered.slice(0, visibleCount)
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  // Clamp page if filters shrink total
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages)
+  }, [currentPage, totalPages])
+  const visible = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE
+    return filtered.slice(start, start + PAGE_SIZE)
+  }, [filtered, currentPage])
 
   const groups = useMemo(() => {
     const byDate = new Map<string, Fixture[]>()
@@ -168,6 +178,12 @@ export function FeedBoard({
       if (onDeepLink) {
         onDeepLink(deepId)
       } else {
+        // Ensure the deep-linked card is on the current pagination page
+        const idx = filtered.findIndex(f => f.id === deepId)
+        if (idx !== -1) {
+          const targetPage = Math.floor(idx / PAGE_SIZE) + 1
+          if (targetPage !== currentPage) setCurrentPage(targetPage)
+        }
         setExpandedId(deepId)
         scrollCardIntoView(deepId)
       }
@@ -176,12 +192,12 @@ export function FeedBoard({
     }
     // Only on first load of this league feed
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading])
+  }, [loading, filtered, currentPage])
 
   const saveStateAndGo = (id: number) => {
     if (!onDeepLink) return false
     try {
-      const state: SavedFeedState = { y: window.scrollY, visibleCount, query }
+      const state: SavedFeedState = { y: window.scrollY, page: currentPage, query }
       sessionStorage.setItem(SCROLL_KEY, JSON.stringify(state))
     } catch {
       // Private mode: navigation still works, restore is skipped
@@ -221,7 +237,7 @@ export function FeedBoard({
             value={query}
             onChange={e => {
               setQuery(e.target.value)
-              setVisibleCount(PAGE_SIZE)
+              setCurrentPage(1)
             }}
             placeholder={t('searchFixtures')}
             aria-label={t('searchFixtures')}
@@ -238,10 +254,10 @@ export function FeedBoard({
 
       <div className="mb-4 flex flex-wrap gap-2">
         <SegmentedGroup label={t('fixtures')}>
-          <SegmentedButton active={showFollowed} onClick={() => { setShowFollowed(v => !v); setVisibleCount(PAGE_SIZE) }}>
+          <SegmentedButton active={showFollowed} onClick={() => { setShowFollowed(v => !v); setCurrentPage(1) }}>
             {t('myMatches')}
           </SegmentedButton>
-          <SegmentedButton active={showValue} onClick={() => { setShowValue(v => !v); setVisibleCount(PAGE_SIZE) }}>
+          <SegmentedButton active={showValue} onClick={() => { setShowValue(v => !v); setCurrentPage(1) }}>
             {t('valueOnly')}
           </SegmentedButton>
         </SegmentedGroup>
@@ -289,11 +305,14 @@ export function FeedBoard({
               onSelect={expandPick}
             />
           )}
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-8">
             {groups.map(g => (
               <section key={g.date} aria-label={formatHumanDate(g.date, locale)}>
-                <h3 className="mb-3 text-xs font-extrabold tracking-[0.08em] text-faint uppercase">
-                  {formatHumanDate(g.date, locale)}
+                <h3 className="sticky top-[112px] z-10 -mx-1 mb-3 flex items-baseline gap-2 border-y border-border bg-background/95 px-1 py-2 text-xs font-extrabold tracking-[0.08em] text-foreground uppercase backdrop-blur">
+                  <span>{formatHumanDate(g.date, locale)}</span>
+                  <span className="rounded-full bg-surface-alt px-2 py-0.5 font-mono text-[11px] font-bold text-muted">
+                    {g.items.length}
+                  </span>
                 </h3>
                 <div className="flex flex-col gap-3">
                   {g.items.map(f => (
@@ -308,24 +327,84 @@ export function FeedBoard({
                       hasValue={hasStoredValue(f.id)}
                       analyst={analyst}
                       fixtures={fixturesForContext}
+                      hideDate
                     />
                   ))}
                 </div>
               </section>
             ))}
           </div>
-          <p aria-live="polite" className="mt-3 text-xs text-faint">
-            {fillVars(t('showingMatches'), { shown: visible.length, total: filtered.length })}
-          </p>
-          {visible.length < filtered.length && (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
-              className="mt-2 w-full"
-            >
-              {t('showMore')} ({filtered.length - visible.length})
-            </Button>
+          {filtered.length > PAGE_SIZE && (
+            <nav aria-label="Paginación" className="mt-6 flex flex-col items-center gap-3 border-t border-border pt-4">
+              <p aria-live="polite" className="text-xs text-faint">
+                {(() => {
+                  const start = (currentPage - 1) * PAGE_SIZE + 1
+                  const end = Math.min(currentPage * PAGE_SIZE, filtered.length)
+                  return locale === 'es'
+                    ? `Mostrando ${start}-${end} de ${filtered.length}`
+                    : `Showing ${start}-${end} of ${filtered.length}`
+                })()}
+              </p>
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={currentPage === 1}
+                  onClick={() => {
+                    const next = Math.max(1, currentPage - 1)
+                    setCurrentPage(next)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
+                  aria-label="Página anterior"
+                  className="min-w-11"
+                >
+                  ←
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                  .reduce<(number | '…')[]>((acc, p, idx, arr) => {
+                    if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('…')
+                    acc.push(p)
+                    return acc
+                  }, [])
+                  .map((p, idx) =>
+                    p === '…' ? (
+                      <span key={`e-${idx}`} className="px-2 text-faint">
+                        …
+                      </span>
+                    ) : (
+                      <Button
+                        key={p}
+                        type="button"
+                        variant={p === currentPage ? 'primary' : 'secondary'}
+                        aria-current={p === currentPage ? 'page' : undefined}
+                        aria-label={`Página ${p} de ${totalPages}`}
+                        onClick={() => {
+                          setCurrentPage(p as number)
+                          window.scrollTo({ top: 0, behavior: 'smooth' })
+                        }}
+                        className="min-w-11"
+                      >
+                        {p}
+                      </Button>
+                    ),
+                  )}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={currentPage === totalPages}
+                  onClick={() => {
+                    const next = Math.min(totalPages, currentPage + 1)
+                    setCurrentPage(next)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
+                  aria-label="Página siguiente"
+                  className="min-w-11"
+                >
+                  →
+                </Button>
+              </div>
+            </nav>
           )}
         </>
       )}

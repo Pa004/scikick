@@ -49,12 +49,16 @@ beforeEach(() => {
 })
 
 describe('FeedBoard', () => {
-  it('paginates with show more and announces counts', async () => {
+  it('paginates with numbered pages and announces range', async () => {
     renderBoard(makeFixtures(25))
-    expect(screen.getByText('Showing 20 of 25 matches')).toBeDefined()
+    expect(screen.getByText('Showing 1-12 of 25')).toBeDefined()
+    expect(screen.queryByRole('heading', { name: /Home13/ })).toBeNull()
     expect(screen.queryByRole('heading', { name: /Home25/ })).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: /Show more/ }))
-    expect(screen.getByText('Showing 25 of 25 matches')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Página 2 de 3' }))
+    expect(screen.getByText('Showing 13-24 of 25')).toBeDefined()
+    expect(screen.getByRole('heading', { name: /Home13/ })).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Página 3 de 3' }))
+    expect(screen.getByText('Showing 25-25 of 25')).toBeDefined()
     expect(screen.getByRole('heading', { name: /Home25/ })).toBeDefined()
   })
 
@@ -105,11 +109,11 @@ describe('FeedBoard', () => {
 
   it('resets pagination when toggling filters', () => {
     renderBoard(makeFixtures(25))
-    fireEvent.click(screen.getByRole('button', { name: /Show more/ }))
-    expect(screen.getByText('Showing 25 of 25 matches')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Página 2 de 3' }))
+    expect(screen.getByText('Showing 13-24 of 25')).toBeDefined()
     fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
     fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
-    expect(screen.getByText('Showing 20 of 25 matches')).toBeDefined()
+    expect(screen.getByText('Showing 1-12 of 25')).toBeDefined()
   })
 
   it('notices deep links missing from the feed and dismisses', () => {
@@ -131,15 +135,15 @@ describe('FeedBoard', () => {
     expect(onDeepLink).toHaveBeenCalledWith(1)
     expect(screen.queryByText(/Home1 win 6 in 10/)).toBeNull()
     const saved = JSON.parse(sessionStorage.getItem('scikick.feed-state') ?? '{}')
-    expect(saved.visibleCount).toBe(20)
+    expect(saved.page).toBe(1)
   })
 
   it('restores saved scroll state once on mount', () => {
-    sessionStorage.setItem('scikick.feed-state', JSON.stringify({ y: 500, visibleCount: 40, query: '' }))
+    sessionStorage.setItem('scikick.feed-state', JSON.stringify({ y: 500, page: 2, query: '' }))
     const scrollTo = vi.fn()
     vi.stubGlobal('scrollTo', scrollTo)
     renderBoard(makeFixtures(50))
-    expect(screen.getByText('Showing 40 of 50 matches')).toBeDefined()
+    expect(screen.getByText('Showing 13-24 of 50')).toBeDefined()
     expect(sessionStorage.getItem('scikick.feed-state')).toBeNull()
   })
 })

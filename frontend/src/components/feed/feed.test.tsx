@@ -101,7 +101,7 @@ describe('MatchCard', () => {
         </LanguageProvider>
       </MemoryRouter>,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Follow Liverpool' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Follow match' }))
     expect(onToggleFollow).toHaveBeenCalledWith('Liverpool')
   })
 })

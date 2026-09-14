@@ -28,6 +28,7 @@ interface MatchCardProps {
   hasValue: boolean | null
   analyst: boolean
   fixtures: Fixture[]
+  hideDate?: boolean
 }
 
 export function FollowStar({
@@ -96,6 +97,7 @@ export function MatchCard({
   hasValue,
   analyst,
   fixtures,
+  hideDate = false,
 }: MatchCardProps) {
   const { t, locale } = useLanguage()
   const [market, setMarket] = useState('1x2')
@@ -124,9 +126,11 @@ export function MatchCard({
             <span className="text-xs font-bold tracking-[0.08em] text-faint uppercase">
               {leagueName}
             </span>
-            <span className="font-mono text-[13px] text-muted tabular-nums">
-              {formatHumanDate(f.date, locale)}
-            </span>
+            {!hideDate && (
+              <span className="font-mono text-[13px] text-muted tabular-nums">
+                {formatHumanDate(f.date, locale)}
+              </span>
+            )}
           </span>
           <h2 id={`match-title-${f.id}`} className="mt-1.5 flex min-w-0 items-center gap-3 text-[17px] leading-snug font-bold text-foreground">
             <TeamAvatar team={f.home} crest={f.home_crest} />
@@ -154,16 +158,34 @@ export function MatchCard({
           </span>
         </button>
         <div className="flex shrink-0 items-center" role="group" aria-label={t('myMatches')}>
-          <FollowStar
-            team={f.home}
-            followed={followed}
-            onToggle={() => onToggleFollow(f.home)}
-          />
-          <FollowStar
-            team={f.away}
-            followed={followed}
-            onToggle={() => onToggleFollow(f.away)}
-          />
+          {(() => {
+            const isFollowed = followed.includes(f.home) || followed.includes(f.away)
+            const label = isFollowed ? t('unfollowMatch') : t('followMatch')
+            const handleToggle = (e: React.MouseEvent) => {
+              e.stopPropagation()
+              if (isFollowed) {
+                if (followed.includes(f.home)) onToggleFollow(f.home)
+                if (followed.includes(f.away)) onToggleFollow(f.away)
+              } else {
+                onToggleFollow(f.home)
+              }
+            }
+            return (
+              <button
+                type="button"
+                onClick={handleToggle}
+                aria-pressed={isFollowed}
+                aria-label={label}
+                title={label}
+                className={cn(
+                  'flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full transition-colors',
+                  isFollowed ? 'text-primary-strong' : 'text-faint hover:bg-surface-hover hover:text-foreground',
+                )}
+              >
+                <Star aria-hidden="true" className="size-5" fill={isFollowed ? 'currentColor' : 'none'} />
+              </button>
+            )
+          })()}
         </div>
         <span aria-hidden="true" className="flex min-h-11 min-w-8 items-center justify-center text-faint">
           <ChevronDown
@@ -187,8 +209,8 @@ export function MatchCard({
               : null
             return (
               <>
-                {verdictText && <p className="text-[15px] font-semibold text-foreground">{verdictText}</p>}
-                <p className="mt-1 font-mono text-[13px] text-muted tabular-nums">
+                {verdictText && <p className="text-[15px] font-semibold leading-snug text-foreground">{verdictText}</p>}
+                <p className="mt-2 font-mono text-[13px] leading-relaxed text-muted tabular-nums">
                   {Math.round(probs.home * 100)} · {Math.round(probs.draw * 100)} · {Math.round(probs.away * 100)}
                   <span className="ml-2 text-xs font-normal text-faint">1 · X · 2 — 1 local · X empate · 2 visita</span>
                 </p>
