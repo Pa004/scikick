@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ArrowLeft, ChevronDown, Star } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
-import { extract1x2, asOutcomeProbs, getTeamForm, type FormOutcome } from '../../utils/matchCenter'
+import { extract1x2, asOutcomeProbs, type FormOutcome } from '../../utils/matchCenter'
 import { formatHumanDate } from '../fixtures/fixtureUtils'
 import { useFixtureDetail } from '../../hooks/useFixtureDetail'
 import { SegmentedBar } from './SegmentedBar'
@@ -63,16 +63,22 @@ export function FollowStar({
 export function FormStrip({ form, label }: { form: FormOutcome[]; label: string }) {
   if (form.length === 0) return null
   return (
-    <span className="flex items-center gap-0.5" role="img" aria-label={label}>
+    <span className="flex items-center gap-1.5" role="img" aria-label={label}>
       {form.map((o, i) => (
         <span
           key={i}
           aria-hidden="true"
           className={cn(
-            'h-1.5 w-4 rounded-full',
-            o === 'W' ? 'bg-success' : o === 'D' ? 'bg-muted' : 'bg-faint/60',
+            'flex min-h-9 min-w-9 items-center justify-center rounded-lg border text-[13px] font-extrabold',
+            o === 'W'
+              ? 'border-primary bg-primary-soft text-primary-ink'
+              : o === 'D'
+                ? 'border-border bg-surface-alt text-muted'
+                : 'border-danger/50 bg-danger-soft text-danger-ink',
           )}
-        />
+        >
+          {o}
+        </span>
       ))}
     </span>
   )
@@ -100,11 +106,11 @@ export function MatchCard({
       id={`match-card-${f.id}`}
       aria-labelledby={`match-title-${f.id}`}
       className={cn(
-        'animate-fade scroll-mt-24 rounded-xl border bg-surface shadow-sm transition-colors',
-        expanded ? 'border-primary/40 shadow-md' : 'border-border hover:border-border-strong',
+        'animate-fade scroll-mt-24 rounded-[14px] border bg-surface transition-colors',
+        expanded ? 'border-foreground shadow-md' : 'border-border hover:border-border-strong',
       )}
     >
-      <div className="flex items-start gap-1 p-4 pb-3">
+      <div className="flex items-start gap-2 p-4 pb-3">
         <button
           type="button"
           onClick={onToggle}
@@ -112,22 +118,27 @@ export function MatchCard({
           aria-controls={storyId}
           className="min-w-0 flex-1 cursor-pointer rounded-lg text-left"
         >
-          <span className="block text-xs font-medium text-faint">
-            {formatHumanDate(f.date, locale)} · {leagueName}
+          <span className="flex items-baseline justify-between gap-2">
+            <span className="text-xs font-bold tracking-[0.08em] text-faint uppercase">
+              {leagueName}
+            </span>
+            <span className="font-mono text-[13px] text-muted tabular-nums">
+              {formatHumanDate(f.date, locale)}
+            </span>
           </span>
-          <h2 id={`match-title-${f.id}`} className="mt-1 flex min-w-0 items-center gap-2 font-display text-lg font-semibold text-foreground">
+          <h2 id={`match-title-${f.id}`} className="mt-1.5 flex min-w-0 items-center gap-3 text-[17px] leading-snug font-bold text-foreground">
             <TeamAvatar team={f.home} crest={f.home_crest} />
             <span className="min-w-0 flex-1 truncate" title={`${displayTeam(f.home)} vs ${displayTeam(f.away)}`}>
               {displayTeam(f.home)} vs {displayTeam(f.away)}
               {f.home_score !== null && (
-                <span className="ml-2 font-mono text-base font-medium text-muted tabular-nums">
+                <span className="ml-2 font-mono text-[15px] font-medium text-muted tabular-nums">
                   {f.home_score} - {f.away_score}
                 </span>
               )}
             </span>
             <TeamAvatar team={f.away} crest={f.away_crest} />
           </h2>
-          <span className="mt-0.5 flex flex-wrap items-center gap-2">
+          <span className="mt-2 flex flex-wrap items-center gap-2">
             {f.prediction != null && (
               <Badge variant="accent" className="text-xs">
                 {t('predicted')}
@@ -160,7 +171,7 @@ export function MatchCard({
       </div>
 
       {probs && (
-        <div className="space-y-2 px-4 pb-3">
+        <div className="px-4 pb-4">
           <SegmentedBar
             probs={probs}
             home={f.home}
@@ -170,12 +181,6 @@ export function MatchCard({
               if (!expanded) onToggle()
             }}
           />
-          {!expanded && (
-            <div className="flex items-center justify-between gap-2">
-              <FormStrip form={getTeamForm(fixtures, f.home)} label={`${displayTeam(f.home)}: ${t('form')}`} />
-              <FormStrip form={getTeamForm(fixtures, f.away)} label={`${displayTeam(f.away)}: ${t('form')}`} />
-            </div>
-          )}
         </div>
       )}
 

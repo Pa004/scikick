@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { LanguageProvider } from '../../i18n'
-import { MatchCard } from './MatchCard'
+import { MatchCard, FormStrip } from './MatchCard'
 import { SegmentedBar } from './SegmentedBar'
 import { Dots10 } from '../fixtures/Dots10'
 import { TeamAvatar } from './TeamAvatar'
@@ -49,9 +49,11 @@ describe('MatchCard', () => {
 
   it('shows segmented 1X2 legend with percentages', () => {
     renderCard()
-    expect(screen.getByText('1 · 54%')).toBeDefined()
-    expect(screen.getByText('X · 27%')).toBeDefined()
-    expect(screen.getByText('2 · 19%')).toBeDefined()
+    const legend = screen.getAllByText((_c, el) => el?.tagName === 'LI' && (el?.textContent ?? '').startsWith('1 ·'))
+    expect(legend.length).toBeGreaterThan(0)
+    expect(legend[0].textContent).toContain('54%')
+    expect(screen.getByText((_c, el) => el?.tagName === 'STRONG' && el?.textContent === '27%')).toBeDefined()
+    expect(screen.getByText((_c, el) => el?.tagName === 'STRONG' && el?.textContent === '19%')).toBeDefined()
   })
 
   it('renders display names with diacritics', () => {
@@ -121,7 +123,7 @@ describe('MatchCard story', () => {
     prediction: null,
   }
 
-  it('shows form strips when collapsed', () => {
+  it('keeps collapsed cards clean without form strips', () => {
     render(
       <MemoryRouter>
         <LanguageProvider>
@@ -135,7 +137,7 @@ describe('MatchCard story', () => {
         </LanguageProvider>
       </MemoryRouter>,
     )
-    expect(screen.getByRole('img', { name: 'Liverpool: Form' })).toBeDefined()
+    expect(screen.queryByRole('img', { name: 'Liverpool: Form' })).toBeNull()
   })
 
   it('shows a back control when expanded', () => {
@@ -153,6 +155,21 @@ describe('MatchCard story', () => {
       </MemoryRouter>,
     )
     expect(screen.getByRole('button', { name: 'Back to matches' })).toBeDefined()
+  })
+})
+
+describe('FormStrip', () => {
+  it('renders letter pips with text labels, not color alone', () => {
+    render(<FormStrip form={['W', 'D', 'L']} label="Liverpool: Form" />)
+    expect(screen.getByRole('img', { name: 'Liverpool: Form' })).toBeDefined()
+    expect(screen.getByText('W')).toBeDefined()
+    expect(screen.getByText('D')).toBeDefined()
+    expect(screen.getByText('L')).toBeDefined()
+  })
+
+  it('renders nothing without form', () => {
+    const { container } = render(<FormStrip form={[]} label="None: Form" />)
+    expect(container.textContent).toBe('')
   })
 })
 
@@ -177,7 +194,7 @@ describe('SegmentedBar', () => {
     expect(buttons).toHaveLength(3)
     expect(buttons[0].className).toContain('bg-primary')
     expect(buttons[1].className).toContain('bg-surface-alt')
-    expect(buttons[2].className).toContain('bg-value')
+    expect(buttons[2].className).toContain('bg-danger')
     expect(container.querySelector('[role="presentation"]')).toBeNull()
   })
 })

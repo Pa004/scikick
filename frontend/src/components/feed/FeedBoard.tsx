@@ -289,10 +289,10 @@ export function FeedBoard({
               onSelect={expandPick}
             />
           )}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             {groups.map(g => (
               <section key={g.date} aria-label={formatHumanDate(g.date, locale)}>
-                <h3 className="mb-2 text-xs font-semibold tracking-[0.08em] text-faint uppercase">
+                <h3 className="mb-3 text-xs font-extrabold tracking-[0.08em] text-faint uppercase">
                   {formatHumanDate(g.date, locale)}
                 </h3>
                 <div className="flex flex-col gap-3">

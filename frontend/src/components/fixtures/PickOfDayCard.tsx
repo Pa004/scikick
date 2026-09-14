@@ -4,7 +4,6 @@ import { useLanguage } from '../../i18n'
 import { formatFrequency } from '../../utils/verdict'
 import { displayTeam } from '../../utils/teamNames'
 import type { DayPick } from '../../utils/matchCenter'
-import { Badge } from '../ui/badge'
 
 const DISMISS_KEY = 'scikick.pick-dismissed'
 const ANIMATED_KEY = 'scikick.pick-animated'
@@ -60,36 +59,39 @@ export function PickOfDayCard({ pick, leagueName, onSelect }: PickOfDayCardProps
   }
   return (
     <div
-      className={`${animate ? 'animate-rise ' : ''}mb-4 w-full rounded-xl border border-primary/30 bg-primary-soft p-4 shadow-md`}
+      className={`${animate ? 'animate-rise ' : ''}mb-[18px] w-full rounded-[14px] border border-border bg-surface p-4`}
     >
-      <div className="flex items-start gap-2">
-        <button
-          type="button"
-          onClick={() => onSelect(pick.fixtureId)}
-          aria-label={`${t('pickOfDay')}: ${homeLabel} vs ${awayLabel}, ${league}, ${label} ${(pick.prob * 100).toFixed(1)}%, ${freq}`}
-          className="min-w-0 flex-1 cursor-pointer rounded-md text-left"
-        >
-          <span className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-[0.08em] text-primary-ink uppercase">
+      <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-3 py-1.5 text-xs font-extrabold tracking-[0.08em] text-primary-ink uppercase">
             <Trophy aria-hidden="true" className="size-3.5" />
             {t('pickOfDay')}
-          </span>
-          <span className="block text-lg font-semibold text-foreground">
+          </p>
+          <p className="mt-2.5 text-[19px] leading-snug font-bold text-foreground sm:text-[22px]">
             {homeLabel} vs {awayLabel}
-            <span className="font-normal text-muted"> · {league}</span>
-          </span>
-          <Badge variant="accent" className="mt-2 max-w-full truncate">
-            {label} {(pick.prob * 100).toFixed(1)}% · {freq}
-          </Badge>
-        </button>
-        <button
-          type="button"
-          onClick={dismiss}
-          aria-label={t('dismissPick')}
-          title={t('dismissPick')}
-          className="flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
-        >
-          <X aria-hidden="true" className="size-5" />
-        </button>
+          </p>
+          <p className="mt-1 max-w-[65ch] text-[15px] text-muted">
+            {label} {(pick.prob * 100).toFixed(1)}% · {freq} · {league}
+          </p>
+          <div className="mt-2.5 flex flex-wrap gap-2.5">
+            <button
+              type="button"
+              onClick={() => onSelect(pick.fixtureId)}
+              aria-label={`${t('pickOfDay')}: ${homeLabel} vs ${awayLabel}, ${league}, ${label} ${(pick.prob * 100).toFixed(1)}%, ${freq}`}
+              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-transparent bg-primary px-[18px] text-[15px] font-bold text-primary-fg transition-[filter] duration-150 hover:brightness-110"
+            >
+              {t('seeWhy')}
+            </button>
+            <button
+              type="button"
+              onClick={dismiss}
+              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-border bg-transparent px-[18px] text-[15px] font-bold text-foreground transition-colors hover:bg-surface-hover"
+            >
+              {t('dismissPick')}
+              <X aria-hidden="true" className="size-5" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
