@@ -104,11 +104,10 @@ describe('header', () => {
     expect(await screen.findByRole('combobox')).toBeDefined()
   })
 
-  it('offers the three accents in the overflow menu', async () => {
+  it('shows no accent switch in the overflow menu', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    expect(screen.getByRole('radiogroup')).toBeDefined()
-    expect(screen.getAllByRole('menuitemradio')).toHaveLength(3)
+    expect(screen.queryByRole('radiogroup')).toBeNull()
   })
 
   it('toggles analyst mode from the overflow menu', async () => {

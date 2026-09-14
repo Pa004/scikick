@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react'
 
-export const ACCENTS = ['pino', 'tierra', 'iris'] as const
+// Single-accent identity (pine). The module stays so theme
+// application remains centralized if alternatives return.
+export const ACCENTS = ['pino'] as const
 export type Accent = (typeof ACCENTS)[number]
 
 export const DEFAULT_ACCENT: Accent = 'pino'
@@ -8,7 +10,7 @@ export const DEFAULT_ACCENT: Accent = 'pino'
 const STORAGE_KEY = 'scikick.accent'
 
 function isAccent(v: string | null): v is Accent {
-  return v === 'pino' || v === 'tierra' || v === 'iris'
+  return v === 'pino'
 }
 
 export function readStoredAccent(): Accent {

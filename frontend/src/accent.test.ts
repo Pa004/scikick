@@ -12,8 +12,8 @@ describe('accent', () => {
     expect(DEFAULT_ACCENT).toBe('pino')
   })
 
-  it('exposes the three accents', () => {
-    expect([...ACCENTS]).toEqual(['pino', 'tierra', 'iris'])
+  it('exposes pine as the single accent', () => {
+    expect([...ACCENTS]).toEqual(['pino'])
   })
 
   it('applies the accent to the document root', () => {
@@ -21,9 +21,9 @@ describe('accent', () => {
     expect(document.documentElement.dataset.accent).toBe('pino')
   })
 
-  it('reads back a stored accent and rejects unknown values', () => {
+  it('falls back to pine for any stored value', () => {
     localStorage.setItem('scikick.accent', 'iris')
-    expect(readStoredAccent()).toBe('iris')
+    expect(readStoredAccent()).toBe('pino')
     localStorage.setItem('scikick.accent', 'electric')
     expect(readStoredAccent()).toBe('pino')
   })
