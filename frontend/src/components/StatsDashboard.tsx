@@ -47,7 +47,7 @@ function TrustBlock({ stats, matchdayData, calibrationData }: Omit<StatsDashboar
             <span className="text-muted">Brier: </span>
             {reading ? (
               <>
-                <span className="font-semibold text-foreground tabular-nums">{brier?.toFixed(3)}</span>{' '}
+                <span className="font-mono font-semibold text-foreground tabular-nums">{brier?.toFixed(3)}</span>{' '}
                 <Badge variant={reading.variant}>{t(reading.key)}</Badge>
               </>
             ) : (
@@ -83,8 +83,10 @@ export default function StatsDashboard({ stats, matchdayData, calibrationData, s
   if (stats.cold_start) {
     return (
       <div>
-        <h2 className="mb-4 font-display text-lg font-semibold text-foreground">{t('stats')}</h2>
-        <p className="text-sm text-faint">{t('noStats')}</p>
+        <h2 className="mb-4 text-[26px] leading-tight font-bold text-foreground">{t('stats')}</h2>
+        <div className="rounded-[14px] border border-dashed border-border-strong bg-surface p-7">
+          <p className="text-[15px] text-muted">{t('noStats')}</p>
+        </div>
       </div>
     )
   }
@@ -181,9 +183,9 @@ function StatCard({ value, label, format }: { value: number; label: string; form
   const safe = Number.isFinite(value) ? value : null
   const animated = useCountUp(safe ?? 0)
   return (
-    <div className="animate-pop rounded-xl border border-border bg-surface px-2 py-4 text-center shadow-sm">
-      <div className="font-display text-2xl font-bold text-primary-strong tabular-nums">{safe === null ? '—' : format(animated)}</div>
-      <div className="mt-1 text-xs text-muted">{label}</div>
+    <div className="animate-pop rounded-[14px] border border-border bg-surface px-2 py-4 text-center">
+      <div className="font-mono text-[22px] font-bold text-primary-strong tabular-nums">{safe === null ? '—' : format(animated)}</div>
+      <div className="mt-1 text-[13px] text-muted">{label}</div>
     </div>
   )
 }
@@ -191,7 +193,7 @@ function StatCard({ value, label, format }: { value: number; label: string; form
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-6">
-      <h3 className="mb-2 text-xs font-semibold tracking-[0.08em] text-faint uppercase">{title}</h3>
+      <h3 className="mb-2 text-xs font-extrabold tracking-[0.08em] text-faint uppercase">{title}</h3>
       {children}
     </div>
   )

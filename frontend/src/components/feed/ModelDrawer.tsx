@@ -56,6 +56,15 @@ export function ModelDrawer({ league, open, onOpenChange }: {
         description={t('trustTitle')}
         closeLabel={t('close')}
       >
+        <div className="mb-4">
+          <h2 className="text-[26px] leading-tight font-bold text-foreground">{t('drawerHow')}</h2>
+          <p className="mt-2 max-w-[65ch] text-[15px] text-muted">{t('drawerB1')}</p>
+          <p className="mt-2 max-w-[65ch] text-[15px] text-muted">{t('drawerB2')}</p>
+          <p className="mt-3 inline-flex items-center gap-2 rounded-full border border-border bg-surface-alt px-3.5 py-2 text-sm font-bold text-foreground">
+            <span aria-hidden="true" className="size-2.5 rounded-full bg-primary" />
+            {t('drawerCalib')}
+          </p>
+        </div>
         {failed ? (
           <div role="alert" className="rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger-ink">
             <p className="mb-2">{t('matchError')}</p>
