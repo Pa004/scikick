@@ -162,7 +162,7 @@ describe('App feed', () => {
   it('opens the model drawer with calibration', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getAllByRole('button', { name: 'Model' })[0])
+    fireEvent.click(screen.getByRole('menuitem', { name: 'About the model' }))
     expect(await screen.findByText('Well calibrated. Predictions land close to actual outcomes.')).toBeDefined()
   })
 
@@ -290,7 +290,7 @@ describe('App feed', () => {
   it('closes the model drawer with Escape', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getAllByRole('button', { name: 'Model' })[0])
+    fireEvent.click(screen.getByRole('menuitem', { name: 'About the model' }))
     await screen.findByText('Calibration')
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByText('Calibration')).toBeNull()

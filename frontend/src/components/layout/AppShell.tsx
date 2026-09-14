@@ -84,15 +84,6 @@ export function AppShell({
                 {t(l.labelKey)}
               </NavLink>
             ))}
-            <button
-              type="button"
-              aria-haspopup="dialog"
-              onClick={onOpenModel}
-              title={t('aboutModel')}
-              className="border-b-2 border-transparent px-3 py-2 text-[15px] font-bold text-muted transition-colors hover:text-foreground"
-            >
-              {t('modelTrust')}
-            </button>
           </nav>
           <div className="ml-auto flex shrink-0 items-center gap-1">
             <button
@@ -142,7 +133,7 @@ export function AppShell({
           {t('disclaimer')}
         </footer>
       </div>
-      <BottomBar onOpenSearch={onOpenSearch} onOpenModel={onOpenModel} savedCount={savedCount} />
+      <BottomBar onOpenSearch={onOpenSearch} savedCount={savedCount} />
     </div>
   )
 }

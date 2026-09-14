@@ -1,18 +1,17 @@
-import { House, Star, Search, Gauge } from 'lucide-react'
+import { House, Star, Search } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router'
 import { useLanguage } from '../../i18n'
 import { cn } from '../../lib/cn'
 
 interface BottomBarProps {
   onOpenSearch: () => void
-  onOpenModel: () => void
   savedCount?: number
 }
 
 // Thumb-zone navigation for small screens: the mobile tabs row is
 // replaced by this floating bar. Tapping the active destination
 // scrolls back to top (self-evident refresh).
-export function BottomBar({ onOpenSearch, onOpenModel, savedCount = 0 }: BottomBarProps) {
+export function BottomBar({ onOpenSearch, savedCount = 0 }: BottomBarProps) {
   const { t } = useLanguage()
   const { pathname } = useLocation()
 
@@ -66,10 +65,6 @@ export function BottomBar({ onOpenSearch, onOpenModel, savedCount = 0 }: BottomB
         <button type="button" onClick={onOpenSearch} aria-label={t('searchCommand')} className={cn(item, 'text-faint')}>
           <Search aria-hidden="true" className="size-5" />
           {t('searchCommand').split(' ')[0]}
-        </button>
-        <button type="button" onClick={onOpenModel} aria-haspopup="dialog" className={cn(item, 'text-faint')}>
-          <Gauge aria-hidden="true" className="size-5" />
-          {t('modelTrust')}
         </button>
       </div>
     </nav>
