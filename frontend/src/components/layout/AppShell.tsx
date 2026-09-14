@@ -59,7 +59,7 @@ export function AppShell({
       <a href="#main-content" className="skip-link">
         {t('skipToContent')}
       </a>
-      <header className={cn('sticky top-0 z-40 bg-surface transition-shadow', scrolled && 'shadow-[0_1px_8px_oklch(20%_0.02_240_/_0.08)]')}>
+      <header className={cn('sticky top-0 z-40 bg-surface pt-3 transition-shadow', scrolled && 'shadow-[0_1px_8px_oklch(20%_0.02_240_/_0.08)]')}>
         <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center gap-3 px-4 lg:px-6">
           <BrandLockup />
           <nav aria-label={t('navMain')} className="ml-2 hidden items-center gap-1 min-[420px]:flex">
