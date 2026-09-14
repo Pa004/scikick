@@ -34,8 +34,11 @@ export function VerdictHero({ fixture, probableScore, probs }: VerdictHeroProps)
       : t('verdictWin').replace('{team}', v.teamLabel).replace('{n}', n)
 
   return (
-    <div className="mb-4">
-      <p className="font-display text-2xl font-bold tracking-tight text-balance text-foreground sm:text-3xl">
+    <div className="mb-4 rounded-xl border border-border bg-primary-soft px-4 py-4">
+      <p className="text-xs font-extrabold tracking-[0.08em] text-primary-ink uppercase">
+        {t('verdictKicker')}
+      </p>
+      <p className="mt-1.5 font-display text-[26px] leading-tight font-bold text-balance text-foreground sm:text-[30px]">
         {text}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-3">

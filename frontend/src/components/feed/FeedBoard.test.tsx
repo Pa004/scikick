@@ -52,10 +52,10 @@ describe('FeedBoard', () => {
   it('paginates with show more and announces counts', async () => {
     renderBoard(makeFixtures(25))
     expect(screen.getByText('Showing 20 of 25 matches')).toBeDefined()
-    expect(screen.queryByText(/Home25/)).toBeNull()
+    expect(screen.queryByRole('heading', { name: /Home25/ })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: /Show more/ }))
     expect(screen.getByText('Showing 25 of 25 matches')).toBeDefined()
-    expect(screen.getByText(/Home25/)).toBeDefined()
+    expect(screen.getByRole('heading', { name: /Home25/ })).toBeDefined()
   })
 
   it('expands a single story at a time', async () => {
@@ -81,9 +81,9 @@ describe('FeedBoard', () => {
   it('filters to followed teams only', () => {
     renderBoard(makeFixtures(3), ['Home2'])
     fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
-    expect(screen.queryByText(/Home1/)).toBeNull()
-    expect(screen.getByText(/Home2/)).toBeDefined()
-    expect(screen.queryByText(/Home3/)).toBeNull()
+    expect(screen.queryByRole('heading', { name: /Home1/ })).toBeNull()
+    expect(screen.getByRole('heading', { name: /Home2/ })).toBeDefined()
+    expect(screen.queryByRole('heading', { name: /Home3/ })).toBeNull()
   })
 
   it('shows empty state for unmatched search', () => {

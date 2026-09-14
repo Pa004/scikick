@@ -1,0 +1,73 @@
+/* ── Theme · Pino (OpenDesign fase 1) ──────────────────────────
+   Papel claro + verde pino oklch(48% 0.115 170); oscuro verde profundo.
+   W/D/L: win = accent, draw = gris, loss = terracota oklch(52% 0.12 25).
+   +EV usa accent (píldora neutra en OD); value replica pine profundo.
+   Ratios medidos con scripts/audit-contrast.mjs (soporta oklch). */
+
+:root[data-accent='pino'] {
+  color-scheme: light;
+
+  --background: oklch(98% 0.004 240);
+  --surface: oklch(100% 0 0);
+  --surface-alt: oklch(96.5% 0.005 240);
+  --surface-hover: oklch(94% 0.006 240);
+  --border: oklch(88% 0.008 240);
+  --border-strong: oklch(72% 0.012 240);
+  --foreground: oklch(20% 0.02 240);
+  --muted: oklch(45% 0.018 240);
+  --faint: oklch(50% 0.012 240);
+
+  --primary: oklch(48% 0.115 170);
+  --primary-fg: oklch(100% 0 0);
+  --primary-strong: oklch(42% 0.11 170);
+  --primary-ink: oklch(30% 0.08 170);
+  --primary-soft: oklch(94% 0.03 170);
+  --primary-ring: oklch(42% 0.11 170);
+
+  --success: oklch(48% 0.115 170);
+  --success-ink: oklch(30% 0.08 170);
+  --success-soft: oklch(94% 0.03 170);
+  --danger: oklch(52% 0.12 25);
+  --danger-ink: oklch(32% 0.08 25);
+  --danger-soft: oklch(95% 0.03 25);
+  --value: oklch(42% 0.11 170);
+  --value-ink: oklch(30% 0.08 170);
+  --value-soft: oklch(94% 0.03 170);
+
+  --glow-1: oklch(48% 0.115 170 / 0.07);
+  --glow-2: oklch(42% 0.11 170 / 0.05);
+}
+
+:root.dark[data-accent='pino'] {
+  color-scheme: dark;
+
+  --background: oklch(22% 0.012 160);
+  --surface: oklch(27% 0.014 160);
+  --surface-alt: oklch(25% 0.012 160);
+  --surface-hover: oklch(32% 0.016 160);
+  --border: oklch(36% 0.014 160);
+  --border-strong: oklch(48% 0.016 160);
+  --foreground: oklch(93% 0.008 160);
+  --muted: oklch(76% 0.015 160);
+  --faint: oklch(68% 0.014 160);
+
+  --primary: oklch(78% 0.12 170);
+  --primary-fg: oklch(20% 0.02 160);
+  --primary-strong: oklch(78% 0.12 170);
+  --primary-ink: oklch(88% 0.05 170);
+  --primary-soft: oklch(32% 0.05 170);
+  --primary-ring: oklch(78% 0.12 170);
+
+  --success: oklch(78% 0.12 170);
+  --success-ink: oklch(86% 0.06 170);
+  --success-soft: oklch(32% 0.05 170);
+  --danger: oklch(72% 0.11 25);
+  --danger-ink: oklch(86% 0.06 25);
+  --danger-soft: oklch(30% 0.05 25);
+  --value: oklch(70% 0.11 170);
+  --value-ink: oklch(86% 0.06 170);
+  --value-soft: oklch(32% 0.05 170);
+
+  --glow-1: oklch(78% 0.12 170 / 0.1);
+  --glow-2: oklch(78% 0.12 170 / 0.05);
+}

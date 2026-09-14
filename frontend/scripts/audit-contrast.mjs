@@ -26,23 +26,47 @@ const PAIRS = [
   ['--danger-ink', '--danger-soft', TEXT_MIN, 'danger text on tint'],
   ['--value', '--surface', TEXT_MIN, 'value text on card'],
   ['--value-ink', '--value-soft', TEXT_MIN, 'value text on tint'],
-  // Bar fills as UI graphics (3:1). Adjacent home-vs-away is NOT gated:
-  // it fails 3:1 by design in every palette; the visible gap + 1X2
-  // legend + aria-labels compensate (documented, not waived silently).
+  // Bar fills as UI graphics (3:1). Away uses danger (loss). Adjacent
+  // home-vs-away is NOT gated: it fails 3:1 by design in every palette;
+  // the visible gap + 1X2 legend + aria-labels compensate (documented,
+  // not waived silently).
   ['--primary', '--surface', UI_MIN, 'home fill on card (UI)'],
-  ['--value', '--surface', UI_MIN, 'away fill on card (UI)'],
+  ['--danger', '--surface', UI_MIN, 'away fill on card (UI)'],
   ['--primary-ring', '--background', UI_MIN, 'focus ring on app bg'],
   ['--primary-ring', '--surface', UI_MIN, 'focus ring on card'],
   ['--border-strong', '--surface', 1.5, 'strong border visible (decorative)'],
 ]
 
-function luminance(hex) {
-  const c = hex.replace('#', '')
+function luminance(color) {
+  if (color.startsWith('oklch')) return luminanceOklch(color)
+  const c = color.replace('#', '')
   const v = [0, 2, 4].map(i => {
     const s = parseInt(c.slice(i, i + 2), 16) / 255
     return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
   })
   return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]
+}
+
+// OKLCH (L as % or 0..1, C, H deg) -> linear sRGB -> relative luminance.
+function luminanceOklch(color) {
+  const m = color.match(/oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)\s*\)/)
+  if (!m) throw new Error(`bad oklch: ${color}`)
+  const L = m[2] ? parseFloat(m[1]) / 100 : parseFloat(m[1])
+  const C = parseFloat(m[3])
+  const H = (parseFloat(m[4]) * Math.PI) / 180
+  const a = C * Math.cos(H)
+  const b = C * Math.sin(H)
+  const l_ = L + 0.3963377774 * a + 0.2158037573 * b
+  const m_ = L - 0.1055613458 * a - 0.0638541728 * b
+  const s_ = L - 0.0894841775 * a - 1.2914855480 * b
+  const l = l_ ** 3
+  const mm = m_ ** 3
+  const s = s_ ** 3
+  const clamp01 = v => Math.min(1, Math.max(0, v))
+  const r = clamp01(4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * s)
+  const g = clamp01(-1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * s)
+  const bb = clamp01(-0.0041960863 * l - 0.7034186147 * mm + 1.7076147010 * s)
+  return 0.2126 * r + 0.7152 * g + 0.0722 * bb
 }
 
 function ratio(a, b) {
@@ -56,7 +80,7 @@ function parseTheme(css) {
   const blocks = css.match(/:root(?:\.dark)?\[data-accent='[^']+'\]\s*\{[^}]*\}/g) ?? []
   for (const b of blocks) {
     const mode = b.startsWith(':root.dark') ? 'dark' : 'light'
-    for (const m of b.matchAll(/(--[\w-]+):\s*(#[0-9a-fA-F]{6})/g)) {
+    for (const m of b.matchAll(/(--[\w-]+):\s*(#[0-9a-fA-F]{6}|oklch\([^)]*\))/g)) {
       out[mode][m[1]] = m[2]
     }
   }
