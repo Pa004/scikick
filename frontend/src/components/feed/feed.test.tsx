@@ -49,7 +49,11 @@ describe('MatchCard', () => {
 
   it('shows mono 1X2 line when collapsed and legend when expanded', () => {
     const { unmount } = renderCard(false)
-    expect(screen.getAllByText((_c, el) => el?.tagName === 'P' && (el?.textContent ?? '').includes('54 · 27 · 19')).length).toBeGreaterThan(0)
+    const collapsed = screen.getAllByText((_c, el) => el?.tagName === 'P' && (el?.textContent ?? '').includes('54%'))
+    expect(collapsed.length).toBeGreaterThan(0)
+    expect(screen.getByText(/sums to 100|suman 100/)).toBeDefined()
+    // collapsed has compact bar without legend
+    expect(screen.queryAllByText((_c, el) => el?.tagName === 'LI' && (el?.textContent ?? '').startsWith('1 ·')).length).toBe(0)
     unmount()
     renderCard(true)
     const legend = screen.getAllByText((_c, el) => el?.tagName === 'LI' && (el?.textContent ?? '').startsWith('1 ·'))
@@ -80,7 +84,10 @@ describe('MatchCard', () => {
       </MemoryRouter>,
     )
     expect(screen.getByRole('heading', { name: /Alavés vs Español/ })).toBeDefined()
-    expect(screen.getAllByText((_c, el) => el?.tagName === 'P' && (el?.textContent ?? '').includes('40 · 30 · 30')).length).toBeGreaterThan(0)
+    const mono = screen.getAllByText((_c, el) => el?.tagName === 'P' && (el?.textContent ?? '').includes('40%'))
+    expect(mono.length).toBeGreaterThan(0)
+    expect(screen.getByText(/Alavés 40%/)).toBeDefined()
+    expect(screen.getByText(/Español 30%/)).toBeDefined()
   })
 
   it('toggles follow with accessible name', () => {    const onToggleFollow = vi.fn()

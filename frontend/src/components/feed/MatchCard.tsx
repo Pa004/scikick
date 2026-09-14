@@ -207,12 +207,22 @@ export function MatchCard({
                 ? t('verdictDraw').replace('{n}', String(v.frequency))
                 : t('verdictWin').replace('{team}', v.teamLabel).replace('{n}', String(v.frequency))
               : null
+            const homePct = Math.round(probs.home * 100)
+            const drawPct = Math.round(probs.draw * 100)
+            const awayPct = Math.round(probs.away * 100)
             return (
               <>
                 {verdictText && <p className="text-[15px] font-semibold leading-snug text-foreground">{verdictText}</p>}
-                <p className="mt-2 font-mono text-[13px] leading-relaxed text-muted tabular-nums">
-                  {Math.round(probs.home * 100)} · {Math.round(probs.draw * 100)} · {Math.round(probs.away * 100)}
-                  <span className="ml-2 text-xs font-normal text-faint">1 · X · 2 — 1 local · X empate · 2 visita</span>
+                <div className="mt-2">
+                  <SegmentedBar compact probs={probs} home={f.home} away={f.away} onSelect={onToggle} />
+                </div>
+                <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                  <span className="font-mono tabular-nums">{displayTeam(f.home)} {homePct}%</span>
+                  <span className="mx-1.5 text-faint">·</span>
+                  <span className="font-mono tabular-nums">{t('draw')} {drawPct}%</span>
+                  <span className="mx-1.5 text-faint">·</span>
+                  <span className="font-mono tabular-nums">{displayTeam(f.away)} {awayPct}%</span>
+                  <span className="ml-2 text-xs font-normal text-faint">{locale === 'es' ? '· suman 100' : '· sums to 100'}</span>
                 </p>
               </>
             )
