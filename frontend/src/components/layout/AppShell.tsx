@@ -48,8 +48,8 @@ export function AppShell({
       <a href="#main-content" className="skip-link">
         {t('skipToContent')}
       </a>
-      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
+      <header className="sticky top-0 z-40 border-b border-border bg-surface">
+        <div className="mx-auto flex h-16 w-full max-w-[1180px] items-center gap-3 px-4">
           <BrandLockup />
           <nav aria-label={t('navMain')} className="ml-2 hidden items-center gap-1 min-[420px]:flex">
             {NAV.map(l => (
@@ -59,10 +59,10 @@ export function AppShell({
                 end={l.end}
                 className={({ isActive }) =>
                   cn(
-                    'rounded-lg px-3 py-2 text-sm font-semibold transition-colors',
+                    'border-b-2 px-3 py-2 text-[15px] font-bold transition-colors',
                     isActive
-                      ? 'bg-primary-soft text-primary-ink'
-                      : 'text-muted hover:bg-surface-hover hover:text-foreground',
+                      ? 'border-accent text-foreground'
+                      : 'border-transparent text-muted hover:text-foreground',
                   )
                 }
               >
@@ -74,7 +74,7 @@ export function AppShell({
               aria-haspopup="dialog"
               onClick={onOpenModel}
               title={t('aboutModel')}
-              className="rounded-lg px-3 py-2 text-sm font-semibold text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+              className="border-b-2 border-transparent px-3 py-2 text-[15px] font-bold text-muted transition-colors hover:text-foreground"
             >
               {t('modelTrust')}
             </button>
@@ -85,7 +85,7 @@ export function AppShell({
               onClick={onOpenSearch}
               aria-label={searchLabel}
               title={`${searchLabel} (Ctrl+K)`}
-              className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-md pr-2 pl-2 text-muted transition-colors hover:bg-surface-hover hover:text-foreground sm:pr-2.5"
+              className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-[10px] pr-2 pl-2 text-muted transition-colors hover:bg-surface-hover hover:text-foreground sm:pr-2.5"
             >
               <Search aria-hidden="true" className="size-5" />
               <kbd aria-hidden="true" className="hidden rounded border border-border bg-surface-alt px-1.5 py-0.5 font-mono text-xs font-semibold text-faint lg:inline">
@@ -96,8 +96,8 @@ export function AppShell({
             <OverflowMenu analyst={analyst} onAnalystChange={onAnalystChange} onOpenModel={onOpenModel} />
           </div>
         </div>
-        <div className="border-t border-border/60">
-          <div className="mx-auto flex h-12 w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
+        <div className="border-t border-border bg-surface">
+          <div className="mx-auto flex h-12 w-full max-w-[1180px] items-center gap-3 px-4">
             <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_92%,transparent)]">
               <LeagueSwitcher league={league} onChange={onLeagueChange} compact />
             </div>
@@ -106,7 +106,7 @@ export function AppShell({
         </div>
       </header>
       {actions}
-      <div className="mx-auto w-full max-w-6xl px-4 pt-6 pb-28 sm:px-6 md:pb-6">
+      <div className="mx-auto w-full max-w-[1180px] px-4 pt-5 pb-28 md:pb-10">
         {children}
         <footer className="mt-10 border-t border-border pt-4 pb-2 text-xs text-faint">
           {t('disclaimer')}

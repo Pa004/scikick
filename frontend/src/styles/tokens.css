@@ -3,39 +3,39 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ── SciKick design tokens ────────────────────────────────────
-   Fallback pre-paint (tierra). La verdad vive en styles/themes/.
+   Fallback pre-paint (pino). La verdad vive en styles/themes/.
    Regla: texto sobre tints usa ink (step 12), fills claros llevan
    tinta oscura. Todo medido en scripts/audit-contrast.mjs. */
 
 :root {
   color-scheme: light;
 
-  --background: #faf8f5;
-  --surface: #ffffff;
-  --surface-alt: #f1e9e1;
-  --surface-hover: #e9dccf;
-  --border: #e0d2c4;
-  --border-strong: #c9b3a1;
-  --foreground: #2a1f1a;
-  --muted: #5e4f47;
-  --faint: #6e6058;
+  --background: oklch(98% 0.004 240);
+  --surface: oklch(100% 0 0);
+  --surface-alt: oklch(96.5% 0.005 240);
+  --surface-hover: oklch(94% 0.006 240);
+  --border: oklch(88% 0.008 240);
+  --border-strong: oklch(72% 0.012 240);
+  --foreground: oklch(20% 0.02 240);
+  --muted: oklch(45% 0.018 240);
+  --faint: oklch(50% 0.012 240);
 
-  --primary: #b94a2b;
-  --primary-fg: #ffffff;
-  --primary-strong: #8a3e27;
-  --primary-ink: #4e2415;
-  --primary-soft: #f9e9e0;
-  --primary-ring: #8a3e27;
+  --primary: oklch(48% 0.115 170);
+  --primary-fg: oklch(100% 0 0);
+  --primary-strong: oklch(42% 0.11 170);
+  --primary-ink: oklch(30% 0.08 170);
+  --primary-soft: oklch(94% 0.03 170);
+  --primary-ring: oklch(42% 0.11 170);
 
-  --success: #35704f;
-  --success-ink: #234a33;
-  --success-soft: #e2eee5;
-  --danger: #9d2c3a;
-  --danger-ink: #5e1e27;
-  --danger-soft: #f9e5e8;
-  --value: #256a6a;
-  --value-ink: #173e3e;
-  --value-soft: #dff0f0;
+  --success: oklch(48% 0.115 170);
+  --success-ink: oklch(30% 0.08 170);
+  --success-soft: oklch(94% 0.03 170);
+  --danger: oklch(52% 0.12 25);
+  --danger-ink: oklch(32% 0.08 25);
+  --danger-soft: oklch(95% 0.03 25);
+  --value: oklch(44% 0.13 175);
+  --value-ink: oklch(28% 0.09 175);
+  --value-soft: oklch(92% 0.035 175);
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -50,8 +50,8 @@
   --font-body: 'Geist Variable', system-ui, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, monospace;
 
-  --glow-1: rgb(185 74 43 / 0.06);
-  --glow-2: rgb(138 62 39 / 0.04);
+  --glow-1: oklch(48% 0.115 170 / 0.07);
+  --glow-2: oklch(44% 0.13 175 / 0.05);
 
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
@@ -60,39 +60,39 @@
 .dark {
   color-scheme: dark;
 
-  --background: #101414;
-  --surface: #1a2221;
-  --surface-alt: #22302d;
-  --surface-hover: #2a3a36;
-  --border: #33403b;
-  --border-strong: #4a5a53;
-  --foreground: #ece9e2;
-  --muted: #bfae9f;
-  --faint: #a08e7e;
+  --background: oklch(22% 0.012 160);
+  --surface: oklch(27% 0.014 160);
+  --surface-alt: oklch(25% 0.012 160);
+  --surface-hover: oklch(32% 0.016 160);
+  --border: oklch(36% 0.014 160);
+  --border-strong: oklch(48% 0.016 160);
+  --foreground: oklch(93% 0.008 160);
+  --muted: oklch(76% 0.015 160);
+  --faint: oklch(68% 0.014 160);
 
-  --primary: #e07a4f;
-  --primary-fg: #1a120c;
-  --primary-strong: #e5b294;
-  --primary-ink: #f6ddcc;
-  --primary-soft: #3a2620;
-  --primary-ring: #e07a4f;
+  --primary: oklch(78% 0.12 170);
+  --primary-fg: oklch(20% 0.02 160);
+  --primary-strong: oklch(78% 0.12 170);
+  --primary-ink: oklch(88% 0.05 170);
+  --primary-soft: oklch(32% 0.05 170);
+  --primary-ring: oklch(78% 0.12 170);
 
-  --success: #8ac39e;
-  --success-ink: #c2e5cc;
-  --success-soft: #18291e;
-  --danger: #e58a96;
-  --danger-ink: #f3c2c9;
-  --danger-soft: #351a1f;
-  --value: #7fc2c2;
-  --value-ink: #bfe3e3;
-  --value-soft: #143031;
+  --success: oklch(78% 0.12 170);
+  --success-ink: oklch(86% 0.06 170);
+  --success-soft: oklch(32% 0.05 170);
+  --danger: oklch(72% 0.11 25);
+  --danger-ink: oklch(86% 0.06 25);
+  --danger-soft: oklch(30% 0.05 25);
+  --value: oklch(72% 0.13 175);
+  --value-ink: oklch(88% 0.05 175);
+  --value-soft: oklch(30% 0.06 175);
 
   --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
   --shadow-md: 0 4px 16px rgb(0 0 0 / 0.5);
   --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.6);
 
-  --glow-1: rgb(224 122 79 / 0.08);
-  --glow-2: rgb(229 178 148 / 0.04);
+  --glow-1: oklch(78% 0.12 170 / 0.1);
+  --glow-2: oklch(72% 0.13 175 / 0.05);
 }
 
 @theme inline {
