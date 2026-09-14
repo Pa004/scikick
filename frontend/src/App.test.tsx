@@ -173,7 +173,7 @@ describe('App feed', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Follow match' })[1])
     fireEvent.click(screen.getAllByRole('link', { name: 'Followed' })[0])
     expect(await screen.findByRole('heading', { name: 'Followed' })).toBeDefined()
-    expect(await screen.findByText(/Liverpool vs Man City/)).toBeDefined()
+    expect(await screen.findByRole('heading', { name: /Liverpool vs Man City/ })).toBeDefined()
     // Feed no longer has a duplicate followed filter button
     expect(screen.queryByRole('button', { name: /^Followed$/ })).toBeNull()
   })

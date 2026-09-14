@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, ChevronDown, Star } from 'lucide-react'
+import { ArrowLeft, Star } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
 import { extract1x2, asOutcomeProbs, type FormOutcome } from '../../utils/matchCenter'
@@ -132,17 +132,25 @@ export function MatchCard({
               </span>
             )}
           </span>
-          <h2 id={`match-title-${f.id}`} className="mt-1.5 flex min-w-0 items-center gap-3 text-[17px] leading-snug font-bold text-foreground">
-            <TeamAvatar team={f.home} crest={f.home_crest} />
-            <span className="min-w-0 flex-1 truncate" title={`${displayTeam(f.home)} vs ${displayTeam(f.away)}`}>
-              {displayTeam(f.home)} vs {displayTeam(f.away)}
-              {f.home_score !== null && (
-                <span className="ml-2 font-mono text-[15px] font-medium text-muted tabular-nums">
-                  {f.home_score} - {f.away_score}
-                </span>
-              )}
+          <h2 id={`match-title-${f.id}`} className="mt-1.5 flex min-w-0 flex-wrap items-center gap-2 text-[17px] leading-snug font-bold text-foreground">
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <TeamAvatar team={f.home} crest={f.home_crest} />
+              <span className="min-w-0 truncate" title={displayTeam(f.home)}>
+                {displayTeam(f.home)}
+              </span>
             </span>
-            <TeamAvatar team={f.away} crest={f.away_crest} />
+            <span>vs</span>
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <span className="min-w-0 truncate" title={displayTeam(f.away)}>
+                {displayTeam(f.away)}
+              </span>
+              <TeamAvatar team={f.away} crest={f.away_crest} />
+            </span>
+            {f.home_score !== null && (
+              <span className="ml-1 font-mono text-[15px] font-medium text-muted tabular-nums">
+                {f.home_score} - {f.away_score}
+              </span>
+            )}
           </h2>
           <span className="mt-2 flex flex-wrap items-center gap-2">
             {f.prediction != null && (
@@ -157,7 +165,7 @@ export function MatchCard({
             )}
           </span>
         </button>
-        <div className="flex shrink-0 items-center" role="group" aria-label={t('myMatches')}>
+        <div className="ml-2 flex shrink-0 items-center pl-2" role="group" aria-label={t('myMatches')}>
           {(() => {
             const isFollowed = followed.includes(f.home) || followed.includes(f.away)
             const label = isFollowed ? t('unfollowMatch') : t('followMatch')
@@ -187,11 +195,6 @@ export function MatchCard({
             )
           })()}
         </div>
-        <span aria-hidden="true" className="flex min-h-11 min-w-8 items-center justify-center text-faint">
-          <ChevronDown
-            className={cn('size-5 transition-transform duration-200', expanded && 'rotate-180')}
-          />
-        </span>
       </div>
 
       {probs && !expanded && (
