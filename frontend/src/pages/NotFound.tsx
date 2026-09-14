@@ -6,11 +6,11 @@ export function NotFound() {
   const { t } = useLanguage()
   return (
     <main id="main-content">
-      <div className="rounded-xl border border-border bg-surface p-6 text-center shadow-sm">
-        <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
+      <div className="rounded-[14px] border border-border bg-surface p-7 text-center">
+        <h2 className="text-[30px] leading-tight font-bold text-balance text-foreground">
           {t('notFoundTitle')}
         </h2>
-        <p className="mx-auto mt-2 mb-4 max-w-md text-sm text-muted">{t('notFoundText')}</p>
+        <p className="mx-auto mt-2 mb-4 max-w-[65ch] text-[15px] text-muted">{t('notFoundText')}</p>
         <Button type="button" variant="primary" asChild>
           <Link to="/">{t('backToFeed')}</Link>
         </Button>

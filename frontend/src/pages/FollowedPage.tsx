@@ -70,9 +70,10 @@ export function FollowedPage() {
     <main id="main-content">
       <h2 className="mb-3 font-display text-lg font-semibold text-foreground">{t('myMatches')}</h2>
       {followed.length === 0 ? (
-        <div className="rounded-xl border border-border bg-surface p-4 text-sm text-muted shadow-sm">
-          <p className="mb-3">{t('noFollowed')}</p>
-          <Button type="button" variant="secondary" asChild>
+        <div className="rounded-[14px] border border-dashed border-border-strong bg-surface p-7">
+          <h3 className="text-[19px] font-bold text-foreground">{t('noFollowedTitle')}</h3>
+          <p className="mt-1.5 mb-4 max-w-[65ch] text-[15px] text-muted">{t('noFollowed')}</p>
+          <Button type="button" variant="primary" asChild>
             <Link to="/">{t('backToFeed')}</Link>
           </Button>
         </div>

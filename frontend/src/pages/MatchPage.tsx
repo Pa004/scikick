@@ -100,6 +100,21 @@ export function MatchPage() {
   return (
     <main id="main-content" className="mx-auto w-full max-w-6xl lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-6">
       <div className="min-w-0">
+        <nav aria-label={t('matchContext')} className="sticky top-28 z-30 mb-3 flex gap-1 overflow-x-auto rounded-full border border-border bg-background/90 p-1 backdrop-blur">
+          {[
+            { href: `#story-${meta.id}-verdict`, label: t('sectionOverview') },
+            { href: `#story-${meta.id}-markets`, label: t('sectionMarkets') },
+            { href: `#story-${meta.id}-scorers`, label: t('sectionScorers') },
+          ].map(l => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="min-h-9 flex-none rounded-full px-4 py-2 text-sm font-semibold text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+            >
+              {l.label}
+            </a>
+          ))}
+        </nav>
         <MatchCard
           fixture={meta}
           expanded

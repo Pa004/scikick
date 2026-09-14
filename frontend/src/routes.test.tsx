@@ -60,6 +60,29 @@ describe('routes', () => {
     expect(screen.queryByText(/Liverpool vs Arsenal/)).toBeNull()
   })
 
+  it('shows team form as letter pips', async () => {
+    renderAt(['/equipo/Arsenal'])
+    await screen.findByText('Upcoming')
+    expect(screen.getByRole('img', { name: 'Arsenal: Form' })).toBeDefined()
+    expect(screen.getByText('W')).toBeDefined()
+  })
+
+  it('shows match subnav anchors on the match page', async () => {
+    renderAt(['/partido/1'])
+    await screen.findByText(/Arsenal win/)
+    const nav = screen.getByRole('navigation', { name: 'Match context' })
+    expect(nav).toBeDefined()
+    expect(nav.querySelector('a[href="#story-1-verdict"]')).not.toBeNull()
+    expect(nav.querySelector('a[href="#story-1-markets"]')).not.toBeNull()
+    expect(nav.querySelector('a[href="#story-1-scorers"]')).not.toBeNull()
+  })
+
+  it('shows an actionable empty state on followed', async () => {
+    renderAt(['/seguidos'])
+    expect(await screen.findByText('Follow teams to pin them here')).toBeDefined()
+    expect(screen.getByRole('link', { name: 'Back to matches' })).toBeDefined()
+  })
+
   it('opens team pages from match center links', async () => {
     renderAt(['/partido/1'])
     const teamLink = await screen.findByRole('link', { name: 'Arsenal' })
