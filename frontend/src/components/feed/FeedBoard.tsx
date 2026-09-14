@@ -247,12 +247,16 @@ export function FeedBoard({
   return (
     <div>
       {groups.length > 1 && (
-        <div className="mb-4 flex justify-end">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <span className="text-xs text-faint">
+            {groups.length} {locale === 'es' ? 'fechas' : 'dates'}
+          </span>
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
+            size="sm"
             onClick={allExpanded ? collapseAll : expandAll}
-            className="text-xs"
+            className="h-7 min-h-0 px-2 text-xs"
           >
             {allExpanded ? (locale === 'es' ? 'Colapsar todo' : 'Collapse all') : (locale === 'es' ? 'Expandir todo' : 'Expand all')}
           </Button>

@@ -32,7 +32,7 @@ export function FeedPage({
 
   return (
     <main id="main-content">
-      <h2 className="mb-3 font-display text-lg font-semibold text-foreground">
+      <h2 className="mb-2 font-display text-lg font-semibold text-foreground">
         {t('fixtures')}
       </h2>
       {error ? (
