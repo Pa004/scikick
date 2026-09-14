@@ -3,6 +3,8 @@ import { ArrowLeft, ChevronDown, Star } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
 import { extract1x2, asOutcomeProbs, type FormOutcome } from '../../utils/matchCenter'
+import { fixtureVerdict } from '../fixtures/fixtureUtils'
+import { getVerdict, formatFrequency } from '../../utils/verdict'
 import { formatHumanDate } from '../fixtures/fixtureUtils'
 import { useFixtureDetail } from '../../hooks/useFixtureDetail'
 import { SegmentedBar } from './SegmentedBar'
@@ -170,7 +172,33 @@ export function MatchCard({
         </span>
       </div>
 
-      {probs && (
+      {probs && !expanded && (
+        <div className="px-4 pb-3">
+          {(() => {
+            const embedded = fixtureVerdict(f)
+            const v = embedded ?? (() => {
+              const fresh = getVerdict(f.home, f.away, probs)
+              return { outcome: fresh.outcome, teamLabel: displayTeam(fresh.teamLabel), frequency: formatFrequency(fresh.prob) }
+            })()
+            const verdictText = v
+              ? v.outcome === 'draw'
+                ? t('verdictDraw').replace('{n}', String(v.frequency))
+                : t('verdictWin').replace('{team}', v.teamLabel).replace('{n}', String(v.frequency))
+              : null
+            return (
+              <>
+                {verdictText && <p className="text-[15px] font-semibold text-foreground">{verdictText}</p>}
+                <p className="mt-1 font-mono text-[13px] text-muted tabular-nums">
+                  {Math.round(probs.home * 100)} · {Math.round(probs.draw * 100)} · {Math.round(probs.away * 100)}
+                  <span className="ml-2 text-xs font-normal text-faint">1 · X · 2 — 1 local · X empate · 2 visita</span>
+                </p>
+              </>
+            )
+          })()}
+        </div>
+      )}
+
+      {probs && expanded && (
         <div className="px-4 pb-4">
           <SegmentedBar
             probs={probs}

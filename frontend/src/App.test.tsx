@@ -195,7 +195,7 @@ describe('App feed', () => {
   it('routes legacy deep links to the match page', async () => {
     renderApp(['/?partido=1'])
     expect(await screen.findByText(/Arsenal win/)).toBeDefined()
-    expect(screen.getByText('Match Center')).toBeDefined()
+    expect(await screen.findByText('Match Center')).toBeDefined()
   })
 
   it('shows a miss notice for unknown match routes', async () => {
@@ -235,8 +235,10 @@ describe('App feed', () => {
     fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
     await screen.findByText(/Arsenal win/)
     expect(window.location.search).toContain('partido=1')
+    // Expanded content like Match Center is only in expanded
+    expect(await screen.findByText('Match Center')).toBeDefined()
     fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
-    expect(screen.queryByText(/Arsenal win 6 in 10/)).toBeNull()
+    expect(screen.queryByText('Match Center')).toBeNull()
     expect(window.location.search).toBe('')
   })
 
@@ -276,9 +278,11 @@ describe('App feed', () => {
   it('opens the story on the 1x2 market from a bar segment', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByLabelText('1 · Arsenal: 60.0%'))
+    // Variant A: bar only in expanded, first expand via card
+    fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
     await screen.findByText(/Arsenal win/)
-    expect(screen.getAllByText('Full-time result').length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByLabelText('1 · Arsenal: 60.0%'))
+    expect((await screen.findAllByText('Full-time result')).length).toBeGreaterThan(0)
   })
 
   it('closes the model drawer with Escape', async () => {
