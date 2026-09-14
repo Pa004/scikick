@@ -30,6 +30,7 @@ function App() {
   const { followed, toggle } = useFollowedTeams()
 
   const leagueRequestId = useRef(0)
+  const [leagueCounts, setLeagueCounts] = useState<Record<string, number> | undefined>(undefined)
 
   // Fixtures depend on league only: market and drawer data never
   // collapse the feed into skeletons.
@@ -53,6 +54,27 @@ function App() {
         setError(true)
       })
   }, [league, attempt])
+
+  // League pill counts (live totals) — best-effort, cached per session.
+  useEffect(() => {
+    let active = true
+    fetchFixtures('all', 100)
+      .then(all => {
+        if (!active) return
+        const counts: Record<string, number> = { '': all.length }
+        for (const l of LEAGUES) {
+          if (l.code === '') continue
+          counts[l.code] = all.filter(f => f.league === l.code).length
+        }
+        setLeagueCounts(counts)
+      })
+      .catch(() => {
+        // Counts are decorative; feed still works without them
+      })
+    return () => {
+      active = false
+    }
+  }, [fetchedAt, attempt])
 
   const handleLeagueChange = (value: string) => {
     setLeague(value)
@@ -94,6 +116,8 @@ function App() {
       searchLabel={t('searchCommand')}
       statusCount={fixtures.length}
       statusUpdatedAt={fetchedAt}
+      leagueCounts={leagueCounts}
+      savedCount={followed.length}
       actions={
         <>
           <ModelDrawer league={league} open={modelOpen} onOpenChange={setModelOpen} />

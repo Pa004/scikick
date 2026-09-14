@@ -6,12 +6,13 @@ import { cn } from '../../lib/cn'
 interface BottomBarProps {
   onOpenSearch: () => void
   onOpenModel: () => void
+  savedCount?: number
 }
 
 // Thumb-zone navigation for small screens: the mobile tabs row is
 // replaced by this floating bar. Tapping the active destination
 // scrolls back to top (self-evident refresh).
-export function BottomBar({ onOpenSearch, onOpenModel }: BottomBarProps) {
+export function BottomBar({ onOpenSearch, onOpenModel, savedCount = 0 }: BottomBarProps) {
   const { t } = useLanguage()
   const { pathname } = useLocation()
 
@@ -51,11 +52,16 @@ export function BottomBar({ onOpenSearch, onOpenModel }: BottomBarProps) {
             if (pathname === '/seguidos') scrollTop()
           }}
           className={({ isActive }) =>
-            cn(item, isActive ? 'text-primary-strong' : 'text-faint')
+            cn(item, isActive ? 'text-primary-strong' : 'text-faint', 'relative')
           }
         >
           <Star aria-hidden="true" className="size-5" />
           {t('myMatches')}
+          {savedCount > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-4 rounded-full bg-primary px-1 py-0.5 text-center font-mono text-[10px] font-bold leading-none text-primary-fg">
+              {savedCount}
+            </span>
+          )}
         </NavLink>
         <button type="button" onClick={onOpenSearch} aria-label={t('searchCommand')} className={cn(item, 'text-faint')}>
           <Search aria-hidden="true" className="size-5" />

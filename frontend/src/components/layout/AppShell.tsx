@@ -20,6 +20,8 @@ interface AppShellProps {
   searchLabel: string
   statusCount: number
   statusUpdatedAt: number | null
+  leagueCounts?: Record<string, number>
+  savedCount?: number
   actions?: ReactNode
   children: ReactNode
 }
@@ -39,6 +41,8 @@ export function AppShell({
   searchLabel,
   statusCount,
   statusUpdatedAt,
+  leagueCounts,
+  savedCount,
   actions,
   children,
 }: AppShellProps) {
@@ -99,7 +103,7 @@ export function AppShell({
         <div className="border-t border-border bg-surface">
           <div className="mx-auto flex h-12 w-full max-w-[1180px] items-center gap-3 px-4">
             <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_92%,transparent)]">
-              <LeagueSwitcher league={league} onChange={onLeagueChange} compact />
+              <LeagueSwitcher league={league} onChange={onLeagueChange} compact counts={leagueCounts} />
             </div>
             <StatusCluster count={statusCount} updatedAt={statusUpdatedAt} />
           </div>
@@ -112,7 +116,7 @@ export function AppShell({
           {t('disclaimer')}
         </footer>
       </div>
-      <BottomBar onOpenSearch={onOpenSearch} onOpenModel={onOpenModel} />
+      <BottomBar onOpenSearch={onOpenSearch} onOpenModel={onOpenModel} savedCount={savedCount} />
     </div>
   )
 }

@@ -144,7 +144,7 @@ describe('App feed', () => {
   it('switches league via switcher', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('button', { name: 'La Liga' }))
+    fireEvent.click(screen.getByRole('button', { name: /La Liga/ }))
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(expect.stringContaining('league=SP1'))
   })
 
