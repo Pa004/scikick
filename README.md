@@ -7,20 +7,20 @@ SciKick is an **analytical instrument, not a betting tool**. It answers "who win
 ![Backend CI](https://github.com/Pa004/scikick/actions/workflows/ci-backend.yml/badge.svg)
 ![Frontend CI](https://github.com/Pa004/scikick/actions/workflows/ci-frontend.yml/badge.svg)
 
-![SciKick fixtures feed](docs/screenshots/fixtures.png)
+![SciKick preview feed](docs/screenshots/accents/port-f1-light.png)
 
 ## What it does
 
 - **Every upcoming match, 5 leagues**: Premier League, La Liga, Bundesliga, Serie A, Ligue 1 — from today through end of season, nearest first, paginated 20 at a time.
-- **One story per match**: each fixture is a card that expands inline — verdict first ("Liverpool win 5 in 10" with a 10-dot visual), then the evidence. One expanded at a time, so the page never sprawls.
+- **One story per match**: each fixture is a card — verdict first ("Arsenal wins 7 in 10" with a 10-dot visual), then the evidence. Inline expansion on mobile, routed `/partido/:id` page with sticky subnav on desktop, scroll position restored on return.
 - **Verdicts in plain language**: human dates ("Today", "12 Sep"), frequency framing ("6 in 10"), no codes unless analyst mode is on.
-- **Team-specific probabilities**: per-team Dixon-Coles strengths (not league averages) with shrinkage for promoted teams with no history; a 3-segment 1X2 bar summarizes every card at a glance.
+- **Team-specific probabilities**: per-team Dixon-Coles strengths (not league averages) with shrinkage for promoted teams with no history; a 1X2 bar (home pine, draw tinted, away terracotta) with text legend summarizes every card at a glance.
 - **Value check**: stored bookmaker odds auto-flag +EV cards (top predicted) — or paste your own odds for expected value and quarter-Kelly stake per outcome.
 - **Follow your teams**: star any club, filter to Followed only. Persisted locally, no account.
 - **Goalscorer in-story**: anytime probabilities from Understat xG90 with a minutes-projected XI when lineups are unconfirmed (labeled as such).
 - **Match center**: real form (last 5), head-to-head record, and momentum from played matches.
 - **Model drawer**: calibration, Brier by matchday and accuracy tables live outside the story flow.
-- **Shareable stories**: `?partido=<id>` deep-links auto-expand any match, no router needed.
+- **Shareable stories**: `/partido/<id>` routes (legacy `?partido=<id>` still resolves), no full reload.
 - **Crests**: club badges from football-data.org with initial avatars as fallback.
 
 ## How it works
@@ -36,25 +36,27 @@ The Odds API ───────▶ bookmaker odds ───┘         xG    
 - **Models** (`app/models/`): per-team Dixon-Coles strengths persisted per run (`dc_teams`), shrinkage prior (`k=8` games) for teams without history, LightGBM ensemble, isotonic calibration. Walkforward Brier (Sep 2026 retrain): E0 0.596, SP1 0.527, D1 0.470, I1 0.626, F1 0.603 — small test sets (27–37 matches), judge trends over cycles.
 - **Scorer** (`app/players/`): Understat xG90 with position shrinkage and a dynamic minutes gate that scales early season; top-11-by-minutes projected XI when unconfirmed.
 - **API** (`app/api/`): FastAPI + SQLite. `GET /fixtures` (`league=all|E0|…`, upcoming first, crests included), `GET /predict/{id}`, `POST /value` (manual or stored odds), `GET /context` (form + H2H + crests), `GET /predict/scorer/{id}`, stats + calibration, `POST /refresh` and `POST /resolve` (token auth). The client composes one cached bundle per story (predict required, scorer/context/value degrade gracefully).
-- **UI** (`frontend/`): React + TypeScript, EN/ES, dual light/dark theme, design-token system (Tailwind v4) with Radix primitives — real tables, single-open accordions, focus-trapped drawer, chart data tables, 44px touch targets, reduced-motion support. Runtime deps: React, Recharts, Radix, lucide-react. `VITE_API_URL` points at any backend.
+- **UI** (`frontend/`): React + TypeScript, EN/ES, dual light/dark pine theme in OKLCH with Radix primitives — real tables, focus management, chart data tables, 44px touch targets, reduced-motion support. Every color pair is measured by `frontend/scripts/audit-contrast.mjs` (WCAG AA 4.5:1 text, 3:1 UI). Runtime deps: React, Recharts, Radix, lucide-react. `VITE_API_URL` points at any backend.
 
 ## The interface
 
-![Story feed with verdicts, 1X2 bars and value badges](docs/screenshots/fixtures.png)
+![Feed with verdict blocks, 1X2 legend and value badges](docs/screenshots/accents/port-f1-light.png)
 
-![Expanded match story in English](docs/screenshots/dashboard.png)
+![Feed in dark mode](docs/screenshots/accents/port-f1-dark.png)
 
-![Goalscorer section inside the story](docs/screenshots/goalscorer.png)
+![Match page with sticky subnav and context aside](docs/screenshots/accents/port-match.png)
 
-![Expanded match story in Spanish](docs/screenshots/dashboard-es.png)
+![Team page with form pips](docs/screenshots/accents/f2-team.png)
 
-![Model drawer with calibration](docs/screenshots/model-drawer.png)
+![Followed empty state](docs/screenshots/accents/f2-followed.png)
+
+![Model drawer with explainer and calibration](docs/screenshots/accents/f3-drawer.png)
 
 ## Engineering highlights
 
 - **Reproducible runs**: every train persists params, per-team strengths, metrics (`data/runs/<league>/`); the loader serves the newest by mtime; tests never pollute it (`persist_run=False`).
 - **Honest failures**: adapters log quota/plan blocks, endpoints explain causes (no silent `[]`), refresh reports per-season validation; stories show skeleton → content, error → retry.
-- **Tested**: 47 backend test files / 304 tests (pytest) + 120 frontend tests across 19 files (vitest) as of Sep 2026; `oxlint` + `vite build` green on every PR via split CI workflows.
+- **Tested**: 47 backend test files / 304 tests (pytest) + 165 frontend tests across 25 files (vitest) as of Sep 2026; `oxlint` + `vite build` green on every PR via split CI workflows.
 - **CPU-only, free-tier**: SQLite, no GPU, all data sources free. Full monthly ops in `docs/retrain.md`.
 
 ## Quality metrics
@@ -62,7 +64,7 @@ The Odds API ───────▶ bookmaker odds ───┘         xG    
 | Area | Status (Sep 2026) |
 |---|---|
 | Backend tests | 304 tests / 47 files, pytest, CI green |
-| Frontend tests | 120 tests / 19 files, vitest, CI green |
+| Frontend tests | 165 tests / 25 files, vitest, CI green |
 | Lint / build | `oxlint` clean, `vite build` OK |
 | Model Brier | E0 0.596 · SP1 0.527 · D1 0.470 · I1 0.626 · F1 0.603 (see `docs/retrain.md`) |
 

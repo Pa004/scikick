@@ -18,9 +18,9 @@ const FALLBACK: ChartTheme = {
   tooltipBg: '#ffffff',
   tooltipBorder: '#d9e0ec',
   tooltipText: '#0d1526',
-  accent: '#8a3e27',
-  accentDot: '#8a3e27',
-  reference: '#9d2c3a',
+  accent: '#0e6b3e',
+  accentDot: '#0e6b3e',
+  reference: '#b0573a',
 }
 
 function readVar(name: string, fallback: string): string {
