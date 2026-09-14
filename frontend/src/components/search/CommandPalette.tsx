@@ -274,7 +274,7 @@ function CommandRow({
       onClick={onSelect}
       onMouseMove={onHover}
       className={cn(
-        'flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-left transition-colors',
+        'flex min-h-12 w-full cursor-pointer items-center gap-3 rounded-[10px] px-3 text-left transition-colors',
         active ? 'bg-primary-soft' : 'bg-transparent',
       )}
     >

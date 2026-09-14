@@ -28,7 +28,7 @@ export function Th({
     <th
       scope="col"
       className={cn(
-        'border-b border-border px-3 py-2 font-medium text-muted',
+        'border-b border-border px-3 py-2 text-xs font-extrabold tracking-[0.08em] text-muted uppercase',
         align === 'left' && 'text-left',
         align === 'center' && 'text-center',
         align === 'right' && 'text-right',
