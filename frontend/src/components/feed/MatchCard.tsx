@@ -217,27 +217,33 @@ export function MatchCard({
           )}
           {detail.data && (
             <>
-              <VerdictHero
-                fixture={f}
-                probableScore={detail.data.prediction.probable_score}
-                probs={asOutcomeProbs(detail.data.prediction.probabilities['1x2'])}
-              />
-              <PredictionPanel
-                prediction={detail.data.prediction}
-                selectedMarket={market}
-                onMarketChange={setMarket}
-                home={f.home}
-                away={f.away}
-                fixtures={fixtures}
-                analyst={analyst}
-                bare
-                initialValue={detail.data.value}
-              />
-              {detail.data.scorer ? (
-                <ScorerPanel key={detail.data.scorer.fixture_id} scorer={detail.data.scorer} />
-              ) : (
-                <p className="mt-4 text-sm text-faint">{t('noScorerData')}</p>
-              )}
+              <div id={`${storyId}-verdict`} className="scroll-mt-40">
+                <VerdictHero
+                  fixture={f}
+                  probableScore={detail.data.prediction.probable_score}
+                  probs={asOutcomeProbs(detail.data.prediction.probabilities['1x2'])}
+                />
+              </div>
+              <div id={`${storyId}-markets`} className="scroll-mt-40">
+                <PredictionPanel
+                  prediction={detail.data.prediction}
+                  selectedMarket={market}
+                  onMarketChange={setMarket}
+                  home={f.home}
+                  away={f.away}
+                  fixtures={fixtures}
+                  analyst={analyst}
+                  bare
+                  initialValue={detail.data.value}
+                />
+              </div>
+              <div id={`${storyId}-scorers`} className="scroll-mt-40">
+                {detail.data.scorer ? (
+                  <ScorerPanel key={detail.data.scorer.fixture_id} scorer={detail.data.scorer} />
+                ) : (
+                  <p className="mt-4 text-sm text-faint">{t('noScorerData')}</p>
+                )}
+              </div>
             </>
           )}
         </div>

@@ -8,19 +8,12 @@ import { displayTeam } from '../utils/teamNames'
 import { useAnalystMode } from '../hooks/useAnalystMode'
 import { useFollowedTeams } from '../hooks/useFollowedTeams'
 import { LEAGUES } from '../components/layout/LeagueSwitcher'
-import { MatchCard } from '../components/feed/MatchCard'
+import { MatchCard, FormStrip } from '../components/feed/MatchCard'
 import { TeamAvatar } from '../components/feed/TeamAvatar'
-import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Skeleton } from '../components/ui/skeleton'
 import { getCachedValue } from '../api/detail'
-
-function recordLine(form: TeamContext['form']): string {
-  const w = form.filter(f => f.result === 'W').length
-  const d = form.filter(f => f.result === 'D').length
-  const l = form.filter(f => f.result === 'L').length
-  return `${w} - ${d} - ${l}`
-}
+import type { FormOutcome } from '../utils/matchCenter'
 
 export function TeamPage() {
   const { t } = useLanguage()
@@ -104,16 +97,20 @@ export function TeamPage() {
 
   return (
     <main id="main-content">
-      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm">
+      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-[14px] border border-border bg-surface p-4">
         <TeamAvatar team={team} crest={crest} className="size-12 text-sm" />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-display text-2xl font-bold tracking-tight text-foreground" title={displayTeam(team)}>
+          <h2 className="truncate text-[26px] leading-tight font-bold text-foreground" title={displayTeam(team)}>
             {displayTeam(team)}
           </h2>
           {form.length > 0 && (
-            <p className="mt-1 text-sm text-muted tabular-nums">
-              {t('form')} · {t('last5')}: {recordLine(form)}
-            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <FormStrip
+                form={form.map(f => f.result) as FormOutcome[]}
+                label={`${displayTeam(team)}: ${t('form')}`}
+              />
+              <span className="text-[13px] text-faint">{t('last5')}</span>
+            </div>
           )}
         </div>
         <Button
@@ -127,7 +124,7 @@ export function TeamPage() {
         </Button>
       </div>
 
-      <h3 className="mb-3 font-display text-lg font-semibold text-foreground">{t('upcoming')}</h3>
+      <h3 className="mb-3 text-xl font-bold text-foreground">{t('upcoming')}</h3>
       {upcoming.length === 0 ? (
         <p className="text-sm text-faint">{t('noUpcoming')}</p>
       ) : (
@@ -149,13 +146,6 @@ export function TeamPage() {
               />
             )
           })}
-        </div>
-      )}
-      {form.length > 0 && (
-        <div className="mt-4">
-          <Badge variant="neutral">
-            {t('form')} {recordLine(form)} · {t('last5')}
-          </Badge>
         </div>
       )}
     </main>
