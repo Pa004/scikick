@@ -60,7 +60,7 @@ export function AppShell({
         {t('skipToContent')}
       </a>
       <header className={cn('sticky top-0 z-40 bg-surface transition-shadow', scrolled && 'shadow-[0_1px_8px_oklch(20%_0.02_240_/_0.08)]')}>
-        <div className="mx-auto flex h-16 w-full max-w-[1180px] items-center gap-3 px-4">
+        <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center gap-3 px-4 lg:px-6">
           <BrandLockup />
           <nav aria-label={t('navMain')} className="ml-2 hidden items-center gap-1 min-[420px]:flex">
             {NAV.map(l => (
@@ -108,7 +108,7 @@ export function AppShell({
           </div>
         </div>
         <div className="bg-surface">
-          <div className="mx-auto flex h-12 w-full max-w-[1180px] items-center gap-3 px-4">
+          <div className="mx-auto flex h-12 w-full max-w-[1440px] items-center gap-3 px-4 lg:px-6">
             <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_92%,transparent)]">
               <LeagueSwitcher league={league} onChange={onLeagueChange} compact counts={leagueCounts} />
             </div>
@@ -117,7 +117,7 @@ export function AppShell({
         </div>
       </header>
       {actions}
-      <div className="mx-auto w-full max-w-[1180px] px-4 pt-4 pb-28 md:pb-10">
+      <div className="mx-auto w-full max-w-[1440px] px-4 pt-4 pb-28 md:pb-10 lg:px-6">
         {children}
         <footer className="mt-10 pt-4 pb-2 text-xs text-faint">
           {t('disclaimer')}
