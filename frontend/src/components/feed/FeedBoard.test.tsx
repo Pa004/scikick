@@ -82,18 +82,26 @@ describe('FeedBoard', () => {
     expect(screen.queryByText(/Home1 win 6 in 10/)).toBeNull()
   })
 
-  it('filters to followed teams only', () => {
-    renderBoard(makeFixtures(3), ['Home2'])
-    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
-    expect(screen.queryByRole('heading', { name: /Home1/ })).toBeNull()
-    expect(screen.getByRole('heading', { name: /Home2/ })).toBeDefined()
-    expect(screen.queryByRole('heading', { name: /Home3/ })).toBeNull()
+  it('filters to value matches only', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/value/')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ fixture_id: 2, btts: { fixtures: [] }, scorer: { fixtures: [] }, value: { outcomes: { home: { value: true } } } }),
+        })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    }))
+    renderBoard(makeFixtures(3))
+    fireEvent.click(screen.getByRole('button', { name: 'Value' }))
+    // Without prefetched values the filter shows the empty value state
+    expect(screen.getByText('No value found in the loaded matches yet.')).toBeDefined()
   })
 
-  it('shows empty state for unmatched search', () => {
+  it('shows empty state when no fixtures match filter', () => {
     renderBoard(makeFixtures(2))
-    fireEvent.change(screen.getByLabelText(/Search team or league/), { target: { value: 'zzz' } })
-    expect(screen.getByText('No matches for this search.')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Value' }))
+    expect(screen.getByText('No value found in the loaded matches yet.')).toBeDefined()
   })
 
   it('groups cards under date headings', () => {
@@ -111,8 +119,8 @@ describe('FeedBoard', () => {
     renderBoard(makeFixtures(25))
     fireEvent.click(screen.getByRole('button', { name: 'Página 2 de 3' }))
     expect(screen.getByText('Showing 13-24 of 25')).toBeDefined()
-    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Value' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Value' }))
     expect(screen.getByText('Showing 1-12 of 25')).toBeDefined()
   })
 
@@ -139,7 +147,7 @@ describe('FeedBoard', () => {
   })
 
   it('restores saved scroll state once on mount', () => {
-    sessionStorage.setItem('scikick.feed-state', JSON.stringify({ y: 500, page: 2, query: '' }))
+    sessionStorage.setItem('scikick.feed-state', JSON.stringify({ y: 500, page: 2 }))
     const scrollTo = vi.fn()
     vi.stubGlobal('scrollTo', scrollTo)
     renderBoard(makeFixtures(50))

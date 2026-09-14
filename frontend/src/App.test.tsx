@@ -130,15 +130,14 @@ describe('App feed', () => {
     expect(screen.getAllByText(/Liverpool/).length).toBeGreaterThan(0)
   })
 
-  it('filters cards via search and shows empty state', async () => {
+  it('shows a single global search in the header, not a duplicate in the feed', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    const search = screen.getByRole('searchbox')
-    fireEvent.change(search, { target: { value: 'Liverpool' } })
-    expect(screen.queryByText(/Arsenal/)).toBeNull()
-    expect(screen.getAllByText(/Liverpool/).length).toBeGreaterThan(0)
-    fireEvent.change(search, { target: { value: 'zzz' } })
-    expect(screen.getByText('No matches for this search.')).toBeDefined()
+    expect(screen.queryByRole('searchbox')).toBeNull()
+    const searchButtons = screen.getAllByRole('button', { name: 'Search team or league' })
+    expect(searchButtons.length).toBeGreaterThan(0)
+    // Feed no longer has its own inline search input
+    expect(screen.queryByPlaceholderText('Buscar equipo o liga...')).toBeNull()
   })
 
   it('switches league via switcher', async () => {
@@ -167,13 +166,16 @@ describe('App feed', () => {
     expect(await screen.findByText('Well calibrated. Predictions land close to actual outcomes.')).toBeDefined()
   })
 
-  it('follows teams and filters to followed only', async () => {
+  it('follows teams and shows them on the followed page without duplicate filter', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getAllByRole('button', { name: 'Follow match' })[0])
-    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
-    expect(screen.queryByText(/Liverpool/)).toBeNull()
-    expect(screen.getAllByText(/Arsenal/).length).toBeGreaterThan(0)
+    // Second card is Liverpool (pre), which is not filtered out on /seguidos (status !== post)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Follow match' })[1])
+    fireEvent.click(screen.getAllByRole('link', { name: 'Followed' })[0])
+    expect(await screen.findByRole('heading', { name: 'Followed' })).toBeDefined()
+    expect(await screen.findByText(/Liverpool vs Man City/)).toBeDefined()
+    // Feed no longer has a duplicate followed filter button
+    expect(screen.queryByRole('button', { name: /^Followed$/ })).toBeNull()
   })
 
   it('shows retry when fixtures fail to load', async () => {

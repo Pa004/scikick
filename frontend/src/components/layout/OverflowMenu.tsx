@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { MoreHorizontal } from 'lucide-react'
 import { useLanguage, type Locale } from '../../i18n'
-import { useTheme } from '../../theme/theme-context'
 import { Menu, MenuCheckboxItem, MenuContent, MenuItem, MenuLabel, MenuSeparator, MenuTrigger } from '../ui/dropdown'
 
 interface OverflowMenuProps {
@@ -17,7 +16,6 @@ const LOCALES: { value: Locale; label: string; name: string }[] = [
 
 export function OverflowMenu({ analyst, onAnalystChange, onOpenModel }: OverflowMenuProps) {
   const { t, locale, setLocale } = useLanguage()
-  const { theme, toggle } = useTheme()
   const [open, setOpen] = useState(false)
 
   return (
@@ -49,9 +47,6 @@ export function OverflowMenu({ analyst, onAnalystChange, onOpenModel }: Overflow
         <MenuCheckboxItem checked={analyst} onCheckedChange={onAnalystChange}>
           {t('analystSwitch')}
         </MenuCheckboxItem>
-        <MenuItem onSelect={toggle}>
-          {theme === 'dark' ? t('themeSwitchToLight') : t('themeSwitchToDark')}
-        </MenuItem>
         <MenuSeparator />
         <MenuItem onSelect={onOpenModel}>{t('aboutModel')}</MenuItem>
       </MenuContent>

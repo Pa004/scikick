@@ -1,16 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Search, X } from 'lucide-react'
 import type { Fixture } from '../../types'
-import { useLanguage, fillVars } from '../../i18n'
+import { useLanguage } from '../../i18n'
 import { getCachedValue, prefetchValues } from '../../api/detail'
-import { matchesQuery, formatHumanDate } from '../fixtures/fixtureUtils'
+import { formatHumanDate } from '../fixtures/fixtureUtils'
 import { parseDeepLinkId, syncDeepLink } from '../../lib/deeplink'
 import { selectPickOfDay } from '../../utils/matchCenter'
 import { MatchCard } from './MatchCard'
 import { PickOfDayCard } from '../fixtures/PickOfDayCard'
 import { Button } from '../ui/button'
-import { Input } from '../ui/input'
 import { SegmentedButton, SegmentedGroup } from '../ui/segmented'
 import { Skeleton } from '../ui/skeleton'
 
@@ -23,18 +21,17 @@ const DESKTOP_QUERY = '(min-width: 1024px)'
 interface SavedFeedState {
   y: number
   page: number
-  query: string
 }
 
 function readSavedState(): SavedFeedState | null {
   try {
     const raw = sessionStorage.getItem(SCROLL_KEY)
     if (!raw) return null
-    const parsed = JSON.parse(raw) as Partial<SavedFeedState> & { visibleCount?: number }
+    const parsed = JSON.parse(raw) as Partial<SavedFeedState> & { visibleCount?: number; query?: string }
     if (typeof parsed.y !== 'number') return null
     // Backward compat: visibleCount → page
     const page = typeof parsed.page === 'number' ? parsed.page : typeof parsed.visibleCount === 'number' ? Math.max(1, Math.ceil(parsed.visibleCount / PAGE_SIZE)) : 1
-    return { y: parsed.y, page, query: typeof parsed.query === 'string' ? parsed.query : '' }
+    return { y: parsed.y, page }
   } catch {
     return null
   }
@@ -91,8 +88,6 @@ export function FeedBoard({
   onDeepLink,
 }: FeedBoardProps) {
   const { t, locale } = useLanguage()
-  const [query, setQuery] = useState('')
-  const [showFollowed, setShowFollowed] = useState(false)
   const [showValue, setShowValue] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [expandedId, setExpandedId] = useState<number | null>(null)
@@ -100,11 +95,10 @@ export function FeedBoard({
   const [deepLinkMiss, setDeepLinkMiss] = useState(false)
   const [searchParams] = useSearchParams()
 
-  // Back from /partido/:id restores search and page once.
+  // Back from /partido/:id restores page once.
   useEffect(() => {
     const saved = readSavedState()
     if (!saved) return
-    setQuery(saved.query)
     setCurrentPage(Math.max(1, saved.page))
     try {
       sessionStorage.removeItem(SCROLL_KEY)
@@ -124,12 +118,10 @@ export function FeedBoard({
 
   const filtered = useMemo(() => {
     return fixtures.filter(f => {
-      if (!matchesQuery(f, query)) return false
-      if (showFollowed && !followed.includes(f.home) && !followed.includes(f.away)) return false
       if (showValue && hasStoredValue(f.id) !== true) return false
       return true
     })
-  }, [fixtures, query, showFollowed, showValue, followed, valuesReady])
+  }, [fixtures, showValue, valuesReady])
 
   const pick = useMemo(() => selectPickOfDay(filtered), [filtered])
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
@@ -197,7 +189,7 @@ export function FeedBoard({
   const saveStateAndGo = (id: number) => {
     if (!onDeepLink) return false
     try {
-      const state: SavedFeedState = { y: window.scrollY, page: currentPage, query }
+      const state: SavedFeedState = { y: window.scrollY, page: currentPage }
       sessionStorage.setItem(SCROLL_KEY, JSON.stringify(state))
     } catch {
       // Private mode: navigation still works, restore is skipped
@@ -226,37 +218,8 @@ export function FeedBoard({
 
   return (
     <div>
-      <div role="search" className="mb-3 flex gap-2">
-        <div className="relative flex-1">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-faint"
-          />
-          <Input
-            type="search"
-            value={query}
-            onChange={e => {
-              setQuery(e.target.value)
-              setCurrentPage(1)
-            }}
-            placeholder={t('searchFixtures')}
-            aria-label={t('searchFixtures')}
-            className="pl-9"
-          />
-        </div>
-        {query && (
-          <Button type="button" variant="secondary" onClick={() => setQuery('')}>
-            <X aria-hidden="true" />
-            {t('clearSearch')}
-          </Button>
-        )}
-      </div>
-
       <div className="mb-4 flex flex-wrap gap-2">
         <SegmentedGroup label={t('fixtures')}>
-          <SegmentedButton active={showFollowed} onClick={() => { setShowFollowed(v => !v); setCurrentPage(1) }}>
-            {t('myMatches')}
-          </SegmentedButton>
           <SegmentedButton active={showValue} onClick={() => { setShowValue(v => !v); setCurrentPage(1) }}>
             {t('valueOnly')}
           </SegmentedButton>
@@ -288,17 +251,11 @@ export function FeedBoard({
         </div>
       ) : filtered.length === 0 ? (
         <p role="status" className="text-sm text-faint">
-          {query.trim()
-            ? t('noSearchResults')
-            : showFollowed
-              ? t('noFollowed')
-              : showValue
-                ? t('noValueMatches')
-                : t('noFixtures')}
+          {showValue ? t('noValueMatches') : t('noFixtures')}
         </p>
       ) : (
         <>
-          {!showFollowed && !showValue && query.trim() === '' && (
+          {!showValue && (
             <PickOfDayCard
               pick={pick}
               leagueName={leagueName}
