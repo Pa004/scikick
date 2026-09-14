@@ -22,6 +22,8 @@ interface AppShellProps {
   statusUpdatedAt: number | null
   leagueCounts?: Record<string, number>
   savedCount?: number
+  showValue?: boolean
+  onShowValueChange?: (v: boolean) => void
   actions?: ReactNode
   children: ReactNode
 }
@@ -43,6 +45,8 @@ export function AppShell({
   statusUpdatedAt,
   leagueCounts,
   savedCount,
+  showValue,
+  onShowValueChange,
   actions,
   children,
 }: AppShellProps) {
@@ -112,7 +116,22 @@ export function AppShell({
             <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_92%,transparent)]">
               <LeagueSwitcher league={league} onChange={onLeagueChange} compact counts={leagueCounts} />
             </div>
-            <StatusCluster count={statusCount} updatedAt={statusUpdatedAt} />
+            <div className="flex shrink-0 items-center gap-2">
+              {onShowValueChange !== undefined && showValue !== undefined && (
+                <button
+                  type="button"
+                  aria-pressed={showValue}
+                  onClick={() => onShowValueChange(!showValue)}
+                  className={cn(
+                    'inline-flex min-h-9 shrink-0 cursor-pointer items-center rounded-full border px-3 text-xs font-bold whitespace-nowrap transition-colors',
+                    showValue ? 'border-primary/20 bg-primary-soft text-primary-ink' : 'border-border bg-surface text-muted hover:bg-surface-hover hover:text-foreground',
+                  )}
+                >
+                  {t('valueOnly')}
+                </button>
+              )}
+              <StatusCluster count={statusCount} updatedAt={statusUpdatedAt} />
+            </div>
           </div>
         </div>
       </header>

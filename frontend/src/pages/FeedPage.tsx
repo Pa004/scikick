@@ -13,6 +13,7 @@ interface FeedPageProps {
   followed: string[]
   onToggleFollow: (team: string) => void
   analyst: boolean
+  showValue: boolean
 }
 
 export function FeedPage({
@@ -24,6 +25,7 @@ export function FeedPage({
   followed,
   onToggleFollow,
   analyst,
+  showValue,
 }: FeedPageProps) {
   const { t } = useLanguage()
   const navigate = useNavigate()
@@ -52,6 +54,7 @@ export function FeedPage({
           onToggleFollow={onToggleFollow}
           analyst={analyst}
           fixturesForContext={fixtures}
+          showValue={showValue}
           onDeepLink={id => navigate(`/partido/${id}`, { replace: true })}
         />
       )}

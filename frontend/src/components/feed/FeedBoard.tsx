@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { ChevronDown } from 'lucide-react'
 import type { Fixture } from '../../types'
@@ -10,7 +10,6 @@ import { selectPickOfDay } from '../../utils/matchCenter'
 import { MatchCard } from './MatchCard'
 import { PickOfDayCard } from '../fixtures/PickOfDayCard'
 import { Button } from '../ui/button'
-import { SegmentedButton, SegmentedGroup } from '../ui/segmented'
 import { Skeleton } from '../ui/skeleton'
 import { cn } from '../../lib/cn'
 
@@ -75,6 +74,7 @@ interface FeedBoardProps {
   onToggleFollow: (team: string) => void
   analyst: boolean
   fixturesForContext: Fixture[]
+  showValue: boolean
   // When provided (routed feed), deep links navigate instead of expanding inline.
   onDeepLink?: (id: number) => void
 }
@@ -87,10 +87,10 @@ export function FeedBoard({
   onToggleFollow,
   analyst,
   fixturesForContext,
+  showValue,
   onDeepLink,
 }: FeedBoardProps) {
   const { t, locale } = useLanguage()
-  const [showValue, setShowValue] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [valuesReady, setValuesReady] = useState(false)
@@ -132,6 +132,13 @@ export function FeedBoard({
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages)
   }, [currentPage, totalPages])
+  const prevShowValue = useRef(showValue)
+  useEffect(() => {
+    if (prevShowValue.current !== showValue) {
+      prevShowValue.current = showValue
+      setCurrentPage(1)
+    }
+  }, [showValue])
   const visible = useMemo(() => {
     const start = (currentPage - 1) * PAGE_SIZE
     return filtered.slice(start, start + PAGE_SIZE)
@@ -239,23 +246,18 @@ export function FeedBoard({
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <SegmentedGroup label={t('fixtures')}>
-          <SegmentedButton active={showValue} onClick={() => { setShowValue(v => !v); setCurrentPage(1) }}>
-            {t('valueOnly')}
-          </SegmentedButton>
-        </SegmentedGroup>
-        {groups.length > 1 && (
+      {groups.length > 1 && (
+        <div className="mb-4 flex justify-end">
           <Button
             type="button"
             variant="secondary"
             onClick={allExpanded ? collapseAll : expandAll}
-            className="ml-auto text-xs"
+            className="text-xs"
           >
             {allExpanded ? (locale === 'es' ? 'Colapsar todo' : 'Collapse all') : (locale === 'es' ? 'Expandir todo' : 'Expand all')}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {deepLinkMiss && (
         <div role="alert" className="animate-fade mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary-soft px-4 py-3 text-sm text-primary-ink">

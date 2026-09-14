@@ -20,7 +20,7 @@ function makeFixtures(n: number): Fixture[] {
   }))
 }
 
-function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: string[] = ['/'], onDeepLink?: (id: number) => void) {
+function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: string[] = ['/'], onDeepLink?: (id: number) => void, showValue = false) {
   return render(
     <MemoryRouter initialEntries={entries}>
       <LanguageProvider>
@@ -32,6 +32,7 @@ function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: stri
         onToggleFollow={vi.fn()}
         analyst={false}
         fixturesForContext={fixtures}
+        showValue={showValue}
         onDeepLink={onDeepLink}
       />
       </LanguageProvider>
@@ -92,15 +93,13 @@ describe('FeedBoard', () => {
       }
       return Promise.resolve({ ok: false, status: 404 })
     }))
-    renderBoard(makeFixtures(3))
-    fireEvent.click(screen.getByRole('button', { name: 'Value' }))
+    renderBoard(makeFixtures(3), [], ['/'], undefined, true)
     // Without prefetched values the filter shows the empty value state
     expect(screen.getByText('No value found in the loaded matches yet.')).toBeDefined()
   })
 
   it('shows empty state when no fixtures match filter', () => {
-    renderBoard(makeFixtures(2))
-    fireEvent.click(screen.getByRole('button', { name: 'Value' }))
+    renderBoard(makeFixtures(2), [], ['/'], undefined, true)
     expect(screen.getByText('No value found in the loaded matches yet.')).toBeDefined()
   })
 
@@ -116,11 +115,42 @@ describe('FeedBoard', () => {
   })
 
   it('resets pagination when toggling filters', () => {
-    renderBoard(makeFixtures(25))
+    const { rerender } = renderBoard(makeFixtures(25))
     fireEvent.click(screen.getByRole('button', { name: 'Página 2 de 3' }))
     expect(screen.getByText('Showing 13-24 of 25')).toBeDefined()
-    fireEvent.click(screen.getByRole('button', { name: 'Value' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Value' }))
+    rerender(
+      <MemoryRouter initialEntries={['/']}>
+        <LanguageProvider>
+          <FeedBoard
+            fixtures={makeFixtures(25)}
+            loading={false}
+            leagueName={() => 'Premier League'}
+            followed={[]}
+            onToggleFollow={vi.fn()}
+            analyst={false}
+            fixturesForContext={makeFixtures(25)}
+            showValue={true}
+          />
+        </LanguageProvider>
+      </MemoryRouter>,
+    )
+    expect(screen.getByText('No value found in the loaded matches yet.')).toBeDefined()
+    rerender(
+      <MemoryRouter initialEntries={['/']}>
+        <LanguageProvider>
+          <FeedBoard
+            fixtures={makeFixtures(25)}
+            loading={false}
+            leagueName={() => 'Premier League'}
+            followed={[]}
+            onToggleFollow={vi.fn()}
+            analyst={false}
+            fixturesForContext={makeFixtures(25)}
+            showValue={false}
+          />
+        </LanguageProvider>
+      </MemoryRouter>,
+    )
     expect(screen.getByText('Showing 1-12 of 25')).toBeDefined()
   })
 

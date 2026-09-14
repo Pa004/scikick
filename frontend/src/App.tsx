@@ -28,6 +28,7 @@ function App() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [fetchedAt, setFetchedAt] = useState<number | null>(null)
   const { followed, toggle } = useFollowedTeams()
+  const [showValue, setShowValue] = useState(false)
 
   const leagueRequestId = useRef(0)
   const [leagueCounts, setLeagueCounts] = useState<Record<string, number> | undefined>(undefined)
@@ -118,6 +119,8 @@ function App() {
       statusUpdatedAt={fetchedAt}
       leagueCounts={leagueCounts}
       savedCount={followed.length}
+      showValue={showValue}
+      onShowValueChange={setShowValue}
       actions={
         <>
           <ModelDrawer league={league} open={modelOpen} onOpenChange={setModelOpen} />
@@ -140,6 +143,7 @@ function App() {
               followed={followed}
               onToggleFollow={toggle}
               analyst={analyst}
+              showValue={showValue}
             />
           }
         />
