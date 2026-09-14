@@ -130,21 +130,20 @@ describe('App feed', () => {
     expect(screen.getAllByText(/Liverpool/).length).toBeGreaterThan(0)
   })
 
-  it('filters cards via search and shows empty state', async () => {
+  it('shows a single global search in the header, not a duplicate in the feed', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    const search = screen.getByRole('searchbox')
-    fireEvent.change(search, { target: { value: 'Liverpool' } })
-    expect(screen.queryByText(/Arsenal/)).toBeNull()
-    expect(screen.getAllByText(/Liverpool/).length).toBeGreaterThan(0)
-    fireEvent.change(search, { target: { value: 'zzz' } })
-    expect(screen.getByText('No matches for this search.')).toBeDefined()
+    expect(screen.queryByRole('searchbox')).toBeNull()
+    const searchButtons = screen.getAllByRole('button', { name: 'Search team or league' })
+    expect(searchButtons.length).toBeGreaterThan(0)
+    // Feed no longer has its own inline search input
+    expect(screen.queryByPlaceholderText('Buscar equipo o liga...')).toBeNull()
   })
 
   it('switches league via switcher', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('button', { name: 'La Liga' }))
+    fireEvent.click(screen.getByRole('button', { name: /La Liga/ }))
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(expect.stringContaining('league=SP1'))
   })
 
@@ -163,17 +162,20 @@ describe('App feed', () => {
   it('opens the model drawer with calibration', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getAllByRole('button', { name: 'Model' })[0])
+    fireEvent.click(screen.getByRole('menuitem', { name: 'About the model' }))
     expect(await screen.findByText('Well calibrated. Predictions land close to actual outcomes.')).toBeDefined()
   })
 
-  it('follows teams and filters to followed only', async () => {
+  it('follows teams and shows them on the followed page without duplicate filter', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByRole('button', { name: 'Follow Arsenal' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
-    expect(screen.queryByText(/Liverpool/)).toBeNull()
-    expect(screen.getAllByText(/Arsenal/).length).toBeGreaterThan(0)
+    // Second card is Liverpool (pre), which is not filtered out on /seguidos (status !== post)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Follow match' })[1])
+    fireEvent.click(screen.getAllByRole('link', { name: 'Followed' })[0])
+    expect(await screen.findByRole('heading', { name: 'Followed' })).toBeDefined()
+    expect(await screen.findByRole('heading', { name: /Liverpool vs Man City/ })).toBeDefined()
+    // Feed no longer has a duplicate followed filter button
+    expect(screen.queryByRole('button', { name: /^Followed$/ })).toBeNull()
   })
 
   it('shows retry when fixtures fail to load', async () => {
@@ -195,7 +197,7 @@ describe('App feed', () => {
   it('routes legacy deep links to the match page', async () => {
     renderApp(['/?partido=1'])
     expect(await screen.findByText(/Arsenal win/)).toBeDefined()
-    expect(screen.getByText('Match Center')).toBeDefined()
+    expect(await screen.findByText('Match Center')).toBeDefined()
   })
 
   it('shows a miss notice for unknown match routes', async () => {
@@ -235,8 +237,10 @@ describe('App feed', () => {
     fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
     await screen.findByText(/Arsenal win/)
     expect(window.location.search).toContain('partido=1')
+    // Expanded content like Match Center is only in expanded
+    expect(await screen.findByText('Match Center')).toBeDefined()
     fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
-    expect(screen.queryByText(/Arsenal win 6 in 10/)).toBeNull()
+    expect(screen.queryByText('Match Center')).toBeNull()
     expect(window.location.search).toBe('')
   })
 
@@ -276,15 +280,17 @@ describe('App feed', () => {
   it('opens the story on the 1x2 market from a bar segment', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getByLabelText('1 · Arsenal: 60.0%'))
+    // Variant A: bar only in expanded, first expand via card
+    fireEvent.click(cardToggle(/Arsenal vs Chelsea/))
     await screen.findByText(/Arsenal win/)
-    expect(screen.getAllByText('Full-time result').length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByLabelText('1 · Arsenal: 60.0%'))
+    expect((await screen.findAllByText('Full-time result')).length).toBeGreaterThan(0)
   })
 
   it('closes the model drawer with Escape', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
-    fireEvent.click(screen.getAllByRole('button', { name: 'Model' })[0])
+    fireEvent.click(screen.getByRole('menuitem', { name: 'About the model' }))
     await screen.findByText('Calibration')
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(screen.queryByText('Calibration')).toBeNull()

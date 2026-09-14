@@ -1,38 +1,38 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { Search, X } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import type { Fixture } from '../../types'
-import { useLanguage, fillVars } from '../../i18n'
+import { useLanguage } from '../../i18n'
 import { getCachedValue, prefetchValues } from '../../api/detail'
-import { matchesQuery, formatHumanDate } from '../fixtures/fixtureUtils'
+import { formatHumanDate } from '../fixtures/fixtureUtils'
 import { parseDeepLinkId, syncDeepLink } from '../../lib/deeplink'
 import { selectPickOfDay } from '../../utils/matchCenter'
 import { MatchCard } from './MatchCard'
 import { PickOfDayCard } from '../fixtures/PickOfDayCard'
 import { Button } from '../ui/button'
-import { Input } from '../ui/input'
-import { SegmentedButton, SegmentedGroup } from '../ui/segmented'
 import { Skeleton } from '../ui/skeleton'
+import { cn } from '../../lib/cn'
 
 // Top predicted cards get their +EV badge without opening the story.
 const PREFETCH_COUNT = 15
-const PAGE_SIZE = 20
+const PAGE_SIZE = 12
 const SCROLL_KEY = 'scikick.feed-state'
 const DESKTOP_QUERY = '(min-width: 1024px)'
 
 interface SavedFeedState {
   y: number
-  visibleCount: number
-  query: string
+  page: number
 }
 
 function readSavedState(): SavedFeedState | null {
   try {
     const raw = sessionStorage.getItem(SCROLL_KEY)
     if (!raw) return null
-    const parsed = JSON.parse(raw) as Partial<SavedFeedState>
-    if (typeof parsed.y !== 'number' || typeof parsed.visibleCount !== 'number') return null
-    return { y: parsed.y, visibleCount: parsed.visibleCount, query: typeof parsed.query === 'string' ? parsed.query : '' }
+    const parsed = JSON.parse(raw) as Partial<SavedFeedState> & { visibleCount?: number; query?: string }
+    if (typeof parsed.y !== 'number') return null
+    // Backward compat: visibleCount → page
+    const page = typeof parsed.page === 'number' ? parsed.page : typeof parsed.visibleCount === 'number' ? Math.max(1, Math.ceil(parsed.visibleCount / PAGE_SIZE)) : 1
+    return { y: parsed.y, page }
   } catch {
     return null
   }
@@ -74,6 +74,7 @@ interface FeedBoardProps {
   onToggleFollow: (team: string) => void
   analyst: boolean
   fixturesForContext: Fixture[]
+  showValue: boolean
   // When provided (routed feed), deep links navigate instead of expanding inline.
   onDeepLink?: (id: number) => void
 }
@@ -86,24 +87,22 @@ export function FeedBoard({
   onToggleFollow,
   analyst,
   fixturesForContext,
+  showValue,
   onDeepLink,
 }: FeedBoardProps) {
   const { t, locale } = useLanguage()
-  const [query, setQuery] = useState('')
-  const [showFollowed, setShowFollowed] = useState(false)
-  const [showValue, setShowValue] = useState(false)
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [currentPage, setCurrentPage] = useState(1)
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [valuesReady, setValuesReady] = useState(false)
   const [deepLinkMiss, setDeepLinkMiss] = useState(false)
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({})
   const [searchParams] = useSearchParams()
 
-  // Back from /partido/:id restores scroll, pagination and search once.
+  // Back from /partido/:id restores page once.
   useEffect(() => {
     const saved = readSavedState()
     if (!saved) return
-    setQuery(saved.query)
-    setVisibleCount(Math.max(PAGE_SIZE, saved.visibleCount))
+    setCurrentPage(Math.max(1, saved.page))
     try {
       sessionStorage.removeItem(SCROLL_KEY)
     } catch {
@@ -122,15 +121,28 @@ export function FeedBoard({
 
   const filtered = useMemo(() => {
     return fixtures.filter(f => {
-      if (!matchesQuery(f, query)) return false
-      if (showFollowed && !followed.includes(f.home) && !followed.includes(f.away)) return false
       if (showValue && hasStoredValue(f.id) !== true) return false
       return true
     })
-  }, [fixtures, query, showFollowed, showValue, followed, valuesReady])
+  }, [fixtures, showValue, valuesReady])
 
   const pick = useMemo(() => selectPickOfDay(filtered), [filtered])
-  const visible = filtered.slice(0, visibleCount)
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  // Clamp page if filters shrink total
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages)
+  }, [currentPage, totalPages])
+  const prevShowValue = useRef(showValue)
+  useEffect(() => {
+    if (prevShowValue.current !== showValue) {
+      prevShowValue.current = showValue
+      setCurrentPage(1)
+    }
+  }, [showValue])
+  const visible = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE
+    return filtered.slice(start, start + PAGE_SIZE)
+  }, [filtered, currentPage])
 
   const groups = useMemo(() => {
     const byDate = new Map<string, Fixture[]>()
@@ -164,11 +176,19 @@ export function FeedBoard({
     if (loading || fixtures.length === 0) return
     const deepId = parseDeepLinkId(`?${searchParams.toString()}`)
     if (deepId === null) return
-    if (fixtures.some(f => f.id === deepId)) {
+    const deepFixture = fixtures.find(f => f.id === deepId)
+    if (deepFixture) {
       if (onDeepLink) {
         onDeepLink(deepId)
       } else {
+        // Ensure the deep-linked card is on the current pagination page
+        const idx = filtered.findIndex(f => f.id === deepId)
+        if (idx !== -1) {
+          const targetPage = Math.floor(idx / PAGE_SIZE) + 1
+          if (targetPage !== currentPage) setCurrentPage(targetPage)
+        }
         setExpandedId(deepId)
+        setOverrides(prev => ({ ...prev, [deepFixture.date]: true }))
         scrollCardIntoView(deepId)
       }
     } else {
@@ -176,12 +196,12 @@ export function FeedBoard({
     }
     // Only on first load of this league feed
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading])
+  }, [loading, filtered, currentPage])
 
   const saveStateAndGo = (id: number) => {
     if (!onDeepLink) return false
     try {
-      const state: SavedFeedState = { y: window.scrollY, visibleCount, query }
+      const state: SavedFeedState = { y: window.scrollY, page: currentPage }
       sessionStorage.setItem(SCROLL_KEY, JSON.stringify(state))
     } catch {
       // Private mode: navigation still works, restore is skipped
@@ -208,44 +228,40 @@ export function FeedBoard({
     scrollCardIntoView(id)
   }
 
+  const isDateOpen = (date: string, idx: number) => overrides[date] ?? idx < 2
+  const toggleDate = (date: string, idx: number) => {
+    setOverrides(prev => ({ ...prev, [date]: !(prev[date] ?? idx < 2) }))
+  }
+  const expandAll = () => {
+    const next: Record<string, boolean> = {}
+    groups.forEach(g => { next[g.date] = true })
+    setOverrides(next)
+  }
+  const collapseAll = () => {
+    const next: Record<string, boolean> = {}
+    groups.forEach(g => { next[g.date] = false })
+    setOverrides(next)
+  }
+  const allExpanded = groups.length > 0 && groups.every((g, i) => isDateOpen(g.date, i))
+
   return (
     <div>
-      <div role="search" className="mb-3 flex gap-2">
-        <div className="relative flex-1">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-faint"
-          />
-          <Input
-            type="search"
-            value={query}
-            onChange={e => {
-              setQuery(e.target.value)
-              setVisibleCount(PAGE_SIZE)
-            }}
-            placeholder={t('searchFixtures')}
-            aria-label={t('searchFixtures')}
-            className="pl-9"
-          />
-        </div>
-        {query && (
-          <Button type="button" variant="secondary" onClick={() => setQuery('')}>
-            <X aria-hidden="true" />
-            {t('clearSearch')}
+      {groups.length > 1 && (
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <span className="text-xs text-faint">
+            {groups.length} {locale === 'es' ? 'fechas' : 'dates'}
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={allExpanded ? collapseAll : expandAll}
+            className="h-7 min-h-0 px-2 text-xs"
+          >
+            {allExpanded ? (locale === 'es' ? 'Colapsar todo' : 'Collapse all') : (locale === 'es' ? 'Expandir todo' : 'Expand all')}
           </Button>
-        )}
-      </div>
-
-      <div className="mb-4 flex flex-wrap gap-2">
-        <SegmentedGroup label={t('fixtures')}>
-          <SegmentedButton active={showFollowed} onClick={() => { setShowFollowed(v => !v); setVisibleCount(PAGE_SIZE) }}>
-            {t('myMatches')}
-          </SegmentedButton>
-          <SegmentedButton active={showValue} onClick={() => { setShowValue(v => !v); setVisibleCount(PAGE_SIZE) }}>
-            {t('valueOnly')}
-          </SegmentedButton>
-        </SegmentedGroup>
-      </div>
+        </div>
+      )}
 
       {deepLinkMiss && (
         <div role="alert" className="animate-fade mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-primary-soft px-4 py-3 text-sm text-primary-ink">
@@ -272,60 +288,153 @@ export function FeedBoard({
         </div>
       ) : filtered.length === 0 ? (
         <p role="status" className="text-sm text-faint">
-          {query.trim()
-            ? t('noSearchResults')
-            : showFollowed
-              ? t('noFollowed')
-              : showValue
-                ? t('noValueMatches')
-                : t('noFixtures')}
+          {showValue ? t('noValueMatches') : t('noFixtures')}
         </p>
       ) : (
         <>
-          {!showFollowed && !showValue && query.trim() === '' && (
+          {!showValue && (
             <PickOfDayCard
               pick={pick}
               leagueName={leagueName}
               onSelect={expandPick}
             />
           )}
-          <div className="flex flex-col gap-5">
-            {groups.map(g => (
-              <section key={g.date} aria-label={formatHumanDate(g.date, locale)}>
-                <h3 className="mb-3 text-xs font-extrabold tracking-[0.08em] text-faint uppercase">
-                  {formatHumanDate(g.date, locale)}
-                </h3>
-                <div className="flex flex-col gap-3">
-                  {g.items.map(f => (
-                    <MatchCard
-                      key={f.id}
-                      fixture={f}
-                      expanded={expandedId === f.id}
-                      onToggle={() => toggle(f.id)}
-                      leagueName={leagueName(f.league)}
-                      followed={followed}
-                      onToggleFollow={onToggleFollow}
-                      hasValue={hasStoredValue(f.id)}
-                      analyst={analyst}
-                      fixtures={fixturesForContext}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
+          <div className="flex flex-col gap-4">
+            {groups.map((g, idx) => {
+              const open = isDateOpen(g.date, idx)
+              const panelId = `date-panel-${g.date}`
+              const btnId = `date-btn-${g.date}`
+              return (
+                <section
+                  key={g.date}
+                  aria-label={formatHumanDate(g.date, locale)}
+                  className="overflow-hidden rounded-[14px] border border-border bg-surface"
+                >
+                  <h3 className="m-0">
+                    <button
+                      type="button"
+                      aria-expanded={open}
+                      aria-controls={panelId}
+                      id={btnId}
+                      onClick={() => toggleDate(g.date, idx)}
+                      className="flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
+                    >
+                      <span className="flex items-center gap-2 text-xs font-extrabold tracking-[0.08em] text-foreground uppercase">
+                        {idx === 0 && <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />}
+                        {formatHumanDate(g.date, locale)}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <span className="rounded-full bg-surface-alt px-2 py-0.5 font-mono text-[11px] font-bold text-muted">
+                          {g.items.length}
+                        </span>
+                        <ChevronDown
+                          aria-hidden="true"
+                          className={cn('size-4 text-faint transition-transform', open && 'rotate-180')}
+                        />
+                      </span>
+                    </button>
+                  </h3>
+                  <div
+                    id={panelId}
+                    role="region"
+                    aria-labelledby={btnId}
+                    hidden={!open}
+                    {...(!open ? { inert: true } as unknown as Record<string, unknown> : {})}
+                    className="px-3 pb-3"
+                  >
+                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                      {g.items.map(f => (
+                        <MatchCard
+                          key={f.id}
+                          fixture={f}
+                          expanded={expandedId === f.id}
+                          onToggle={() => toggle(f.id)}
+                          leagueName={leagueName(f.league)}
+                          followed={followed}
+                          onToggleFollow={onToggleFollow}
+                          hasValue={hasStoredValue(f.id)}
+                          analyst={analyst}
+                          fixtures={fixturesForContext}
+                          hideDate
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )
+            })}
           </div>
-          <p aria-live="polite" className="mt-3 text-xs text-faint">
-            {fillVars(t('showingMatches'), { shown: visible.length, total: filtered.length })}
-          </p>
-          {visible.length < filtered.length && (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
-              className="mt-2 w-full"
-            >
-              {t('showMore')} ({filtered.length - visible.length})
-            </Button>
+          {filtered.length > PAGE_SIZE && (
+            <nav aria-label="Paginación" className="mt-6 flex flex-col items-center gap-3 pt-4">
+              <p aria-live="polite" className="text-xs text-faint">
+                {(() => {
+                  const start = (currentPage - 1) * PAGE_SIZE + 1
+                  const end = Math.min(currentPage * PAGE_SIZE, filtered.length)
+                  return locale === 'es'
+                    ? `Mostrando ${start}-${end} de ${filtered.length}`
+                    : `Showing ${start}-${end} of ${filtered.length}`
+                })()}
+              </p>
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={currentPage === 1}
+                  onClick={() => {
+                    const next = Math.max(1, currentPage - 1)
+                    setCurrentPage(next)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
+                  aria-label="Página anterior"
+                  className="min-w-11"
+                >
+                  ←
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                  .reduce<(number | '…')[]>((acc, p, idx, arr) => {
+                    if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('…')
+                    acc.push(p)
+                    return acc
+                  }, [])
+                  .map((p, idx) =>
+                    p === '…' ? (
+                      <span key={`e-${idx}`} className="px-2 text-faint">
+                        …
+                      </span>
+                    ) : (
+                      <Button
+                        key={p}
+                        type="button"
+                        variant={p === currentPage ? 'primary' : 'secondary'}
+                        aria-current={p === currentPage ? 'page' : undefined}
+                        aria-label={`Página ${p} de ${totalPages}`}
+                        onClick={() => {
+                          setCurrentPage(p as number)
+                          window.scrollTo({ top: 0, behavior: 'smooth' })
+                        }}
+                        className="min-w-11"
+                      >
+                        {p}
+                      </Button>
+                    ),
+                  )}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={currentPage === totalPages}
+                  onClick={() => {
+                    const next = Math.min(totalPages, currentPage + 1)
+                    setCurrentPage(next)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                  }}
+                  aria-label="Página siguiente"
+                  className="min-w-11"
+                >
+                  →
+                </Button>
+              </div>
+            </nav>
           )}
         </>
       )}

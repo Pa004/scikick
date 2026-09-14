@@ -56,8 +56,8 @@ describe('routes', () => {
   it('renders the team page with upcoming matches', async () => {
     renderAt(['/equipo/Arsenal'])
     expect(await screen.findByText('Upcoming')).toBeDefined()
-    expect(screen.getByText(/Arsenal vs Chelsea/)).toBeDefined()
-    expect(screen.queryByText(/Liverpool vs Arsenal/)).toBeNull()
+    expect(screen.getByRole('heading', { name: /Arsenal vs Chelsea/ })).toBeDefined()
+    expect(screen.queryByRole('heading', { name: /Liverpool vs Arsenal/ })).toBeNull()
   })
 
   it('shows team form as letter pips', async () => {

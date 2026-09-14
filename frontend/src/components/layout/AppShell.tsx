@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router'
 import { Search } from 'lucide-react'
 import { useLanguage } from '../../i18n'
@@ -20,6 +20,10 @@ interface AppShellProps {
   searchLabel: string
   statusCount: number
   statusUpdatedAt: number | null
+  leagueCounts?: Record<string, number>
+  savedCount?: number
+  showValue?: boolean
+  onShowValueChange?: (v: boolean) => void
   actions?: ReactNode
   children: ReactNode
 }
@@ -39,17 +43,28 @@ export function AppShell({
   searchLabel,
   statusCount,
   statusUpdatedAt,
+  leagueCounts,
+  savedCount,
+  showValue,
+  onShowValueChange,
   actions,
   children,
 }: AppShellProps) {
   const { t } = useLanguage()
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
   return (
     <div className="min-h-screen">
       <a href="#main-content" className="skip-link">
         {t('skipToContent')}
       </a>
-      <header className="sticky top-0 z-40 border-b border-border bg-surface">
-        <div className="mx-auto flex h-16 w-full max-w-[1180px] items-center gap-3 px-4">
+      <header className={cn('sticky top-0 z-40 bg-surface pt-3 transition-shadow', scrolled && 'shadow-[0_1px_8px_oklch(20%_0.02_240_/_0.08)]')}>
+        <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center gap-3 px-4 lg:px-6">
           <BrandLockup />
           <nav aria-label={t('navMain')} className="ml-2 hidden items-center gap-1 min-[420px]:flex">
             {NAV.map(l => (
@@ -69,15 +84,6 @@ export function AppShell({
                 {t(l.labelKey)}
               </NavLink>
             ))}
-            <button
-              type="button"
-              aria-haspopup="dialog"
-              onClick={onOpenModel}
-              title={t('aboutModel')}
-              className="border-b-2 border-transparent px-3 py-2 text-[15px] font-bold text-muted transition-colors hover:text-foreground"
-            >
-              {t('modelTrust')}
-            </button>
           </nav>
           <div className="ml-auto flex shrink-0 items-center gap-1">
             <button
@@ -96,23 +102,38 @@ export function AppShell({
             <OverflowMenu analyst={analyst} onAnalystChange={onAnalystChange} onOpenModel={onOpenModel} />
           </div>
         </div>
-        <div className="border-t border-border bg-surface">
-          <div className="mx-auto flex h-12 w-full max-w-[1180px] items-center gap-3 px-4">
+        <div className="bg-surface">
+          <div className="mx-auto flex h-12 w-full max-w-[1440px] items-center gap-3 px-4 lg:px-6">
             <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_92%,transparent)]">
-              <LeagueSwitcher league={league} onChange={onLeagueChange} compact />
+              <LeagueSwitcher league={league} onChange={onLeagueChange} compact counts={leagueCounts} />
             </div>
-            <StatusCluster count={statusCount} updatedAt={statusUpdatedAt} />
+            <div className="flex shrink-0 items-center gap-2">
+              {onShowValueChange !== undefined && showValue !== undefined && (
+                <button
+                  type="button"
+                  aria-pressed={showValue}
+                  onClick={() => onShowValueChange(!showValue)}
+                  className={cn(
+                    'inline-flex min-h-9 shrink-0 cursor-pointer items-center rounded-full border px-3 text-xs font-bold whitespace-nowrap transition-colors',
+                    showValue ? 'border-primary/20 bg-primary-soft text-primary-ink' : 'border-border bg-surface text-muted hover:bg-surface-hover hover:text-foreground',
+                  )}
+                >
+                  {t('valueOnly')}
+                </button>
+              )}
+              <StatusCluster count={statusCount} updatedAt={statusUpdatedAt} />
+            </div>
           </div>
         </div>
       </header>
       {actions}
-      <div className="mx-auto w-full max-w-[1180px] px-4 pt-5 pb-28 md:pb-10">
+      <div className="mx-auto w-full max-w-[1440px] px-4 pt-4 pb-28 md:pb-10 lg:px-6">
         {children}
-        <footer className="mt-10 border-t border-border pt-4 pb-2 text-xs text-faint">
+        <footer className="mt-10 pt-4 pb-2 text-xs text-faint">
           {t('disclaimer')}
         </footer>
       </div>
-      <BottomBar onOpenSearch={onOpenSearch} onOpenModel={onOpenModel} />
+      <BottomBar onOpenSearch={onOpenSearch} savedCount={savedCount} />
     </div>
   )
 }

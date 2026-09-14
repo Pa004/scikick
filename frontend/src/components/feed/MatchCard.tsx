@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { ArrowLeft, ChevronDown, Star } from 'lucide-react'
+import { ArrowLeft, Star } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
 import { extract1x2, asOutcomeProbs, type FormOutcome } from '../../utils/matchCenter'
+import { fixtureVerdict } from '../fixtures/fixtureUtils'
+import { getVerdict, formatFrequency } from '../../utils/verdict'
 import { formatHumanDate } from '../fixtures/fixtureUtils'
 import { useFixtureDetail } from '../../hooks/useFixtureDetail'
 import { SegmentedBar } from './SegmentedBar'
@@ -26,6 +28,7 @@ interface MatchCardProps {
   hasValue: boolean | null
   analyst: boolean
   fixtures: Fixture[]
+  hideDate?: boolean
 }
 
 export function FollowStar({
@@ -94,6 +97,7 @@ export function MatchCard({
   hasValue,
   analyst,
   fixtures,
+  hideDate = false,
 }: MatchCardProps) {
   const { t, locale } = useLanguage()
   const [market, setMarket] = useState('1x2')
@@ -122,21 +126,31 @@ export function MatchCard({
             <span className="text-xs font-bold tracking-[0.08em] text-faint uppercase">
               {leagueName}
             </span>
-            <span className="font-mono text-[13px] text-muted tabular-nums">
-              {formatHumanDate(f.date, locale)}
-            </span>
+            {!hideDate && (
+              <span className="font-mono text-[13px] text-muted tabular-nums">
+                {formatHumanDate(f.date, locale)}
+              </span>
+            )}
           </span>
-          <h2 id={`match-title-${f.id}`} className="mt-1.5 flex min-w-0 items-center gap-3 text-[17px] leading-snug font-bold text-foreground">
-            <TeamAvatar team={f.home} crest={f.home_crest} />
-            <span className="min-w-0 flex-1 truncate" title={`${displayTeam(f.home)} vs ${displayTeam(f.away)}`}>
-              {displayTeam(f.home)} vs {displayTeam(f.away)}
-              {f.home_score !== null && (
-                <span className="ml-2 font-mono text-[15px] font-medium text-muted tabular-nums">
-                  {f.home_score} - {f.away_score}
-                </span>
-              )}
+          <h2 id={`match-title-${f.id}`} className="mt-1.5 flex min-w-0 flex-wrap items-center gap-2 text-[17px] leading-snug font-bold text-foreground">
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <TeamAvatar team={f.home} crest={f.home_crest} />
+              <span className="min-w-0 truncate" title={displayTeam(f.home)}>
+                {displayTeam(f.home)}
+              </span>
             </span>
-            <TeamAvatar team={f.away} crest={f.away_crest} />
+            <span>vs</span>
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <span className="min-w-0 truncate" title={displayTeam(f.away)}>
+                {displayTeam(f.away)}
+              </span>
+              <TeamAvatar team={f.away} crest={f.away_crest} />
+            </span>
+            {f.home_score !== null && (
+              <span className="ml-1 font-mono text-[15px] font-medium text-muted tabular-nums">
+                {f.home_score} - {f.away_score}
+              </span>
+            )}
           </h2>
           <span className="mt-2 flex flex-wrap items-center gap-2">
             {f.prediction != null && (
@@ -151,26 +165,75 @@ export function MatchCard({
             )}
           </span>
         </button>
-        <div className="flex shrink-0 items-center" role="group" aria-label={t('myMatches')}>
-          <FollowStar
-            team={f.home}
-            followed={followed}
-            onToggle={() => onToggleFollow(f.home)}
-          />
-          <FollowStar
-            team={f.away}
-            followed={followed}
-            onToggle={() => onToggleFollow(f.away)}
-          />
+        <div className="ml-2 flex shrink-0 items-center pl-2" role="group" aria-label={t('myMatches')}>
+          {(() => {
+            const isFollowed = followed.includes(f.home) || followed.includes(f.away)
+            const label = isFollowed ? t('unfollowMatch') : t('followMatch')
+            const handleToggle = (e: React.MouseEvent) => {
+              e.stopPropagation()
+              if (isFollowed) {
+                if (followed.includes(f.home)) onToggleFollow(f.home)
+                if (followed.includes(f.away)) onToggleFollow(f.away)
+              } else {
+                onToggleFollow(f.home)
+              }
+            }
+            return (
+              <button
+                type="button"
+                onClick={handleToggle}
+                aria-pressed={isFollowed}
+                aria-label={label}
+                title={label}
+                className={cn(
+                  'flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full transition-colors',
+                  isFollowed ? 'text-primary-strong' : 'text-faint hover:bg-surface-hover hover:text-foreground',
+                )}
+              >
+                <Star aria-hidden="true" className="size-5" fill={isFollowed ? 'currentColor' : 'none'} />
+              </button>
+            )
+          })()}
         </div>
-        <span aria-hidden="true" className="flex min-h-11 min-w-8 items-center justify-center text-faint">
-          <ChevronDown
-            className={cn('size-5 transition-transform duration-200', expanded && 'rotate-180')}
-          />
-        </span>
       </div>
 
-      {probs && (
+      {probs && !expanded && (
+        <div className="px-4 pb-3">
+          {(() => {
+            const embedded = fixtureVerdict(f)
+            const v = embedded ?? (() => {
+              const fresh = getVerdict(f.home, f.away, probs)
+              return { outcome: fresh.outcome, teamLabel: displayTeam(fresh.teamLabel), frequency: formatFrequency(fresh.prob) }
+            })()
+            const verdictText = v
+              ? v.outcome === 'draw'
+                ? t('verdictDraw').replace('{n}', String(v.frequency))
+                : t('verdictWin').replace('{team}', v.teamLabel).replace('{n}', String(v.frequency))
+              : null
+            const homePct = Math.round(probs.home * 100)
+            const drawPct = Math.round(probs.draw * 100)
+            const awayPct = Math.round(probs.away * 100)
+            return (
+              <>
+                {verdictText && <p className="text-[15px] font-semibold leading-snug text-foreground">{verdictText}</p>}
+                <div className="mt-2">
+                  <SegmentedBar compact probs={probs} home={f.home} away={f.away} onSelect={onToggle} />
+                </div>
+                <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                  <span className="font-mono tabular-nums">{displayTeam(f.home)} {homePct}%</span>
+                  <span className="mx-1.5 text-faint">·</span>
+                  <span className="font-mono tabular-nums">{t('draw')} {drawPct}%</span>
+                  <span className="mx-1.5 text-faint">·</span>
+                  <span className="font-mono tabular-nums">{displayTeam(f.away)} {awayPct}%</span>
+                  <span className="ml-2 text-xs font-normal text-faint">{locale === 'es' ? '· suman 100' : '· sums to 100'}</span>
+                </p>
+              </>
+            )
+          })()}
+        </div>
+      )}
+
+      {probs && expanded && (
         <div className="px-4 pb-4">
           <SegmentedBar
             probs={probs}

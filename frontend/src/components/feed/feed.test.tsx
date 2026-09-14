@@ -47,13 +47,18 @@ describe('MatchCard', () => {
     expect(screen.getByRole('heading', { name: /Liverpool vs Fulham/ })).toBeDefined()
   })
 
-  it('shows segmented 1X2 legend with percentages', () => {
-    renderCard()
+  it('shows mono 1X2 line when collapsed and legend when expanded', () => {
+    const { unmount } = renderCard(false)
+    const collapsed = screen.getAllByText((_c, el) => el?.tagName === 'P' && (el?.textContent ?? '').includes('54%'))
+    expect(collapsed.length).toBeGreaterThan(0)
+    expect(screen.getByText(/sums to 100|suman 100/)).toBeDefined()
+    // collapsed has compact bar without legend
+    expect(screen.queryAllByText((_c, el) => el?.tagName === 'LI' && (el?.textContent ?? '').startsWith('1 ·')).length).toBe(0)
+    unmount()
+    renderCard(true)
     const legend = screen.getAllByText((_c, el) => el?.tagName === 'LI' && (el?.textContent ?? '').startsWith('1 ·'))
     expect(legend.length).toBeGreaterThan(0)
     expect(legend[0].textContent).toContain('54%')
-    expect(screen.getByText((_c, el) => el?.tagName === 'STRONG' && el?.textContent === '27%')).toBeDefined()
-    expect(screen.getByText((_c, el) => el?.tagName === 'STRONG' && el?.textContent === '19%')).toBeDefined()
   })
 
   it('renders display names with diacritics', () => {
@@ -79,7 +84,10 @@ describe('MatchCard', () => {
       </MemoryRouter>,
     )
     expect(screen.getByRole('heading', { name: /Alavés vs Español/ })).toBeDefined()
-    expect(screen.getByLabelText('1 · Alavés: 40.0%')).toBeDefined()
+    const mono = screen.getAllByText((_c, el) => el?.tagName === 'P' && (el?.textContent ?? '').includes('40%'))
+    expect(mono.length).toBeGreaterThan(0)
+    expect(screen.getByText(/Alavés 40%/)).toBeDefined()
+    expect(screen.getByText(/Español 30%/)).toBeDefined()
   })
 
   it('toggles follow with accessible name', () => {    const onToggleFollow = vi.fn()
@@ -100,7 +108,7 @@ describe('MatchCard', () => {
         </LanguageProvider>
       </MemoryRouter>,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Follow Liverpool' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Follow match' }))
     expect(onToggleFollow).toHaveBeenCalledWith('Liverpool')
   })
 })
