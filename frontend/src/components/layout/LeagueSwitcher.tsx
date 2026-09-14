@@ -54,14 +54,14 @@ export function LeagueSwitcher({ league, onChange, compact = false, counts }: Le
               className={cn(
                 'inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-4 text-sm font-bold whitespace-nowrap transition-colors duration-150',
                 active
-                  ? 'border-foreground bg-foreground text-background'
+                  ? 'border-primary/20 bg-primary-soft text-primary-ink'
                   : 'border-border bg-surface text-muted hover:bg-surface-hover hover:text-foreground',
               )}
             >
               {showDot && <span aria-hidden="true" className="size-2 rounded-full bg-primary" />}
               {t(l.labelKey)}
               {count !== undefined && (
-                <span className={cn('rounded-full px-1.5 py-0.5 font-mono text-xs', active ? 'bg-background/20 text-background' : 'bg-surface-alt text-muted')}>
+                <span className={cn('rounded-full px-1.5 py-0.5 font-mono text-xs', active ? 'bg-surface text-muted' : 'bg-surface-alt text-muted')}>
                   {count}
                 </span>
               )}

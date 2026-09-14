@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router'
 import { Search } from 'lucide-react'
 import { useLanguage } from '../../i18n'
@@ -47,12 +47,19 @@ export function AppShell({
   children,
 }: AppShellProps) {
   const { t } = useLanguage()
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
   return (
     <div className="min-h-screen">
       <a href="#main-content" className="skip-link">
         {t('skipToContent')}
       </a>
-      <header className="sticky top-0 z-40 border-b border-border bg-surface">
+      <header className={cn('sticky top-0 z-40 bg-surface transition-shadow', scrolled && 'shadow-[0_1px_8px_oklch(20%_0.02_240_/_0.08)]')}>
         <div className="mx-auto flex h-16 w-full max-w-[1180px] items-center gap-3 px-4">
           <BrandLockup />
           <nav aria-label={t('navMain')} className="ml-2 hidden items-center gap-1 min-[420px]:flex">
@@ -100,7 +107,7 @@ export function AppShell({
             <OverflowMenu analyst={analyst} onAnalystChange={onAnalystChange} onOpenModel={onOpenModel} />
           </div>
         </div>
-        <div className="border-t border-border bg-surface">
+        <div className="bg-surface">
           <div className="mx-auto flex h-12 w-full max-w-[1180px] items-center gap-3 px-4">
             <div className="min-w-0 flex-1 [mask-image:linear-gradient(to_right,black_92%,transparent)]">
               <LeagueSwitcher league={league} onChange={onLeagueChange} compact counts={leagueCounts} />
@@ -110,9 +117,9 @@ export function AppShell({
         </div>
       </header>
       {actions}
-      <div className="mx-auto w-full max-w-[1180px] px-4 pt-5 pb-28 md:pb-10">
+      <div className="mx-auto w-full max-w-[1180px] px-4 pt-4 pb-28 md:pb-10">
         {children}
-        <footer className="mt-10 border-t border-border pt-4 pb-2 text-xs text-faint">
+        <footer className="mt-10 pt-4 pb-2 text-xs text-faint">
           {t('disclaimer')}
         </footer>
       </div>

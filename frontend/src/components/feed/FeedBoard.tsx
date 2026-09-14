@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
+import { ChevronDown } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage } from '../../i18n'
 import { getCachedValue, prefetchValues } from '../../api/detail'
@@ -11,6 +12,7 @@ import { PickOfDayCard } from '../fixtures/PickOfDayCard'
 import { Button } from '../ui/button'
 import { SegmentedButton, SegmentedGroup } from '../ui/segmented'
 import { Skeleton } from '../ui/skeleton'
+import { cn } from '../../lib/cn'
 
 // Top predicted cards get their +EV badge without opening the story.
 const PREFETCH_COUNT = 15
@@ -93,6 +95,7 @@ export function FeedBoard({
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [valuesReady, setValuesReady] = useState(false)
   const [deepLinkMiss, setDeepLinkMiss] = useState(false)
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({})
   const [searchParams] = useSearchParams()
 
   // Back from /partido/:id restores page once.
@@ -166,7 +169,8 @@ export function FeedBoard({
     if (loading || fixtures.length === 0) return
     const deepId = parseDeepLinkId(`?${searchParams.toString()}`)
     if (deepId === null) return
-    if (fixtures.some(f => f.id === deepId)) {
+    const deepFixture = fixtures.find(f => f.id === deepId)
+    if (deepFixture) {
       if (onDeepLink) {
         onDeepLink(deepId)
       } else {
@@ -177,6 +181,7 @@ export function FeedBoard({
           if (targetPage !== currentPage) setCurrentPage(targetPage)
         }
         setExpandedId(deepId)
+        setOverrides(prev => ({ ...prev, [deepFixture.date]: true }))
         scrollCardIntoView(deepId)
       }
     } else {
@@ -216,14 +221,40 @@ export function FeedBoard({
     scrollCardIntoView(id)
   }
 
+  const isDateOpen = (date: string, idx: number) => overrides[date] ?? idx < 2
+  const toggleDate = (date: string, idx: number) => {
+    setOverrides(prev => ({ ...prev, [date]: !(prev[date] ?? idx < 2) }))
+  }
+  const expandAll = () => {
+    const next: Record<string, boolean> = {}
+    groups.forEach(g => { next[g.date] = true })
+    setOverrides(next)
+  }
+  const collapseAll = () => {
+    const next: Record<string, boolean> = {}
+    groups.forEach(g => { next[g.date] = false })
+    setOverrides(next)
+  }
+  const allExpanded = groups.length > 0 && groups.every((g, i) => isDateOpen(g.date, i))
+
   return (
     <div>
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <SegmentedGroup label={t('fixtures')}>
           <SegmentedButton active={showValue} onClick={() => { setShowValue(v => !v); setCurrentPage(1) }}>
             {t('valueOnly')}
           </SegmentedButton>
         </SegmentedGroup>
+        {groups.length > 1 && (
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={allExpanded ? collapseAll : expandAll}
+            className="ml-auto text-xs"
+          >
+            {allExpanded ? (locale === 'es' ? 'Colapsar todo' : 'Collapse all') : (locale === 'es' ? 'Expandir todo' : 'Expand all')}
+          </Button>
+        )}
       </div>
 
       {deepLinkMiss && (
@@ -262,37 +293,73 @@ export function FeedBoard({
               onSelect={expandPick}
             />
           )}
-          <div className="flex flex-col gap-8">
-            {groups.map(g => (
-              <section key={g.date} aria-label={formatHumanDate(g.date, locale)}>
-                <h3 className="sticky top-[112px] z-10 -mx-1 mb-3 flex items-baseline gap-2 border-y border-border bg-background/95 px-1 py-2 text-xs font-extrabold tracking-[0.08em] text-foreground uppercase backdrop-blur">
-                  <span>{formatHumanDate(g.date, locale)}</span>
-                  <span className="rounded-full bg-surface-alt px-2 py-0.5 font-mono text-[11px] font-bold text-muted">
-                    {g.items.length}
-                  </span>
-                </h3>
-                <div className="flex flex-col gap-3">
-                  {g.items.map(f => (
-                    <MatchCard
-                      key={f.id}
-                      fixture={f}
-                      expanded={expandedId === f.id}
-                      onToggle={() => toggle(f.id)}
-                      leagueName={leagueName(f.league)}
-                      followed={followed}
-                      onToggleFollow={onToggleFollow}
-                      hasValue={hasStoredValue(f.id)}
-                      analyst={analyst}
-                      fixtures={fixturesForContext}
-                      hideDate
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
+          <div className="flex flex-col gap-4">
+            {groups.map((g, idx) => {
+              const open = isDateOpen(g.date, idx)
+              const panelId = `date-panel-${g.date}`
+              const btnId = `date-btn-${g.date}`
+              return (
+                <section
+                  key={g.date}
+                  aria-label={formatHumanDate(g.date, locale)}
+                  className="overflow-hidden rounded-[14px] border border-border bg-surface"
+                >
+                  <h3 className="m-0">
+                    <button
+                      type="button"
+                      aria-expanded={open}
+                      aria-controls={panelId}
+                      id={btnId}
+                      onClick={() => toggleDate(g.date, idx)}
+                      className="flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
+                    >
+                      <span className="flex items-center gap-2 text-xs font-extrabold tracking-[0.08em] text-foreground uppercase">
+                        {idx === 0 && <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />}
+                        {formatHumanDate(g.date, locale)}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <span className="rounded-full bg-surface-alt px-2 py-0.5 font-mono text-[11px] font-bold text-muted">
+                          {g.items.length}
+                        </span>
+                        <ChevronDown
+                          aria-hidden="true"
+                          className={cn('size-4 text-faint transition-transform', open && 'rotate-180')}
+                        />
+                      </span>
+                    </button>
+                  </h3>
+                  <div
+                    id={panelId}
+                    role="region"
+                    aria-labelledby={btnId}
+                    hidden={!open}
+                    {...(!open ? { inert: true } as unknown as Record<string, unknown> : {})}
+                    className="px-3 pb-3"
+                  >
+                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                      {g.items.map(f => (
+                        <MatchCard
+                          key={f.id}
+                          fixture={f}
+                          expanded={expandedId === f.id}
+                          onToggle={() => toggle(f.id)}
+                          leagueName={leagueName(f.league)}
+                          followed={followed}
+                          onToggleFollow={onToggleFollow}
+                          hasValue={hasStoredValue(f.id)}
+                          analyst={analyst}
+                          fixtures={fixturesForContext}
+                          hideDate
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )
+            })}
           </div>
           {filtered.length > PAGE_SIZE && (
-            <nav aria-label="Paginación" className="mt-6 flex flex-col items-center gap-3 border-t border-border pt-4">
+            <nav aria-label="Paginación" className="mt-6 flex flex-col items-center gap-3 pt-4">
               <p aria-live="polite" className="text-xs text-faint">
                 {(() => {
                   const start = (currentPage - 1) * PAGE_SIZE + 1
