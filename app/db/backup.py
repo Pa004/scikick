@@ -2,18 +2,22 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 from app.config import get_settings
+from app.db.connection import get_connection
+
+BACKUP_RETENTION_DAYS = 7
 
 
-def backup_database(backup_dir: str | None = None) -> str:
+def backup_database(backup_dir: str | None = None, db_path: str | None = None) -> str:
     settings = get_settings()
-    if settings.env == "test":
+    if settings.env == "test" and db_path is None:
         raise RuntimeError("Cannot backup in test environment")
 
-    source_path = Path(settings.database_path)
+    source_path = Path(db_path or settings.database_path)
     if not source_path.exists():
         raise FileNotFoundError(f"Database not found: {source_path}")
 
@@ -23,7 +27,7 @@ def backup_database(backup_dir: str | None = None) -> str:
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     backup_path = dest_dir / f"scikick_{timestamp}.db"
 
-    source = sqlite3.connect(str(source_path))
+    source = get_connection(str(source_path))
     dest = sqlite3.connect(str(backup_path))
     try:
         source.backup(dest)
@@ -31,7 +35,21 @@ def backup_database(backup_dir: str | None = None) -> str:
         dest.close()
         source.close()
 
+    _prune_old_backups(dest_dir)
     return str(backup_path)
+
+
+def _prune_old_backups(dest_dir: Path, retention_days: int = BACKUP_RETENTION_DAYS) -> int:
+    cutoff = time.time() - retention_days * 86400
+    pruned = 0
+    for path in dest_dir.glob("scikick_*.db"):
+        try:
+            if path.stat().st_mtime < cutoff:
+                path.unlink()
+                pruned += 1
+        except OSError:
+            continue
+    return pruned
 
 
 def export_tracked_json(export_dir: str | None = None) -> str:

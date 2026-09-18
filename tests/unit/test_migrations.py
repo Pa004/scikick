@@ -104,6 +104,30 @@ def test_migration_009_indexes_and_odds_cascade(tmp_path: Path) -> None:
         conn.close()
 
 
+def test_each_migration_leaves_its_artifacts(tmp_path: Path) -> None:
+    import sqlite3
+
+    db_path = str(tmp_path / "test.db")
+    run_migrations(db_path)
+    conn = sqlite3.connect(db_path)
+    try:
+        tables = {row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table'"
+        ).fetchall()}
+
+        def cols(table: str) -> set[str]:
+            return {row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+
+        assert {"players", "player_features", "lineups"} <= tables  # 005
+        assert "fixture_odds" in tables  # 007
+        assert "home_corners_avg_last5" in cols("match_features")  # 003
+        assert "target_home_ht_goals" in cols("match_features")  # 004
+        assert "api_football_id" in cols("fixtures")  # 006
+        assert "crest_url" in cols("teams")  # 008
+    finally:
+        conn.close()
+
+
 def test_migration_002_adds_corners_cards_odds_columns(tmp_path: Path) -> None:
     db_path = str(tmp_path / "test.db")
     run_migrations(db_path)

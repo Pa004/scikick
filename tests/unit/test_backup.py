@@ -60,6 +60,26 @@ def test_backup_database_success(tmp_path: Path, real_db: str) -> None:
             conn.close()
 
 
+def test_backup_prunes_backups_older_than_retention(tmp_path: Path, real_db: str) -> None:
+    import time
+
+    from app.db.backup import _prune_old_backups
+
+    dest = tmp_path / "backups"
+    dest.mkdir()
+    old = dest / "scikick_20200101_000000.db"
+    old.write_bytes(b"x")
+    ancient = time.time() - 30 * 86400
+    import os
+
+    os.utime(old, (ancient, ancient))
+    fresh = dest / "scikick_20990101_000000.db"
+    fresh.write_bytes(b"x")
+    assert _prune_old_backups(dest) == 1
+    assert not old.exists()
+    assert fresh.exists()
+
+
 def test_export_tracked_json_success(tmp_path: Path, real_db: str) -> None:
     with patch("app.db.backup.get_settings", return_value=_mock_settings("production", real_db)):
         export_path = export_tracked_json(str(tmp_path / "backups"))
