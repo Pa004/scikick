@@ -10,6 +10,10 @@ def _apply_migrations(db_path: str) -> None:
     run_migrations(db_path)
 
 
+def _migration_count() -> int:
+    return len(list((Path(__file__).resolve().parent.parent.parent / "migrations").glob("*.sql")))
+
+
 def test_migration_005_applies(tmp_path: Path):
     db_path = str(tmp_path / "test.db")
     _apply_migrations(db_path)
@@ -20,7 +24,7 @@ def test_migration_005_applies(tmp_path: Path):
     ).fetchall()]
     conn.close()
 
-    assert version == 8
+    assert version == _migration_count()
     assert "players" in tables
     assert "player_features" in tables
     assert "lineups" in tables
@@ -33,7 +37,7 @@ def test_migration_005_idempotent(tmp_path: Path):
     conn = sqlite3.connect(db_path)
     version = conn.execute("PRAGMA user_version").fetchone()[0]
     conn.close()
-    assert version == 8
+    assert version == _migration_count()
 
 
 def test_insert_player(tmp_path: Path):

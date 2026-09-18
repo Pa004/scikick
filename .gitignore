@@ -38,6 +38,7 @@ logs/
 *.md
 !/README.md
 !/docs/retrain.md
+!/docs/adr/*.md
 
 # === Local audit artifacts (not versioned) ===
 docs/audit/

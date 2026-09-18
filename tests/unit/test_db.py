@@ -42,13 +42,19 @@ def test_connection_fk_enabled(tmp_db) -> None:
         assert result == 1
 
 
-def test_migrations_reach_v8_with_crest_column(tmp_path: Path) -> None:
+def _migration_count() -> int:
+    from pathlib import Path as _Path
+
+    return len(list((_Path(__file__).resolve().parent.parent.parent / "migrations").glob("*.sql")))
+
+
+def test_migrations_reach_latest_with_crest_column(tmp_path: Path) -> None:
     db_path = str(tmp_path / "mig.db")
     applied = run_migrations(db_path)
     assert applied >= 1
     conn = sqlite3.connect(db_path)
     try:
-        assert get_user_version(conn) == 8
+        assert get_user_version(conn) == _migration_count()
         cols = [r[1] for r in conn.execute("PRAGMA table_info(teams)").fetchall()]
         assert "crest_url" in cols
     finally:

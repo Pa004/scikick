@@ -43,18 +43,13 @@ import joblib
 
 
 def _load_latest_ensemble_models(league: str) -> LightGBMEnsemble | None:
-    run_dir = Path(RUNS_DIR) / league
-    if not run_dir.exists():
-        return None
-    ensemble_files = sorted(
-        run_dir.glob("ensemble_*.joblib"),
-        key=lambda p: (p.stat().st_mtime, p.name),
-        reverse=True,
-    )
-    if not ensemble_files:
+    from app.models.runs.manager import resolve_latest
+
+    resolved = resolve_latest(Path(RUNS_DIR) / league)
+    if resolved["ensemble"] is None:
         return None
     try:
-        models = joblib.load(ensemble_files[0])
+        models = joblib.load(resolved["ensemble"])
     except Exception:
         return None
     if not isinstance(models, list) or not models:
@@ -81,17 +76,15 @@ def _lgbm_1x2_for_fixture(
 
 
 def _load_latest_run(league: str) -> dict | None:
-    run_dir = Path(RUNS_DIR) / league
-    if not run_dir.exists():
+    from app.models.runs.manager import resolve_latest
+
+    resolved = resolve_latest(Path(RUNS_DIR) / league)
+    if resolved["pipeline"] is None:
         return None
-    run_files = sorted(
-        run_dir.glob("pipeline_*.json"),
-        key=lambda p: (p.stat().st_mtime, p.name),
-        reverse=True,
-    )
-    if not run_files:
+    try:
+        return json.loads(resolved["pipeline"].read_text(encoding="utf-8"))
+    except (OSError, ValueError):
         return None
-    return json.loads(run_files[0].read_text(encoding="utf-8"))
 
 
 def _load_count_params(run_data: dict, key: str) -> CountParams | None:
