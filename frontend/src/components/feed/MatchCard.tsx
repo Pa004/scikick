@@ -320,6 +320,8 @@ export function MatchCard({
                   onDisplayModeChange={onDisplayModeChange}
                   marketLayout={marketLayout}
                   storyTabs={storyTabs}
+                  contextHome={detail.data.contextHome}
+                  contextAway={detail.data.contextAway}
                 />
               </div>
               <div id={`${storyId}-scorers`} className="scroll-mt-[200px]">
