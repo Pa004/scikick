@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react'
+import { readJSON, writeJSON } from '../lib/storage'
 
 export type MoveDirection = 'up' | 'down' | 'flat'
 export type MoveMap = Record<string, MoveDirection>
@@ -10,26 +11,17 @@ const FLAT_THRESHOLD = 0.005
 
 type SnapshotStore = Record<string, Record<string, number | Record<string, number>>>
 
+const isSnapshotStore = (v: unknown): v is SnapshotStore =>
+  typeof v === 'object' && v !== null
+
 function readSnapshots(): SnapshotStore {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return {}
-    const parsed: unknown = JSON.parse(raw)
-    if (typeof parsed !== 'object' || parsed === null) return {}
-    return parsed as SnapshotStore
-  } catch {
-    return {}
-  }
+  return readJSON(STORAGE_KEY, isSnapshotStore, {})
 }
 
 function writeSnapshots(all: SnapshotStore): void {
-  try {
-    const trimmed: SnapshotStore = {}
-    for (const k of Object.keys(all).slice(-MAX_ENTRIES)) trimmed[k] = all[k]
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed))
-  } catch {
-    // Private mode: movements simply reset on reload
-  }
+  const trimmed: SnapshotStore = {}
+  for (const k of Object.keys(all).slice(-MAX_ENTRIES)) trimmed[k] = all[k]
+  writeJSON(STORAGE_KEY, trimmed)
 }
 
 // Compares current outcome probabilities against the last seen snapshot

@@ -1,27 +1,18 @@
 import { useEffect, useState } from 'react'
+import { readString, writeString } from '../lib/storage'
 
 export type DisplayMode = 'prob' | 'odds'
 
 const STORAGE_KEY = 'scikick.display-mode'
 
-function readInitialMode(): DisplayMode {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === 'odds' ? 'odds' : 'prob'
-  } catch {
-    return 'prob'
-  }
-}
-
 // Display format only (probability % vs decimal odds). Never affects data fetching.
 export function useDisplayMode(): [DisplayMode, (mode: DisplayMode) => void] {
-  const [mode, setMode] = useState<DisplayMode>(readInitialMode)
+  const [mode, setMode] = useState<DisplayMode>(
+    () => (readString(STORAGE_KEY, 'prob') === 'odds' ? 'odds' : 'prob'),
+  )
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, mode)
-    } catch {
-      // Private mode: keep in-memory value
-    }
+    writeString(STORAGE_KEY, mode)
   }, [mode])
 
   return [mode, setMode]

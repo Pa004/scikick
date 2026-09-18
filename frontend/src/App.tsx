@@ -1,12 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Route, Routes } from 'react-router'
-import type { Fixture } from './types'
-import { fetchFixtures } from './api'
 import { useLanguage } from './i18n'
 import { useAnalystMode } from './hooks/useAnalystMode'
+import { useFixtures } from './hooks/useFixtures'
 import { useFollowedTeams } from './hooks/useFollowedTeams'
+import { useLeagueName } from './hooks/useLeagueName'
 import { AppShell } from './components/layout/AppShell'
-import { LEAGUES } from './components/layout/LeagueSwitcher'
 import { FeedPage } from './pages/FeedPage'
 import { MatchPage } from './pages/MatchPage'
 import { TeamPage } from './pages/TeamPage'
@@ -19,66 +18,21 @@ import { getCachedValue, prefetchValues } from './api/detail'
 
 function App() {
   const { t } = useLanguage()
-  const [fixtures, setFixtures] = useState<Fixture[]>([])
   const [league, setLeague] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
-  const [attempt, setAttempt] = useState(0)
   const [analyst, setAnalyst] = useAnalystMode()
   const [modelOpen, setModelOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
-  const [fetchedAt, setFetchedAt] = useState<number | null>(null)
   const { followed, toggle } = useFollowedTeams()
   const [showValue, setShowValue] = useState(false)
   const [valueCount, setValueCount] = useState(0)
   const [showPast, setShowPast] = useState(false)
-
-  const leagueRequestId = useRef(0)
-  const [leagueCounts, setLeagueCounts] = useState<Record<string, number> | undefined>(undefined)
+  const leagueName = useLeagueName()
 
   // Fixtures depend on league only: market and drawer data never
   // collapse the feed into skeletons.
-  useEffect(() => {
-    const requestId = ++leagueRequestId.current
-    const wantLeague = league === '' ? 'all' : league
-    setLoading(true)
-    setError(false)
-
-    fetchFixtures(wantLeague, league === '' ? 100 : 30, !showPast)
-      .then(data => {
-        if (requestId !== leagueRequestId.current) return
-        setFixtures(data)
-        setFetchedAt(Date.now())
-        setLoading(false)
-      })
-      .catch(() => {
-        if (requestId !== leagueRequestId.current) return
-        setFixtures([])
-        setLoading(false)
-        setError(true)
-      })
-  }, [league, attempt, showPast])
-
-  // League pill counts (live totals) — best-effort, cached per session.
-  useEffect(() => {
-    let active = true
-    fetchFixtures('all', 100, !showPast)
-      .then(all => {
-        if (!active) return
-        const counts: Record<string, number> = { '': all.length }
-        for (const l of LEAGUES) {
-          if (l.code === '') continue
-          counts[l.code] = all.filter(f => f.league === l.code).length
-        }
-        setLeagueCounts(counts)
-      })
-      .catch(() => {
-        // Counts are decorative; feed still works without them
-      })
-    return () => {
-      active = false
-    }
-  }, [fetchedAt, attempt, showPast])
+  const {
+    fixtures, loading, error, fetchedAt, leagueCounts, retry,
+  } = useFixtures(league === '' ? 'all' : league, league === '' ? 100 : 30, !showPast)
 
   // Value pill count — best-effort background check for current league fixtures
   useEffect(() => {
@@ -128,11 +82,6 @@ function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  const leagueName = (code: string) => {
-    const found = LEAGUES.find(l => l.code === code)
-    return found ? t(found.labelKey) : code
-  }
-
   return (
     <AppShell
       league={league}
@@ -168,7 +117,7 @@ function App() {
               fixtures={fixtures}
               loading={loading}
               error={error}
-              onRetry={() => setAttempt(a => a + 1)}
+              onRetry={retry}
               leagueName={leagueName}
               followed={followed}
               onToggleFollow={toggle}

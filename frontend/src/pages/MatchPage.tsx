@@ -7,7 +7,7 @@ import { recordVisit } from '../lib/visits'
 import { useLanguage } from '../i18n'
 import { useAnalystMode } from '../hooks/useAnalystMode'
 import { useFollowedTeams } from '../hooks/useFollowedTeams'
-import { LEAGUES } from '../components/layout/LeagueSwitcher'
+import { useLeagueName } from '../hooks/useLeagueName'
 import { ArrowLeft, Star } from 'lucide-react'
 import { MatchCard, FormStrip } from '../components/feed/MatchCard'
 import { Badge } from '../components/ui/badge'
@@ -66,10 +66,7 @@ export function MatchPage() {
   }, [fixtureId])
 
 
-  const leagueName = (code: string) => {
-    const found = LEAGUES.find(l => l.code === code)
-    return found ? t(found.labelKey) : code
-  }
+  const leagueName = useLeagueName()
 
   if (meta === undefined) {
     return (

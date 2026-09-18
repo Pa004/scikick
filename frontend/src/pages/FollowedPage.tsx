@@ -6,7 +6,7 @@ import { useLanguage } from '../i18n'
 import { displayTeam } from '../utils/teamNames'
 import { useAnalystMode } from '../hooks/useAnalystMode'
 import { useFollowedTeams } from '../hooks/useFollowedTeams'
-import { LEAGUES } from '../components/layout/LeagueSwitcher'
+import { useLeagueName } from '../hooks/useLeagueName'
 import { MatchCard } from '../components/feed/MatchCard'
 import { Button } from '../components/ui/button'
 import { Skeleton } from '../components/ui/skeleton'
@@ -34,10 +34,7 @@ export function FollowedPage() {
     }
   }, [])
 
-  const leagueName = (code: string) => {
-    const found = LEAGUES.find(l => l.code === code)
-    return found ? t(found.labelKey) : code
-  }
+  const leagueName = useLeagueName()
 
   if (fixtures === null && !failed) {
     return (

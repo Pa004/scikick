@@ -15,6 +15,7 @@ import {
   type FormOutcome,
 } from '../utils/matchCenter'
 import { displayTeam } from '../utils/teamNames'
+import { formLetter } from '../utils/form'
 import MarketRenderer from './MarketRenderer'
 import MarketSelector from './MarketSelector'
 import ValueChecker from './ValueChecker'
@@ -34,7 +35,7 @@ function FormBadges({ form, emptyLabel }: { form: FormOutcome[]; emptyLabel: str
   const { t, locale } = useLanguage()
   const word = (o: FormOutcome) => (o === 'W' ? t('formWin') : o === 'D' ? t('formDraw') : t('formLoss'))
   // Visible letters follow the UI language (form comes most-recent-first).
-  const letter = (o: FormOutcome) => (locale === 'es' ? (o === 'W' ? 'V' : o === 'D' ? 'E' : 'D') : o)
+  const letter = (o: FormOutcome) => formLetter(o, locale)
   if (form.length === 0) {
     return <span className="text-xs text-faint">{emptyLabel}</span>
   }

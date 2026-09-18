@@ -3,6 +3,7 @@ import { ArrowLeft, Star } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
 import { extract1x2, asOutcomeProbs, type FormOutcome } from '../../utils/matchCenter'
+import { formLetter } from '../../utils/form'
 import { fixtureVerdict } from '../fixtures/fixtureUtils'
 import { getVerdict, formatFrequency } from '../../utils/verdict'
 import { formatHumanDate } from '../fixtures/fixtureUtils'
@@ -71,7 +72,7 @@ export function FollowStar({
 
 export function FormStrip({ form, label }: { form: FormOutcome[]; label: string }) {
   const { locale } = useLanguage()
-  const letter = (o: FormOutcome) => (locale === 'es' ? (o === 'W' ? 'V' : o === 'D' ? 'E' : 'D') : o)
+  const letter = (o: FormOutcome) => formLetter(o, locale)
   if (form.length === 0) return null
   return (
     <span className="flex items-center gap-1.5" role="img" aria-label={label}>

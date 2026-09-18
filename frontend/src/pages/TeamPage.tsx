@@ -7,7 +7,7 @@ import { useLanguage } from '../i18n'
 import { displayTeam } from '../utils/teamNames'
 import { useAnalystMode } from '../hooks/useAnalystMode'
 import { useFollowedTeams } from '../hooks/useFollowedTeams'
-import { LEAGUES } from '../components/layout/LeagueSwitcher'
+import { useLeagueName } from '../hooks/useLeagueName'
 import { MatchCard, FormStrip } from '../components/feed/MatchCard'
 import { TeamAvatar } from '../components/feed/TeamAvatar'
 import { Button } from '../components/ui/button'
@@ -51,10 +51,7 @@ export function TeamPage() {
     }
   }, [team])
 
-  const leagueName = (code: string) => {
-    const found = LEAGUES.find(l => l.code === code)
-    return found ? t(found.labelKey) : code
-  }
+  const leagueName = useLeagueName()
 
   const teamFixtures = useMemo(
     () => (fixtures ?? []).filter(f => f.home === team || f.away === team),
