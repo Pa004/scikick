@@ -14,6 +14,9 @@ concurrency:
 jobs:
   export:
     runs-on: ubuntu-latest
+    # secrets is unavailable in `if` evaluation; expose it via env first.
+    env:
+      HAS_CF_TOKEN: ${{ secrets.CF_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -42,7 +45,7 @@ jobs:
         env:
           SERVICE_TOKEN: dummy-export-run
       - name: Deploy data bundle + Worker
-        if: ${{ secrets.CF_API_TOKEN != '' }}
+        if: env.HAS_CF_TOKEN != ''
         run: |
           npm install -g wrangler
           wrangler pages deploy dist-cf --project-name=scikick-data
