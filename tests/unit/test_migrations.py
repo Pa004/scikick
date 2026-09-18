@@ -7,12 +7,12 @@ from app.db.migrations import get_user_version, run_migrations
 def test_run_migrations_applies_001(tmp_path: Path) -> None:
     db_path = str(tmp_path / "test.db")
     applied = run_migrations(db_path)
-    assert applied == 8
+    assert applied == 9
 
     conn = get_connection(db_path)
     try:
         version = get_user_version(conn)
-        assert version == 8
+        assert version == 9
 
         tables = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
@@ -48,12 +48,60 @@ def test_run_migrations_resumes_after_partial_apply(tmp_path: Path) -> None:
     applied = run_migrations(db_path)
     conn = get_connection(db_path)
     try:
-        assert get_user_version(conn) == 8
+        assert get_user_version(conn) == 9
         cols = [row[1] for row in conn.execute("PRAGMA table_info(fixtures)").fetchall()]
         assert "home_corners" in cols
     finally:
         conn.close()
-    assert applied == 7
+    assert applied == 8
+
+
+def test_migration_009_indexes_and_odds_cascade(tmp_path: Path) -> None:
+    import sqlite3
+
+    db_path = str(tmp_path / "test.db")
+    run_migrations(db_path)
+    conn = get_connection(db_path)
+    try:
+        indexes = {row["name"] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'index'"
+        ).fetchall()}
+        assert "idx_fixtures_league_status_date" in indexes
+        assert "idx_tracked_market_league" in indexes
+        conn.execute(
+            "INSERT INTO leagues (id, name, country, tier, source_csv_code, "
+            "has_odds, has_xg, season_start_month, min_seasons) "
+            "VALUES ('E0', 'PL', 'England', 1, 'E0', 1, 0, 8, 2)"
+        )
+        conn.execute("INSERT INTO teams (id, canonical_name) VALUES (1, 'A')")
+        conn.execute("INSERT INTO teams (id, canonical_name) VALUES (2, 'B')")
+        conn.execute(
+            "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+            "status, source, source_fixture_id) "
+            "VALUES ('E0', '2026-09-20', 1, 2, 'pre', 'fd', 'x1')"
+        )
+        conn.execute(
+            "INSERT INTO fixture_odds (fixture_id, bookmaker, home, draw, away, fetched_at) "
+            "VALUES (1, 'best-eu', 2.0, 3.0, 4.0, '2026-09-18T00:00:00Z')"
+        )
+        conn.execute("DELETE FROM fixtures WHERE id = 1")
+        assert conn.execute("SELECT COUNT(*) FROM fixture_odds").fetchone()[0] == 0
+        conn.execute(
+            "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+            "status, source, source_fixture_id) "
+            "VALUES ('E0', '2026-09-21', 1, 2, 'pre', 'fd', 'x2')"
+        )
+        rejected = False
+        try:
+            conn.execute(
+                "INSERT INTO fixture_odds (fixture_id, bookmaker, home, draw, away, fetched_at) "
+                "VALUES (2, 'best-eu', 1.0, 3.0, 4.0, '2026-09-18T00:00:00Z')"
+            )
+        except sqlite3.IntegrityError:
+            rejected = True
+        assert rejected
+    finally:
+        conn.close()
 
 
 def test_migration_002_adds_corners_cards_odds_columns(tmp_path: Path) -> None:

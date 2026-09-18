@@ -105,18 +105,32 @@ def _reconstruct_blended_matrix(
     lgbm_1x2: np.ndarray,
     w: float,
 ) -> np.ndarray:
+    # Rescale each 1x2 region of the score matrix (home=lower triangle,
+    # draw=diagonal, away=upper triangle) so the matrix 1x2 matches the
+    # w*DC + (1-w)*LightGBM blend. Every derived market then stays
+    # consistent with the blended headline probabilities.
     dc_matrix = score_matrix(dc_params)
     dc_1x2 = np.array([
         probabilities_from_matrix(dc_matrix)["home"],
         probabilities_from_matrix(dc_matrix)["draw"],
         probabilities_from_matrix(dc_matrix)["away"],
     ])
-    blended_1x2 = w * dc_1x2 + (1 - w) * lgbm_1x2
+    blended_1x2 = w * dc_1x2 + (1 - w) * np.asarray(lgbm_1x2, dtype=float)
     blended_1x2 = np.clip(blended_1x2, 1e-15, None)
     blended_1x2 /= blended_1x2.sum()
-    scale = blended_1x2 / dc_1x2
-    scale = np.where(dc_1x2 > 1e-15, scale, 1.0)
-    return dc_matrix * scale[:, np.newaxis]
+    out = dc_matrix.copy()
+    regions = (
+        np.tril_indices_from(out, -1),
+        np.diag_indices_from(out),
+        np.triu_indices_from(out, 1),
+    )
+    for region, k in zip(regions, range(3)):
+        if dc_1x2[k] > 1e-15:
+            out[region] *= blended_1x2[k] / dc_1x2[k]
+    total = out.sum()
+    if total > 0:
+        out /= total
+    return out
 
 
 def _derive_all_markets_for_fixture(
@@ -203,6 +217,10 @@ def train_league(
         return {"error": "No features built", "league": league}
 
     persist_features(conn, features_df)
+
+    # Train and evaluate on resolved fixtures only. Pre-match rows stay in
+    # match_features (persisted above) so predict_future can serve the blend.
+    features_df = features_df[features_df["target_1x2"].notna()].copy()
 
     odds_df = pd.read_sql_query(
         "SELECT id as fixture_id, avg_home_odds, avg_draw_odds, avg_away_odds "

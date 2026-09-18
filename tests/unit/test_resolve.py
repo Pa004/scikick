@@ -53,12 +53,19 @@ def test_resolve_with_token(monkeypatch, tmp_path: Path):
     get_settings.cache_clear()
     monkeypatch.setattr(conn_module.sqlite3, "connect", fake_connect)
 
-    resp = _client().post(
+    client = _client()
+    resp = client.post(
         "/api/resolve", headers={"Authorization": "Bearer secret-token"}
     )
-    assert resp.status_code == 200
-    assert resp.json()["league"] == "all"
-    assert isinstance(resp.json()["resolved"], int)
+    assert resp.status_code == 202
+    job_id = resp.json()["job_id"]
+    status = client.get(
+        f"/api/resolve/status/{job_id}",
+        headers={"Authorization": "Bearer secret-token"},
+    ).json()
+    assert status["status"] == "done"
+    assert status["result"]["league"] == "all"
+    assert isinstance(status["result"]["resolved"], int)
 
 
 def test_refresh_error_shape(monkeypatch):
@@ -74,12 +81,24 @@ def test_refresh_error_shape(monkeypatch):
     monkeypatch.setenv("SERVICE_TOKEN", "secret-token")
     from app.config import get_settings
     get_settings.cache_clear()
-    resp = _client().post(
+    client = _client()
+    resp = client.post(
         "/api/refresh", headers={"Authorization": "Bearer secret-token"}
     )
-    assert resp.status_code == 200
-    body = resp.json()
-    assert body["synced"] == 1
-    assert body["errors"] == 1
-    assert body["error_details"][0]["error"] == "Season file not published yet by the source."
-    assert "message" in body
+    assert resp.status_code == 202
+    job_id = resp.json()["job_id"]
+    body = client.get(
+        f"/api/refresh/status/{job_id}",
+        headers={"Authorization": "Bearer secret-token"},
+    ).json()
+    assert body["status"] == "done"
+    assert body["result"]["synced"] == 1
+    assert body["result"]["errors"] == 1
+    assert body["result"]["error_details"][0]["error"] == "Season file not published yet by the source."
+    assert "message" in body["result"]
+
+
+def test_resolve_status_unknown_job():
+    client = _client()
+    resp = client.get("/api/resolve/status/doesnotexist")
+    assert resp.status_code in (401, 404)

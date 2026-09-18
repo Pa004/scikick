@@ -39,6 +39,46 @@ from app.models.lightgbm_model import (
 from app.models.blend import blend_predictions
 from pathlib import Path
 
+import joblib
+
+
+def _load_latest_ensemble_models(league: str) -> LightGBMEnsemble | None:
+    run_dir = Path(RUNS_DIR) / league
+    if not run_dir.exists():
+        return None
+    ensemble_files = sorted(
+        run_dir.glob("ensemble_*.joblib"),
+        key=lambda p: (p.stat().st_mtime, p.name),
+        reverse=True,
+    )
+    if not ensemble_files:
+        return None
+    try:
+        models = joblib.load(ensemble_files[0])
+    except Exception:
+        return None
+    if not isinstance(models, list) or not models:
+        return None
+    ensemble = LightGBMEnsemble(n_seeds=len(models))
+    ensemble.models = models
+    return ensemble
+
+
+def _lgbm_1x2_for_fixture(
+    ensemble: LightGBMEnsemble, feature_row: dict
+) -> np.ndarray | None:
+    try:
+        X = np.array(
+            [[feature_row.get(f, 0.0) or 0.0 for f in _FEATURE_COLS]],
+            dtype=float,
+        )
+        probs = np.asarray(ensemble.predict_proba(X)[0], dtype=float)
+    except Exception:
+        return None
+    if probs.shape != (3,) or not np.all(np.isfinite(probs)) or probs.sum() <= 0:
+        return None
+    return probs / probs.sum()
+
 
 def _load_latest_run(league: str) -> dict | None:
     run_dir = Path(RUNS_DIR) / league
@@ -133,6 +173,19 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
     cards_params = _load_count_params(run_data, "cards_params")
     ht_params, residuals = _load_ht_params(run_data)
     dc_teams = _load_dc_teams(run_data)
+    ensemble = _load_latest_ensemble_models(league)
+
+    feature_rows: dict[int, dict] = {}
+    try:
+        feat_cols = ", ".join(_FEATURE_COLS)
+        for row in conn.execute(
+            f"SELECT fixture_id, {feat_cols} FROM match_features "  # noqa: S608
+            "WHERE fixture_id IN (SELECT id FROM fixtures WHERE league = ? AND status = 'pre')",
+            (league,),
+        ).fetchall():
+            feature_rows[int(row["fixture_id"])] = dict(row)
+    except Exception:
+        feature_rows = {}
 
     batch_updates = []
     for fix in fixtures:
@@ -144,6 +197,18 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
         )
         dc_matrix = score_matrix(match_params)
         dc_probs = probabilities_from_matrix(dc_matrix)
+
+        # Serve the evaluated blend, not Dixon-Coles alone: rescale the
+        # score matrix so its 1x2 matches w*DC + (1-w)*LightGBM, then derive
+        # every market from the blended matrix. Falls back to DC-only when
+        # the ensemble or the fixture's feature row is unavailable.
+        blend_applied = False
+        if ensemble is not None:
+            lgbm_1x2 = _lgbm_1x2_for_fixture(ensemble, feature_rows.get(fix["id"], {}))
+            if lgbm_1x2 is not None:
+                dc_matrix = _reconstruct_blended_matrix(match_params, lgbm_1x2, w)
+                dc_probs = probabilities_from_matrix(dc_matrix)
+                blend_applied = True
 
         home_corners_rate = None
         away_corners_rate = None
@@ -172,6 +237,7 @@ def predict_future(conn: sqlite3.Connection, league: str) -> dict:
             "model_version": f"ensemble_v1_{league}",
             "model_agreement": agreement,
             "blend_weight": round(w, 3),
+            "blend_applied": blend_applied,
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 

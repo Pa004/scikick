@@ -19,6 +19,14 @@ def _clear_settings_cache():
     get_settings.cache_clear()
 
 
+@pytest.fixture(autouse=True)
+def _clear_api_cache():
+    from app.api.cache import clear_cache
+    clear_cache()
+    yield
+    clear_cache()
+
+
 @pytest.fixture
 def tmp_db(tmp_path: Path) -> Path:
     return tmp_path / "test.db"

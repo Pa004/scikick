@@ -4,11 +4,14 @@ import json
 
 from fastapi import APIRouter, HTTPException, Query
 
+from app.api.cache import cached
 from app.db.connection import get_connection
 
 router = APIRouter()
 
 LEAGUES = ("E0", "SP1", "D1", "I1", "F1")
+
+FIXTURES_CACHE_TTL_SECONDS = 120.0
 
 
 @router.get("/fixtures")
@@ -30,6 +33,15 @@ def list_fixtures(
         if upcoming
         else ""
     )
+    cache_key = f"fixtures:{league}:{limit}:{upcoming}"
+    return cached(
+        cache_key,
+        FIXTURES_CACHE_TTL_SECONDS,
+        lambda: _query_fixtures(league, clause, upcoming_clause, params, limit),
+    )
+
+
+def _query_fixtures(league: str, clause: str, upcoming_clause: str, params: tuple, limit: int) -> dict:
     conn = get_connection()
     try:
         rows = conn.execute(

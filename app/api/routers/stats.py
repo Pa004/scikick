@@ -2,12 +2,16 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
+from app.api.cache import cached_endpoint
 from app.db.connection import get_connection
 
 router = APIRouter()
 
+STATS_CACHE_TTL_SECONDS = 300.0
+
 
 @router.get("/stats")
+@cached_endpoint(STATS_CACHE_TTL_SECONDS)
 def get_stats(league: str | None = None, market: str = "1x2"):
     conn = get_connection()
     try:
@@ -135,6 +139,7 @@ def get_stats(league: str | None = None, market: str = "1x2"):
 
 
 @router.get("/stats/per-matchday")
+@cached_endpoint(STATS_CACHE_TTL_SECONDS)
 def get_stats_per_matchday(league: str | None = None, market: str = "1x2"):
     conn = get_connection()
     try:
@@ -185,6 +190,7 @@ def get_stats_per_matchday(league: str | None = None, market: str = "1x2"):
 
 
 @router.get("/stats/calibration")
+@cached_endpoint(STATS_CACHE_TTL_SECONDS)
 def get_calibration(league: str | None = None, market: str = "1x2"):
     conn = get_connection()
     try:

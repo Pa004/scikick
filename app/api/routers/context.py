@@ -4,6 +4,7 @@ import sqlite3
 
 from fastapi import APIRouter
 
+from app.api.cache import cached_endpoint
 from app.db.connection import get_connection
 
 router = APIRouter()
@@ -83,6 +84,7 @@ def _team_crest(conn: sqlite3.Connection, team: str) -> str | None:
 
 
 @router.get("/context")
+@cached_endpoint(300.0)
 def team_context(team: str, opponent: str = ""):
     conn = get_connection()
     try:

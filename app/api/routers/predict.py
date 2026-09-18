@@ -24,6 +24,10 @@ router = APIRouter()
 
 _RUNS_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data" / "runs"
 
+# (mtime, ensemble, explainer) per league: joblib.load + SHAP rebuild happen
+# once until a newer train artifact appears.
+_ensemble_cache: dict[str, tuple[float, object, object | None]] = {}
+
 
 def _load_latest_ensemble(league: str):
     run_dir = _RUNS_DIR / league
@@ -36,10 +40,33 @@ def _load_latest_ensemble(league: str):
     )
     if not ensemble_files:
         return None
+    newest = ensemble_files[0]
+    mtime = newest.stat().st_mtime
+    cached = _ensemble_cache.get(league)
+    if cached is not None and cached[0] >= mtime:
+        return cached[1]
     try:
-        return joblib.load(ensemble_files[0])
+        ensemble = joblib.load(newest)
     except Exception:
         return None
+    _ensemble_cache[league] = (mtime, ensemble, None)
+    return ensemble
+
+
+def _cached_explainer(league: str):
+    ensemble = _load_latest_ensemble(league)
+    if not ensemble:
+        return None
+    cached = _ensemble_cache.get(league)
+    mtime = cached[0] if cached else 0.0
+    explainer = cached[2] if cached else None
+    if explainer is None:
+        try:
+            explainer = build_explainer(ensemble)
+        except Exception:
+            return None
+        _ensemble_cache[league] = (mtime, ensemble, explainer)
+    return explainer
 
 
 def _get_feature_row(conn, fixture_id: int, league: str, home_team_id: int, away_team_id: int):
@@ -68,11 +95,10 @@ def _get_probable_score(probs: dict) -> dict[str, int] | None:
 
 
 def _compute_top_features(league: str, feature_row: dict) -> list[TopFeature] | None:
-    ensemble = _load_latest_ensemble(league)
-    if not ensemble or not feature_row:
+    explainer = _cached_explainer(league)
+    if not explainer or not feature_row:
         return None
     try:
-        explainer = build_explainer(ensemble)
         X_row = np.array([[feature_row.get(f, 0.0) for f in _FEATURE_COLS]], dtype=float)
         raw = top_features(explainer, X_row, _FEATURE_COLS, n=5)
         return [TopFeature(**f) for f in raw]

@@ -9,13 +9,17 @@ from app.features.elo import EloSystem
 
 
 def _get_fixtures(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
+    # Resolved matches plus upcoming ones: pre-match rows carry no targets
+    # (target_1x2 is None) but their features describe "as of now", which is
+    # what predict_future needs to serve the ensemble. History updates below
+    # only consume resolved scores, so future rows never pollute the past.
     query = """
         SELECT f.id, f.match_date, f.league, f.home_team_id, f.away_team_id,
                f.home_score, f.away_score, f.ht_home_score, f.ht_away_score,
                f.home_corners, f.away_corners, f.home_yellow, f.away_yellow,
                f.referee, f.competition_type, f.status
         FROM fixtures f
-        WHERE f.league = ? AND f.status = 'post'
+        WHERE f.league = ? AND f.status IN ('post', 'pre')
         ORDER BY f.match_date ASC
     """
     return pd.read_sql_query(query, conn, params=(league,))
@@ -177,29 +181,31 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
 
-        elo.update(home_id, away_id, hg, ag)
+        resolved = hg is not None and ag is not None
+        if resolved:
+            elo.update(home_id, away_id, hg, ag)
 
-        form_history.setdefault(home_id, []).append(
-            3.0 if _derive_ftr(hg, ag) == "home" else (1.0 if _derive_ftr(hg, ag) == "draw" else 0.0)
-        )
-        form_history.setdefault(away_id, []).append(
-            3.0 if _derive_ftr(hg, ag) == "away" else (1.0 if _derive_ftr(hg, ag) == "draw" else 0.0)
-        )
+            form_history.setdefault(home_id, []).append(
+                3.0 if _derive_ftr(hg, ag) == "home" else (1.0 if _derive_ftr(hg, ag) == "draw" else 0.0)
+            )
+            form_history.setdefault(away_id, []).append(
+                3.0 if _derive_ftr(hg, ag) == "away" else (1.0 if _derive_ftr(hg, ag) == "draw" else 0.0)
+            )
 
-        last_match[home_id] = datetime.strptime(match_date, "%Y-%m-%d")
-        last_match[away_id] = datetime.strptime(match_date, "%Y-%m-%d")
+            last_match[home_id] = datetime.strptime(match_date, "%Y-%m-%d")
+            last_match[away_id] = datetime.strptime(match_date, "%Y-%m-%d")
 
-        h2h.append({
-            "home_id": home_id,
-            "away_id": away_id,
-            "home_goals": hg,
-            "away_goals": ag,
-        })
+            h2h.append({
+                "home_id": home_id,
+                "away_id": away_id,
+                "home_goals": hg,
+                "away_goals": ag,
+            })
 
-        corners_history.setdefault(home_id, []).append(hc)
-        corners_history.setdefault(away_id, []).append(ac)
-        yellow_history.setdefault(home_id, []).append(hy)
-        yellow_history.setdefault(away_id, []).append(ay)
+            corners_history.setdefault(home_id, []).append(hc)
+            corners_history.setdefault(away_id, []).append(ac)
+            yellow_history.setdefault(home_id, []).append(hy)
+            yellow_history.setdefault(away_id, []).append(ay)
 
     return pd.DataFrame(feature_rows)
 
@@ -212,15 +218,14 @@ def persist_features(conn: sqlite3.Connection, features_df: pd.DataFrame) -> int
     placeholders = ", ".join(["?"] * (len(cols) + 1))
     col_names = "fixture_id, " + ", ".join(cols)
 
-    inserted = 0
-    for _, row in features_df.iterrows():
-        values = [int(row["fixture_id"])] + [
-            None if pd.isna(row[c]) else row[c] for c in cols
-        ]
-        conn.execute(
-            f"INSERT OR REPLACE INTO match_features ({col_names}) VALUES ({placeholders})",
-            values,
+    values = [
+        tuple(
+            [int(row["fixture_id"])] + [None if pd.isna(row[c]) else row[c] for c in cols]
         )
-        inserted += 1
-
-    return inserted
+        for _, row in features_df.iterrows()
+    ]
+    conn.executemany(
+        f"INSERT OR REPLACE INTO match_features ({col_names}) VALUES ({placeholders})",
+        values,
+    )
+    return len(values)
