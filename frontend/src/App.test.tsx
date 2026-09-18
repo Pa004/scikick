@@ -266,19 +266,28 @@ describe('App feed', () => {
   })
 
   it('filters to value matches after background prefetch', async () => {
+    const single = (fixture_id?: number) => {
+      const edge = fixture_id === 1 ? 0.09 : -0.1
+      return {
+        fixture_id,
+        outcomes: {
+          home: { prob: 0.5, odds: 2.1, edge, value: edge > 0, kelly: 0.02 },
+          draw: { prob: 0.25, odds: 3.4, edge: -0.1, value: false, kelly: 0 },
+          away: { prob: 0.25, odds: 3.6, edge: -0.2, value: false, kelly: 0 },
+        },
+      }
+    }
     vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string, init?: { body?: string }) => {
       if (url.includes('/fixtures')) return Promise.resolve({ ok: true, json: () => Promise.resolve({ fixtures: mockFixtures }) })
+      if (url.includes('/api/value/batch')) {
+        const body = JSON.parse(init?.body ?? '{}') as { fixture_ids?: number[] }
+        const values: Record<string, unknown> = {}
+        for (const id of body.fixture_ids ?? []) values[String(id)] = single(id)
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ values }) })
+      }
       if (url.includes('/api/value')) {
         const body = JSON.parse(init?.body ?? '{}') as { fixture_id?: number }
-        const edge = body.fixture_id === 1 ? 0.09 : -0.1
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({
-          fixture_id: body.fixture_id,
-          outcomes: {
-            home: { prob: 0.5, odds: 2.1, edge, value: edge > 0, kelly: 0.02 },
-            draw: { prob: 0.25, odds: 3.4, edge: -0.1, value: false, kelly: 0 },
-            away: { prob: 0.25, odds: 3.6, edge: -0.2, value: false, kelly: 0 },
-          },
-        }) })
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(single(body.fixture_id)) })
       }
       return Promise.resolve({ ok: false, status: 404 })
     }))

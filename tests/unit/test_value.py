@@ -135,6 +135,22 @@ def test_value_endpoint_auto_missing_odds(tmp_path: Path, monkeypatch):
     assert resp.status_code == 404
 
 
+def test_value_batch_returns_null_for_unknown(tmp_path: Path, monkeypatch):
+    client, db_path = _setup_value_db(tmp_path, monkeypatch)
+    conn = sqlite3.connect(db_path)
+    conn.execute(
+        "INSERT INTO fixture_odds (fixture_id, bookmaker, home, draw, away, fetched_at) "
+        "VALUES (1, 'best-eu', 2.10, 3.40, 3.60, '2026-09-07T00:00:00Z')"
+    )
+    conn.commit()
+    conn.close()
+    resp = client.post("/api/value/batch", json={"fixture_ids": [1, 999]})
+    assert resp.status_code == 200
+    values = resp.json()["values"]
+    assert values["1"]["source"] == "best-eu"
+    assert values["999"] is None
+
+
 def test_value_endpoint_auto_no_key_message(tmp_path: Path, monkeypatch):
     monkeypatch.setenv("ODDS_API_KEY", "")
     from app.config import get_settings

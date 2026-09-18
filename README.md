@@ -71,6 +71,15 @@ migrations/   — numbered SQL (001–008) via PRAGMA user_version
 docs/         — retrain.md (monthly ops), screenshots/
 ```
 
+## Deploy
+
+```powershell
+Copy-Item .env.example .env   # set SERVICE_TOKEN + API keys
+docker compose up --build -d  # API on :8000, SQLite persisted in ./data
+```
+
+The frontend deploys anywhere static (Vercel-ready) with `VITE_API_URL` pointing at the API.
+
 ## Development
 
 ```powershell

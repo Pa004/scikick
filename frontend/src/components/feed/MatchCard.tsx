@@ -1,23 +1,18 @@
-import { useState } from 'react'
-import { ArrowLeft, Star } from 'lucide-react'
+import { Star } from 'lucide-react'
 import type { Fixture } from '../../types'
 import { useLanguage, fillVars } from '../../i18n'
-import { extract1x2, asOutcomeProbs, type FormOutcome } from '../../utils/matchCenter'
+import { type FormOutcome } from '../../utils/matchCenter'
 import { formLetter } from '../../utils/form'
 import { fixtureVerdict } from '../fixtures/fixtureUtils'
 import { getVerdict, formatFrequency } from '../../utils/verdict'
 import { formatHumanDate } from '../fixtures/fixtureUtils'
-import { useFixtureDetail } from '../../hooks/useFixtureDetail'
+import { useMatchStory } from '../../hooks/useMatchStory'
+import { MatchStoryExpanded } from './MatchStoryExpanded'
 import { SegmentedBar } from './SegmentedBar'
-import { VerdictHero } from './VerdictHero'
 import { TeamAvatar } from './TeamAvatar'
 import { displayTeam } from '../../utils/teamNames'
 import { Badge } from '../ui/badge'
-import { Button } from '../ui/button'
-import { Skeleton } from '../ui/skeleton'
 import { cn } from '../../lib/cn'
-import PredictionPanel from '../PredictionPanel'
-import ScorerPanel from '../ScorerPanel'
 import type { DisplayMode } from '../../hooks/useDisplayMode'
 
 interface MatchCardProps {
@@ -114,10 +109,7 @@ export function MatchCard({
   storyTabs = false,
 }: MatchCardProps) {
   const { t, locale } = useLanguage()
-  const [market, setMarket] = useState('1x2')
-  const detail = useFixtureDetail(expanded ? f : null)
-  const probs = extract1x2(f.prediction)
-  const storyId = `story-${f.id}`
+  const { detail, probs, storyId, market, setMarket } = useMatchStory(f, expanded)
 
   return (
     <article
@@ -267,72 +259,21 @@ export function MatchCard({
 
       {expanded && (
         <div role="region" aria-label={`${displayTeam(f.home)} vs ${displayTeam(f.away)}`} id={storyId} className="animate-fade border-t border-border px-4 py-4">
-          {!hideDate && (
-            <div className="mb-3 flex items-center gap-2">
-              <button
-                type="button"
-                onClick={onToggle}
-                aria-label={t('backToFeed')}
-                title={t('backToFeed')}
-                className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
-              >
-                <ArrowLeft aria-hidden="true" className="size-5" />
-              </button>
-            </div>
-          )}
-          {detail.loading && (
-            <div role="status" aria-label={t('loadingMatch')} className="flex flex-col gap-2">
-              <Skeleton className="h-8 w-3/4" />
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-24 w-full" />
-            </div>
-          )}
-          {detail.error && (
-            <div role="alert" className="rounded-lg border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger-ink">
-              <p className="mb-2">{t('matchError')}</p>
-              <Button type="button" size="sm" variant="secondary" onClick={detail.retry}>
-                {t('retry')}
-              </Button>
-            </div>
-          )}
-          {detail.data && (
-            <>
-              <div id={`${storyId}-verdict`} className="scroll-mt-[200px]">
-                <VerdictHero
-                  fixture={f}
-                  probableScore={detail.data.prediction.probable_score}
-                  probs={asOutcomeProbs(detail.data.prediction.probabilities['1x2'])}
-                  analyst={analyst}
-                />
-              </div>
-              <div id={`${storyId}-markets`} className="scroll-mt-[200px]">
-                <PredictionPanel
-                  prediction={detail.data.prediction}
-                  selectedMarket={market}
-                  onMarketChange={setMarket}
-                  home={f.home}
-                  away={f.away}
-                  fixtures={fixtures}
-                  analyst={analyst}
-                  bare
-                  initialValue={detail.data.value}
-                  displayMode={displayMode}
-                  onDisplayModeChange={onDisplayModeChange}
-                  marketLayout={marketLayout}
-                  storyTabs={storyTabs}
-                  contextHome={detail.data.contextHome}
-                  contextAway={detail.data.contextAway}
-                />
-              </div>
-              <div id={`${storyId}-scorers`} className="scroll-mt-[200px]">
-                {detail.data.scorer ? (
-                  <ScorerPanel key={detail.data.scorer.fixture_id} scorer={detail.data.scorer} />
-                ) : (
-                  <p className="mt-4 text-sm text-faint">{t('noScorerData')}</p>
-                )}
-              </div>
-            </>
-          )}
+          <MatchStoryExpanded
+            fixture={f}
+            storyId={storyId}
+            detail={detail}
+            market={market}
+            onMarketChange={setMarket}
+            onToggle={onToggle}
+            analyst={analyst}
+            fixtures={fixtures}
+            hideDate={hideDate}
+            displayMode={displayMode}
+            onDisplayModeChange={onDisplayModeChange}
+            marketLayout={marketLayout}
+            storyTabs={storyTabs}
+          />
         </div>
       )}
     </article>

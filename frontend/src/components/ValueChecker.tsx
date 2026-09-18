@@ -124,9 +124,10 @@ export default function ValueChecker({
     <Card className="mb-4">
       <CardBody>
         <CardTitle className="mb-1">{t('valueTitle')}</CardTitle>
-        <p id="value-hint" className="mt-0 mb-3 text-xs text-muted">
+        <p id="value-hint" className="mt-0 mb-1 text-xs text-muted">
           {t('valueHint')}
         </p>
+        <p className="mt-0 mb-3 text-xs text-faint">{t('valueGlossary')}</p>
         <div className="mb-3 flex flex-wrap items-end gap-2">
           {SIDES.map((side) => (
             <label key={side} className="min-w-22 flex-1 text-xs text-muted">

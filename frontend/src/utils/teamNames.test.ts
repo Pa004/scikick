@@ -5,6 +5,8 @@ import { matchesQuery } from '../components/fixtures/fixtureUtils'
 describe('teamNames', () => {
   it('restores diacritics for known canonicals', () => {
     expect(displayTeam('Alaves')).toBe('Alavés')
+    expect(displayTeam('Almeria')).toBe('Almería')
+    expect(displayTeam('Cadiz')).toBe('Cádiz')
     expect(displayTeam('Espanol')).toBe('Español')
     expect(displayTeam('Leganes')).toBe('Leganés')
   })

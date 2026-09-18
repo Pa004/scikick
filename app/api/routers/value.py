@@ -4,7 +4,7 @@ import json
 
 from fastapi import APIRouter, HTTPException
 
-from app.api.schemas import ValueRequest, ValueResponse
+from app.api.schemas import ValueBatchRequest, ValueRequest, ValueResponse
 from app.db.connection import get_connection
 from app.models.value import evaluate_outcome
 
@@ -66,3 +66,19 @@ def compute_value(req: ValueRequest):
         for side in ("home", "draw", "away")
     }
     return ValueResponse(fixture_id=req.fixture_id, outcomes=outcomes, source=source)
+
+
+@router.post("/value/batch")
+def compute_value_batch(req: ValueBatchRequest):
+    """Best-effort bulk check: always 200, unknown fixtures map to null.
+
+    The feed prefetches this per card; per-fixture 404s would only spam the
+    browser console for fixtures without stored odds.
+    """
+    values: dict[str, ValueResponse | None] = {}
+    for fixture_id in req.fixture_ids[:50]:
+        try:
+            values[str(fixture_id)] = compute_value(ValueRequest(fixture_id=fixture_id))
+        except HTTPException:
+            values[str(fixture_id)] = None
+    return {"values": values}

@@ -72,6 +72,26 @@ def cmd_resolve(args):
         conn.close()
 
 
+def cmd_review_odds(args):
+    from app.models.odds_review import review_stored_odds
+
+    conn = get_connection()
+    try:
+        flagged = review_stored_odds(conn, args.league)
+        if not flagged:
+            print("OK: no atypical stored odds")
+            return
+        for r in flagged:
+            print(
+                f"FLAG {r['league']} #{r['fixture_id']} {r['match']} "
+                f"[{r['bookmaker']}] {r['side']}: prob={r['prob']} "
+                f"odds={r['odds']} edge=+{r['edge'] * 100:.1f}%"
+            )
+        print(f"Flagged {len(flagged)} atypical (fixture, side) pairs")
+    finally:
+        conn.close()
+
+
 def cmd_scorer_ingest(args):
     from app.players.ingest import ingest_league_players
     conn = get_connection()
@@ -128,6 +148,10 @@ def main():
     resolve_parser = subparsers.add_parser("resolve", help="Resolve played predictions")
     resolve_parser.add_argument("--league", type=str, default=None, help="League code (optional)")
     resolve_parser.set_defaults(func=cmd_resolve)
+
+    review_parser = subparsers.add_parser("review-odds", help="Flag stored odds with atypical model edge")
+    review_parser.add_argument("--league", type=str, default=None, help="League code (optional)")
+    review_parser.set_defaults(func=cmd_review_odds)
 
     scorer_parser = subparsers.add_parser("scorer-ingest", help="Ingest player xG data from Understat")
     scorer_parser.add_argument("--league", type=str, required=True, help="League code")
