@@ -4,6 +4,7 @@ import { TrendingDown, TrendingUp } from 'lucide-react'
 import { useLanguage } from '../i18n'
 import { formatDecimal } from '../utils/odds'
 import { getMarketLabel, getOutcomeLabel } from '../utils/marketLabels'
+import { isOutcomeMap } from '../utils/matchCenter'
 import type { DisplayMode } from '../hooks/useDisplayMode'
 import type { MoveDirection } from '../hooks/useMovement'
 import { useChartTheme } from './charts/chartTheme'
@@ -58,6 +59,7 @@ interface InnerProps {
 }
 
 function isNestedGroups(data: Record<string, number>): boolean {
+  if (isOutcomeMap(data)) return false
   const first = Object.values(data)[0]
   return typeof first === 'object' && first !== null
 }

@@ -8,14 +8,23 @@ export interface OutcomeProbs {
   away: number
 }
 
+// Type guard for flat outcome maps ({ outcome: probability }).
+export function isOutcomeMap(v: unknown): v is Record<string, number> {
+  if (typeof v !== 'object' || v === null) return false
+  return Object.values(v).every(n => typeof n === 'number' && Number.isFinite(n))
+}
+
 // Narrow a raw market record to 1X2 shares; null when any side
 // is missing or non-numeric (nested ht/ft groups included).
 export function asOutcomeProbs(record: Record<string, unknown> | null | undefined): OutcomeProbs | null {
   if (!record) return null
-  const { home, draw, away } = record as Record<string, unknown>
-  if (typeof home !== 'number' || typeof draw !== 'number' || typeof away !== 'number') return null
-  if (!Number.isFinite(home) || !Number.isFinite(draw) || !Number.isFinite(away)) return null
-  return { home, draw, away }
+  const shares: Record<string, unknown> = {
+    home: record.home,
+    draw: record.draw,
+    away: record.away,
+  }
+  if (!isOutcomeMap(shares)) return null
+  return { home: shares.home, draw: shares.draw, away: shares.away }
 }
 
 export interface H2HMeeting {
@@ -72,10 +81,8 @@ export function extract1x2(prediction: Record<string, unknown> | null): OutcomeP
   for (const cand of candidates) {
     if (typeof cand !== 'object' || cand === null) continue
     const rec = cand as Record<string, unknown>
-    const { home, draw, away } = rec
-    if (typeof home === 'number' && typeof draw === 'number' && typeof away === 'number') {
-      return { home, draw, away }
-    }
+    const narrowed = asOutcomeProbs(rec)
+    if (narrowed) return narrowed
   }
   return null
 }

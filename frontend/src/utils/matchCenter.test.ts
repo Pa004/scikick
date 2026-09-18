@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import type { Fixture } from '../types'
 import {
+  asOutcomeProbs,
   extract1x2,
   getTeamForm,
   getHeadToHead,
   getMomentum,
   getSuperCombo,
+  isOutcomeMap,
   selectPickOfDay,
 } from './matchCenter'
 
@@ -17,6 +19,26 @@ function fixture(over: Partial<Fixture>): Fixture {
 }
 
 const probs123 = { probabilities: { home: 0.5, draw: 0.3, away: 0.2 } }
+
+describe('isOutcomeMap', () => {
+  it('accepts finite numeric maps and rejects the rest', () => {
+    expect(isOutcomeMap({ home: 0.5, draw: 0.3 })).toBe(true)
+    expect(isOutcomeMap({})).toBe(true)
+    expect(isOutcomeMap(null)).toBe(false)
+    expect(isOutcomeMap('x')).toBe(false)
+    expect(isOutcomeMap({ home: 'x' })).toBe(false)
+    expect(isOutcomeMap({ home: Number.NaN })).toBe(false)
+    expect(isOutcomeMap({ home: Number.POSITIVE_INFINITY })).toBe(false)
+    expect(isOutcomeMap({ nested: { home: 0.5 } })).toBe(false)
+  })
+})
+
+describe('asOutcomeProbs', () => {
+  it('rejects non-finite shares', () => {
+    expect(asOutcomeProbs({ home: 0.5, draw: Number.NaN, away: 0.2 })).toBeNull()
+    expect(asOutcomeProbs({ home: 0.5, draw: 0.3, away: 0.2 })).toEqual({ home: 0.5, draw: 0.3, away: 0.2 })
+  })
+})
 
 describe('extract1x2', () => {
   it('reads direct probabilities shape', () => {

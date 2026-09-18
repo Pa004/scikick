@@ -3,6 +3,8 @@
 // canonical; this maps render-time text only. Add entries as new cases surface.
 const DISPLAY_NAMES: Record<string, string> = {
   Alaves: 'Alavés',
+  Almeria: 'Almería',
+  Cadiz: 'Cádiz',
   Espanol: 'Español',
   Leganes: 'Leganés',
 }

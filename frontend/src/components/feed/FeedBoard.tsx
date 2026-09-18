@@ -344,7 +344,7 @@ export function FeedBoard({
                     role="region"
                     aria-labelledby={btnId}
                     hidden={!open}
-                    {...(!open ? { inert: true } as unknown as Record<string, unknown> : {})}
+                    inert={!open}
                     className="px-3 pb-3"
                   >
                     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
