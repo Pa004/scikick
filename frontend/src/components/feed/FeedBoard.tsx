@@ -8,6 +8,7 @@ import { formatHumanDate } from '../fixtures/fixtureUtils'
 import { parseDeepLinkId, syncDeepLink } from '../../lib/deeplink'
 import { selectPickOfDay } from '../../utils/matchCenter'
 import { MatchCard } from './MatchCard'
+import { useFeed } from './FeedContext'
 import { PickOfDayCard } from '../fixtures/PickOfDayCard'
 import { Button } from '../ui/button'
 import { Skeleton } from '../ui/skeleton'
@@ -69,10 +70,6 @@ function scrollCardIntoView(id: number) {
 interface FeedBoardProps {
   fixtures: Fixture[]
   loading: boolean
-  leagueName: (code: string) => string
-  followed: string[]
-  onToggleFollow: (team: string) => void
-  analyst: boolean
   fixturesForContext: Fixture[]
   showValue: boolean
   // When provided (routed feed), deep links navigate instead of expanding inline.
@@ -82,15 +79,12 @@ interface FeedBoardProps {
 export function FeedBoard({
   fixtures,
   loading,
-  leagueName,
-  followed,
-  onToggleFollow,
-  analyst,
   fixturesForContext,
   showValue,
   onDeepLink,
 }: FeedBoardProps) {
   const { t, locale } = useLanguage()
+  const { leagueName } = useFeed()
   const [currentPage, setCurrentPage] = useState(1)
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [valuesReady, setValuesReady] = useState(false)
@@ -354,11 +348,7 @@ export function FeedBoard({
                           fixture={f}
                           expanded={expandedId === f.id}
                           onToggle={() => toggle(f.id)}
-                          leagueName={leagueName(f.league)}
-                          followed={followed}
-                          onToggleFollow={onToggleFollow}
                           hasValue={hasStoredValue(f.id)}
-                          analyst={analyst}
                           fixtures={fixturesForContext}
                           hideDate
                         />

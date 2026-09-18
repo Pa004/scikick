@@ -521,8 +521,11 @@ def _persist_multi_market_predictions(
 
 
 def resolve_predictions(conn: sqlite3.Connection, league: str | None = None) -> int:
+    # Scores travel in the same query: one round trip, no per-fixture SELECT.
     query = """
-        SELECT f.id as fixture_id, f.league, f.prediction
+        SELECT f.id as fixture_id, f.league, f.prediction,
+               f.home_score, f.away_score, f.ht_home_score, f.ht_away_score,
+               f.home_corners, f.away_corners, f.home_yellow, f.away_yellow
         FROM fixtures f
         WHERE f.status = 'post' AND f.result_checked = 0 AND f.prediction IS NOT NULL
     """
@@ -538,14 +541,8 @@ def resolve_predictions(conn: sqlite3.Connection, league: str | None = None) -> 
         prediction = json.loads(row["prediction"])
         markets = prediction.get("markets", {})
 
-        fixture = conn.execute(
-            "SELECT home_score, away_score, ht_home_score, ht_away_score, "
-            "home_corners, away_corners, home_yellow, away_yellow "
-            "FROM fixtures WHERE id = ?",
-            (fixture_id,),
-        ).fetchone()
-
-        if not fixture or fixture["home_score"] is None:
+        fixture = row
+        if fixture["home_score"] is None:
             continue
 
         hs = int(fixture["home_score"])

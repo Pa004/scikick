@@ -5,8 +5,7 @@ import { fetchFixtures } from '../api'
 import { getCachedValue, prefetchValues } from '../api/detail'
 import { recordVisit } from '../lib/visits'
 import { useLanguage } from '../i18n'
-import { useAnalystMode } from '../hooks/useAnalystMode'
-import { useFollowedTeams } from '../hooks/useFollowedTeams'
+import { useFeed } from '../components/feed/FeedContext'
 import { useLeagueName } from '../hooks/useLeagueName'
 import { ArrowLeft, Star } from 'lucide-react'
 import { MatchCard, FormStrip } from '../components/feed/MatchCard'
@@ -24,8 +23,7 @@ export function MatchPage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const fixtureId = Number(id)
-  const [analyst] = useAnalystMode()
-  const { followed, toggle } = useFollowedTeams()
+  const { followed, onToggleFollow: toggle } = useFeed()
   const [displayMode, setDisplayMode] = useDisplayMode()
   const [meta, setMeta] = useState<Fixture | null | undefined>(undefined)
   const [contextFixtures, setContextFixtures] = useState<Fixture[]>([])
@@ -134,11 +132,7 @@ export function MatchPage() {
           hideDate
           hideLeague
           onToggle={() => navigate('/')}
-          leagueName={leagueName(meta.league)}
-          followed={followed}
-          onToggleFollow={toggle}
           hasValue={hasValue}
-          analyst={analyst}
           fixtures={contextFixtures}
           displayMode={displayMode}
           onDisplayModeChange={setDisplayMode}

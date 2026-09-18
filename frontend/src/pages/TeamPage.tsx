@@ -5,9 +5,7 @@ import { fetchContext, fetchFixtures } from '../api'
 import { recordVisit } from '../lib/visits'
 import { useLanguage } from '../i18n'
 import { displayTeam } from '../utils/teamNames'
-import { useAnalystMode } from '../hooks/useAnalystMode'
-import { useFollowedTeams } from '../hooks/useFollowedTeams'
-import { useLeagueName } from '../hooks/useLeagueName'
+import { useFeed } from '../components/feed/FeedContext'
 import { MatchCard, FormStrip } from '../components/feed/MatchCard'
 import { TeamAvatar } from '../components/feed/TeamAvatar'
 import { Button } from '../components/ui/button'
@@ -19,8 +17,7 @@ export function TeamPage() {
   const { t } = useLanguage()
   const { name } = useParams()
   const team = decodeURIComponent(name ?? '')
-  const [analyst] = useAnalystMode()
-  const { followed, toggle } = useFollowedTeams()
+  const { followed, onToggleFollow: toggle } = useFeed()
   const [fixtures, setFixtures] = useState<Fixture[] | null>(null)
   const [context, setContext] = useState<TeamContext | null>(null)
   const [failed, setFailed] = useState(false)
@@ -50,8 +47,6 @@ export function TeamPage() {
       active = false
     }
   }, [team])
-
-  const leagueName = useLeagueName()
 
   const teamFixtures = useMemo(
     () => (fixtures ?? []).filter(f => f.home === team || f.away === team),
@@ -134,11 +129,7 @@ export function TeamPage() {
                 fixture={f}
                 expanded={expandedId === f.id}
                 onToggle={() => setExpandedId(prev => (prev === f.id ? null : f.id))}
-                leagueName={leagueName(f.league)}
-                followed={followed}
-                onToggleFollow={toggle}
                 hasValue={entry === undefined ? null : entry !== null && Object.values(entry.outcomes).some(o => o.value)}
-                analyst={analyst}
                 fixtures={fixtures ?? []}
               />
             )

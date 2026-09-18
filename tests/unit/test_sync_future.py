@@ -32,6 +32,40 @@ def _fdorg_fixtures():
     ]
 
 
+def test_upsert_fixture_result_promotes_stale_pre(tmp_path):
+    from app.ingestion.sync import upsert_fixture_result
+
+    conn = _make_conn(tmp_path)
+    try:
+        conn.execute(
+            "INSERT INTO leagues (id, name, country, tier, source_csv_code, "
+            "has_odds, has_xg, season_start_month, min_seasons) "
+            "VALUES ('E0', 'PL', 'England', 1, 'E0', 1, 0, 8, 2)"
+        )
+        conn.execute("INSERT INTO teams (id, canonical_name) VALUES (1, 'Arsenal')")
+        conn.execute("INSERT INTO teams (id, canonical_name) VALUES (2, 'Chelsea')")
+        conn.execute(
+            "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+            "status, source, source_fixture_id) "
+            "VALUES ('E0', '2026-09-07', 1, 2, 'pre', 'football_data', 'E0_2026-09-07_1_2')"
+        )
+        conn.commit()
+        assert upsert_fixture_result(
+            conn, "E0_2026-09-07_1_2", home_score=2, away_score=1
+        ) is True
+        conn.commit()
+        row = conn.execute(
+            "SELECT status, home_score, away_score FROM fixtures "
+            "WHERE source_fixture_id = 'E0_2026-09-07_1_2'"
+        ).fetchone()
+        assert tuple(row) == ("post", 2, 1)
+        assert upsert_fixture_result(
+            conn, "E0_2026-09-07_1_2", home_score=2, away_score=1
+        ) is False
+    finally:
+        conn.close()
+
+
 def test_primary_source_used_and_fallback_skipped(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(

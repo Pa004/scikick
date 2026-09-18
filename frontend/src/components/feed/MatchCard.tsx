@@ -7,6 +7,7 @@ import { fixtureVerdict } from '../fixtures/fixtureUtils'
 import { getVerdict, formatFrequency } from '../../utils/verdict'
 import { formatHumanDate } from '../fixtures/fixtureUtils'
 import { useMatchStory } from '../../hooks/useMatchStory'
+import { useFeed } from './FeedContext'
 import { MatchStoryExpanded } from './MatchStoryExpanded'
 import { SegmentedBar } from './SegmentedBar'
 import { TeamAvatar } from './TeamAvatar'
@@ -19,11 +20,7 @@ interface MatchCardProps {
   fixture: Fixture
   expanded: boolean
   onToggle: () => void
-  leagueName: string
-  followed: string[]
-  onToggleFollow: (team: string) => void
   hasValue: boolean | null
-  analyst: boolean
   fixtures: Fixture[]
   hideDate?: boolean
   hideLeague?: boolean
@@ -95,11 +92,7 @@ export function MatchCard({
   fixture: f,
   expanded,
   onToggle,
-  leagueName,
-  followed,
-  onToggleFollow,
   hasValue,
-  analyst,
   fixtures,
   hideDate = false,
   hideLeague = false,
@@ -109,6 +102,7 @@ export function MatchCard({
   storyTabs = false,
 }: MatchCardProps) {
   const { t, locale } = useLanguage()
+  const { followed, onToggleFollow, leagueName } = useFeed()
   const { detail, probs, storyId, market, setMarket } = useMatchStory(f, expanded)
 
   return (
@@ -132,7 +126,7 @@ export function MatchCard({
             <span className="flex items-baseline justify-between gap-2">
               {!hideLeague && (
                 <span className="text-xs font-bold tracking-[0.08em] text-faint uppercase">
-                  {leagueName}
+                  {leagueName(f.league)}
                 </span>
               )}
               {!hideDate && (
@@ -266,7 +260,6 @@ export function MatchCard({
             market={market}
             onMarketChange={setMarket}
             onToggle={onToggle}
-            analyst={analyst}
             fixtures={fixtures}
             hideDate={hideDate}
             displayMode={displayMode}

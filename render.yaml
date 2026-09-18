@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: scikick-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
+      - key: SERVICE_TOKEN
+        generateValue: true
+      - key: FOOTBALL_DATA_ORG_KEY
+        sync: false
+      - key: ODDS_API_KEY
+        sync: false
+    disk:
+      name: scikick-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

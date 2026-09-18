@@ -103,6 +103,24 @@ def _fuzzy_canonical(
     return (row["id"], best) if row else None
 
 
+def upsert_fixture_result(conn, source_fixture_id: str, **fields) -> bool:
+    """Fill in the result of a fixture previously stored as pre.
+
+    Season CSVs publish results after the future-sync already inserted the
+    fixture; without this the row stays pre (NULL scores) forever because
+    the INSERT OR IGNORE above never fires twice. Returns True when a stale
+    pre row was actually updated.
+    """
+    sets = ", ".join(f"{col} = ?" for col in fields)
+    values = list(fields.values())
+    cur = conn.execute(
+        f"UPDATE fixtures SET status = 'post', {sets} "
+        "WHERE source_fixture_id = ? AND status = 'pre'",
+        (*values, source_fixture_id),
+    )
+    return cur.rowcount > 0
+
+
 def sync_league(
     league_code: str,
     start_year: int,
@@ -123,6 +141,7 @@ def sync_league(
 
     conn = get_connection(db_path)
     inserted = 0
+    updated = 0
     try:
         _ensure_league(conn, league_code)
 
@@ -147,6 +166,7 @@ def sync_league(
             max_d = float(row["MaxD"]) if pd.notna(row.get("MaxD")) else None
             max_a = float(row["MaxA"]) if pd.notna(row.get("MaxA")) else None
 
+            source_fixture_id = f"{league_code}_{row['match_date']}_{home_id}_{away_id}"
             conn.execute(
                 "INSERT OR IGNORE INTO fixtures "
                 "(league, match_date, home_team_id, away_team_id, competition_type, "
@@ -160,10 +180,29 @@ def sync_league(
                     league_code, row["match_date"], home_id, away_id,
                     status, fthg, ftag, ht_home, ht_away,
                     hc, ac, hy, ay, hr, ar, ref, max_h, max_d, max_a,
-                    f"{league_code}_{row['match_date']}_{home_id}_{away_id}",
+                    source_fixture_id,
                 ),
             )
             inserted += 1
+            if status == "post" and upsert_fixture_result(
+                conn,
+                source_fixture_id,
+                home_score=fthg,
+                away_score=ftag,
+                ht_home_score=ht_home,
+                ht_away_score=ht_away,
+                home_corners=hc,
+                away_corners=ac,
+                home_yellow=hy,
+                away_yellow=ay,
+                home_red=hr,
+                away_red=ar,
+                referee=ref,
+                avg_home_odds=max_h,
+                avg_draw_odds=max_d,
+                avg_away_odds=max_a,
+            ):
+                updated += 1
 
         future_by_source = _sync_future_fixtures(conn, league_code)
 
@@ -187,6 +226,7 @@ def sync_league(
         "csv_path": str(csv_path),
         "total_rows": len(df),
         "inserted": inserted,
+        "updated": updated,
         "future_by_source": future_by_source,
         "validation": {
             "valid": validation.valid_rows,

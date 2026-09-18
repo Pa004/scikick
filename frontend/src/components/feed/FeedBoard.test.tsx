@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router'
 import { LanguageProvider } from '../../i18n'
 import { clearDetailCaches } from '../../api/detail'
 import { FeedBoard } from './FeedBoard'
+import { FeedProvider } from './FeedContext'
 import type { Fixture } from '../../types'
 
 function makeFixtures(n: number): Fixture[] {
@@ -24,17 +25,20 @@ function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: stri
   return render(
     <MemoryRouter initialEntries={entries}>
       <LanguageProvider>
+        <FeedProvider
+          followed={followed}
+          onToggleFollow={vi.fn()}
+          analyst={false}
+          onAnalystChange={() => {}}
+        >
         <FeedBoard
         fixtures={fixtures}
         loading={false}
-        leagueName={() => 'Premier League'}
-        followed={followed}
-        onToggleFollow={vi.fn()}
-        analyst={false}
         fixturesForContext={fixtures}
         showValue={showValue}
         onDeepLink={onDeepLink}
       />
+        </FeedProvider>
       </LanguageProvider>
     </MemoryRouter>,
   )
@@ -118,39 +122,28 @@ describe('FeedBoard', () => {
     const { rerender } = renderBoard(makeFixtures(25))
     fireEvent.click(screen.getByRole('button', { name: 'Página 2 de 3' }))
     expect(screen.getByText('Showing 13-24 of 25')).toBeDefined()
-    rerender(
+    const rerenderBoard = (show: boolean) => rerender(
       <MemoryRouter initialEntries={['/']}>
         <LanguageProvider>
-          <FeedBoard
-            fixtures={makeFixtures(25)}
-            loading={false}
-            leagueName={() => 'Premier League'}
+          <FeedProvider
             followed={[]}
             onToggleFollow={vi.fn()}
             analyst={false}
+            onAnalystChange={() => {}}
+          >
+          <FeedBoard
+            fixtures={makeFixtures(25)}
+            loading={false}
             fixturesForContext={makeFixtures(25)}
-            showValue={true}
+            showValue={show}
           />
+          </FeedProvider>
         </LanguageProvider>
       </MemoryRouter>,
     )
+    rerenderBoard(true)
     expect(screen.getByText('No value found in the loaded matches yet.')).toBeDefined()
-    rerender(
-      <MemoryRouter initialEntries={['/']}>
-        <LanguageProvider>
-          <FeedBoard
-            fixtures={makeFixtures(25)}
-            loading={false}
-            leagueName={() => 'Premier League'}
-            followed={[]}
-            onToggleFollow={vi.fn()}
-            analyst={false}
-            fixturesForContext={makeFixtures(25)}
-            showValue={false}
-          />
-        </LanguageProvider>
-      </MemoryRouter>,
-    )
+    rerenderBoard(false)
     expect(screen.getByText('Showing 1-12 of 25')).toBeDefined()
   })
 

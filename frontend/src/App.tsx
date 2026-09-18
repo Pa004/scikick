@@ -4,8 +4,8 @@ import { useLanguage } from './i18n'
 import { useAnalystMode } from './hooks/useAnalystMode'
 import { useFixtures } from './hooks/useFixtures'
 import { useFollowedTeams } from './hooks/useFollowedTeams'
-import { useLeagueName } from './hooks/useLeagueName'
 import { AppShell } from './components/layout/AppShell'
+import { FeedProvider } from './components/feed/FeedContext'
 import { FeedPage } from './pages/FeedPage'
 import { MatchPage } from './pages/MatchPage'
 import { TeamPage } from './pages/TeamPage'
@@ -26,7 +26,6 @@ function App() {
   const [showValue, setShowValue] = useState(false)
   const [valueCount, setValueCount] = useState(0)
   const [showPast, setShowPast] = useState(false)
-  const leagueName = useLeagueName()
 
   // Fixtures depend on league only: market and drawer data never
   // collapse the feed into skeletons.
@@ -108,6 +107,12 @@ function App() {
       }
     >
       <ScrollToTop />
+      <FeedProvider
+        followed={followed}
+        onToggleFollow={toggle}
+        analyst={analyst}
+        onAnalystChange={setAnalyst}
+      >
       <Routes>
         <Route
           path="/"
@@ -118,10 +123,6 @@ function App() {
               loading={loading}
               error={error}
               onRetry={retry}
-              leagueName={leagueName}
-              followed={followed}
-              onToggleFollow={toggle}
-              analyst={analyst}
               showValue={showValue}
             />
           }
@@ -131,6 +132,7 @@ function App() {
         <Route path="/seguidos" element={<FollowedPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </FeedProvider>
     </AppShell>
   )
 }
