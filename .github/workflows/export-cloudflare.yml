@@ -44,8 +44,11 @@ jobs:
       - run: python -m scripts.export_cloudflare --db data/futbol.db --out dist-cf
         env:
           SERVICE_TOKEN: dummy-export-run
+      - name: Check export is non-empty
+        id: check
+        run: python -c "import json,os; print('fixtures=' + str(json.load(open('dist-cf/manifest.json'))['fixtures']))" >> "$GITHUB_OUTPUT"
       - name: Deploy data bundle + Worker
-        if: env.HAS_CF_TOKEN != ''
+        if: env.HAS_CF_TOKEN != '' && steps.check.outputs.fixtures != '0'
         run: |
           npm install -g wrangler
           wrangler pages deploy dist-cf --project-name=scikick-data
