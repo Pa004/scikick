@@ -15,15 +15,13 @@ def set_user_version(conn: sqlite3.Connection, version: int) -> None:
 
 
 def _statements(text: str) -> list[str]:
-    # Migration files are simple one-statement-per-chunk DDL (no triggers
-    # or semicolons inside literals), so a naive split is safe here.
-    chunks: list[str] = []
-    for chunk in text.split(";"):
-        lines = [ln for ln in chunk.splitlines() if not ln.strip().startswith("--")]
-        stmt = "\n".join(lines).strip()
-        if stmt:
-            chunks.append(stmt)
-    return chunks
+    # Migration files are simple DDL with full-line comments only (no
+    # triggers, no semicolons inside literals), so stripping comment lines
+    # first and then splitting is safe here.
+    code = "\n".join(
+        ln for ln in text.splitlines() if not ln.strip().startswith("--")
+    )
+    return [chunk.strip() for chunk in code.split(";") if chunk.strip()]
 
 
 def run_migrations(db_path: str | None = None, migrations_dir: str | None = None) -> int:
