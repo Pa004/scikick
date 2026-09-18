@@ -50,7 +50,7 @@ class ScorerPlayer(BaseModel):
     player_id: int
     name: str
     team: str
-    position: str
+    position: str | None = None
     xg90: float
     min_expected: float
     prob_anytime: float

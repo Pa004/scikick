@@ -28,11 +28,12 @@ def get_scorer(fixture_id: int):
                 player_id=s["player_id"],
                 name=s["name"],
                 team=s["team"],
-                position=s["position"],
+                position=s.get("position"),
                 xg90=s["xg90"],
                 min_expected=s["min_expected"],
                 prob_anytime=s["prob_anytime"],
                 home_away=s["home_away"],
+                projected=s.get("projected", False),
             )
             for s in result.get("scorers", [])
         ]

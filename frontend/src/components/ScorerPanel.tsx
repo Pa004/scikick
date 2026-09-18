@@ -76,7 +76,7 @@ function ScorerRow({ s }: { s: ScorerPlayer }) {
     <tr className="transition-colors hover:bg-surface-hover">
       <Td className="font-medium" title={`${s.name} · ${displayTeam(s.team)}`}>
         {s.name}
-        <span className="ml-1 text-xs text-faint">{s.position}</span>
+        <span className="ml-1 text-xs text-faint">{s.position ?? '—'}</span>
       </Td>
       <Td className="text-muted">{displayTeam(s.team)}</Td>
       <Td align="center">{typeof s.xg90 === 'number' ? s.xg90.toFixed(2) : '—'}</Td>

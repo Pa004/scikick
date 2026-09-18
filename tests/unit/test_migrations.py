@@ -35,6 +35,27 @@ def test_run_migrations_idempotent(tmp_path: Path) -> None:
     assert applied == 0
 
 
+def test_run_migrations_resumes_after_partial_apply(tmp_path: Path) -> None:
+    import sqlite3
+
+    db_path = str(tmp_path / "test.db")
+    run_migrations(db_path)
+    # Simulate an interrupted past run: 002 columns present, version stuck at 1.
+    conn = sqlite3.connect(db_path)
+    conn.execute("PRAGMA user_version = 1")
+    conn.commit()
+    conn.close()
+    applied = run_migrations(db_path)
+    conn = get_connection(db_path)
+    try:
+        assert get_user_version(conn) == 8
+        cols = [row[1] for row in conn.execute("PRAGMA table_info(fixtures)").fetchall()]
+        assert "home_corners" in cols
+    finally:
+        conn.close()
+    assert applied == 7
+
+
 def test_migration_002_adds_corners_cards_odds_columns(tmp_path: Path) -> None:
     db_path = str(tmp_path / "test.db")
     run_migrations(db_path)

@@ -60,6 +60,13 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    had_token = bool(settings.service_token)
+    settings.ensure_service_token()
+    if not had_token and settings.env != "test":
+        logger.warning(
+            "SERVICE_TOKEN not set: using an ephemeral token that changes "
+            "on every restart. Set SERVICE_TOKEN in .env for stable access."
+        )
     app = FastAPI(
         title="SciKick",
         description="Football probability estimation engine",

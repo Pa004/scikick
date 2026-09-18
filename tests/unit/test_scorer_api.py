@@ -78,6 +78,27 @@ def test_scorer_endpoint_has_prob_anytime(tmp_path: Path):
         assert 0 <= scorer["prob_anytime"] <= 1
 
 
+def test_scorer_player_schema_tolerates_null_position():
+    from app.api.schemas import ScorerPlayer
+
+    player = ScorerPlayer(
+        player_id=1, name="NoPos", team="TeamA", position=None,
+        xg90=0.5, min_expected=90, prob_anytime=0.4, home_away="home",
+    )
+    assert player.position is None
+
+
+def test_scorer_endpoint_propagates_projected(tmp_path: Path):
+    db_path = _setup_db(tmp_path)
+
+    with patch("app.db.connection.get_settings") as mock_settings:
+        mock_settings.return_value.database_url = db_path
+        client = TestClient(app)
+        resp = client.get("/api/predict/scorer/1")
+        assert resp.status_code == 200
+        assert all("projected" in s for s in resp.json()["scorers"])
+
+
 def test_fetch_lineups_no_key():
     from app.ingestion.adapters.api_football import fetch_lineups
     with patch("app.ingestion.adapters.api_football.get_settings") as mock:

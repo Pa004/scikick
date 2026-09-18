@@ -124,7 +124,7 @@ export interface ScorerPlayer {
   player_id: number
   name: string
   team: string
-  position: string
+  position: string | null
   xg90: number
   min_expected: number
   prob_anytime: number
