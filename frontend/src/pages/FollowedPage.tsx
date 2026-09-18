@@ -22,7 +22,7 @@ export function FollowedPage() {
 
   useEffect(() => {
     let active = true
-    fetchFixtures('all', 200)
+    fetchFixtures('all', 200, true)
       .then(all => {
         if (active) setFixtures(all)
       })
@@ -42,7 +42,7 @@ export function FollowedPage() {
   if (fixtures === null && !failed) {
     return (
       <main id="main-content">
-        <h2 className="mb-3 font-display text-lg font-semibold text-foreground">{t('myMatches')}</h2>
+        <h1 className="mb-3 font-display text-lg font-semibold text-foreground">{t('myMatches')}</h1>
         <div role="status" aria-label={t('loading')} className="flex flex-col gap-3">
           {[0, 1, 2].map(i => (
             <Skeleton key={i} className="h-36 w-full rounded-xl" />
@@ -68,9 +68,9 @@ export function FollowedPage() {
 
   return (
     <main id="main-content">
-      <h2 className="mb-3 font-display text-lg font-semibold text-foreground">{t('myMatches')}</h2>
+      <h1 className="mb-10 font-display text-lg font-semibold text-foreground">{t('myMatches')}</h1>
       {followed.length === 0 ? (
-        <div className="rounded-[14px] border border-dashed border-border-strong bg-surface p-7">
+        <div className="mt-2 rounded-[14px] border border-dashed border-border-strong bg-surface p-7">
           <h3 className="text-[19px] font-bold text-foreground">{t('noFollowedTitle')}</h3>
           <p className="mt-1.5 mb-4 max-w-[65ch] text-[15px] text-muted">{t('noFollowed')}</p>
           <Button type="button" variant="primary" asChild>

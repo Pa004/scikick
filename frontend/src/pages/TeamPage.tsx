@@ -37,7 +37,7 @@ export function TeamPage() {
       return
     }
     Promise.all([
-      fetchFixtures('all', 200).catch((): Fixture[] => []),
+      fetchFixtures('all', 200, true).catch((): Fixture[] => []),
       fetchContext(team).catch((): null => null),
     ]).then(([all, ctx]) => {
       if (!active) return
@@ -100,9 +100,9 @@ export function TeamPage() {
       <div className="mb-4 flex flex-wrap items-center gap-3 rounded-[14px] border border-border bg-surface p-4">
         <TeamAvatar team={team} crest={crest} className="size-12 text-sm" />
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-[26px] leading-tight font-bold text-foreground" title={displayTeam(team)}>
+          <h1 className="truncate text-[26px] leading-tight font-bold text-foreground" title={displayTeam(team)}>
             {displayTeam(team)}
-          </h2>
+          </h1>
           {form.length > 0 && (
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <FormStrip

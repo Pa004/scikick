@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { NavLink } from 'react-router'
+import { NavLink, useLocation } from 'react-router'
 import { Search } from 'lucide-react'
 import { useLanguage } from '../../i18n'
 import { BrandLockup } from './Brand'
@@ -24,6 +24,9 @@ interface AppShellProps {
   savedCount?: number
   showValue?: boolean
   onShowValueChange?: (v: boolean) => void
+  valueCount?: number
+  showPast?: boolean
+  onShowPastChange?: (v: boolean) => void
   actions?: ReactNode
   children: ReactNode
 }
@@ -47,10 +50,16 @@ export function AppShell({
   savedCount,
   showValue,
   onShowValueChange,
+  valueCount,
+  showPast,
+  onShowPastChange,
   actions,
   children,
 }: AppShellProps) {
-  const { t } = useLanguage()
+  const { t, locale, setLocale } = useLanguage()
+  const { pathname } = useLocation()
+  // Feed-scoped filters: dead weight on team/followed pages.
+  const isFeed = pathname === '/'
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -63,7 +72,7 @@ export function AppShell({
       <a href="#main-content" className="skip-link">
         {t('skipToContent')}
       </a>
-      <header className={cn('sticky top-0 z-40 bg-surface pt-3 transition-shadow', scrolled && 'shadow-[0_1px_8px_oklch(20%_0.02_240_/_0.08)]')}>
+      <header className={cn('sticky top-0 z-40 bg-surface pt-3 pb-3 transition-shadow', scrolled && 'shadow-[0_1px_8px_oklch(20%_0.02_240_/_0.08)]')}>
         <div className="mx-auto flex h-16 w-full max-w-[1440px] items-center gap-3 px-4 lg:px-6">
           <BrandLockup />
           <nav aria-label={t('navMain')} className="ml-2 hidden items-center gap-1 min-[420px]:flex">
@@ -98,6 +107,23 @@ export function AppShell({
                 Ctrl K
               </kbd>
             </button>
+            <div role="group" aria-label={t('language')} className="flex shrink-0 items-center rounded-[10px] border border-border p-0.5">
+              {(['es', 'en'] as const).map(l => (
+                <button
+                  key={l}
+                  type="button"
+                  aria-pressed={locale === l}
+                  aria-label={l === 'es' ? 'Español' : 'English'}
+                  onClick={() => setLocale(l)}
+                  className={cn(
+                    'min-h-9 cursor-pointer rounded-[8px] px-2 font-mono text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    locale === l ? 'bg-foreground text-background' : 'text-faint hover:text-foreground',
+                  )}
+                >
+                  {l.toUpperCase()}
+                </button>
+              ))}
+            </div>
             <ThemeToggle />
             <OverflowMenu analyst={analyst} onAnalystChange={onAnalystChange} onOpenModel={onOpenModel} />
           </div>
@@ -108,18 +134,56 @@ export function AppShell({
               <LeagueSwitcher league={league} onChange={onLeagueChange} compact counts={leagueCounts} />
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              {onShowValueChange !== undefined && showValue !== undefined && (
-                <button
-                  type="button"
-                  aria-pressed={showValue}
-                  onClick={() => onShowValueChange(!showValue)}
-                  className={cn(
-                    'inline-flex min-h-9 shrink-0 cursor-pointer items-center rounded-full border px-3 text-xs font-bold whitespace-nowrap transition-colors',
-                    showValue ? 'border-primary/20 bg-primary-soft text-primary-ink' : 'border-border bg-surface text-muted hover:bg-surface-hover hover:text-foreground',
-                  )}
-                >
-                  {t('valueOnly')}
-                </button>
+              {isFeed && onShowValueChange !== undefined && showValue !== undefined && (
+                <>
+                  <button
+                    type="button"
+                    aria-pressed={showValue}
+                    aria-label={t('valueOnly')}
+                    title="Filtrar solo cuotas con valor +EV"
+                    onClick={() => onShowValueChange(!showValue)}
+                    className={cn(
+                      'inline-flex min-h-9 shrink-0 cursor-pointer items-center rounded-full border px-3 text-xs font-bold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      showValue ? 'border-primary bg-primary text-primary-fg shadow-sm' : 'border-border bg-surface text-muted hover:bg-surface-hover hover:text-foreground',
+                    )}
+                  >
+                    <span>{t('valueOnly')}</span>
+                    {valueCount !== undefined && (
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] leading-none font-bold tabular-nums',
+                          showValue ? 'bg-white/20 text-primary-fg' : 'bg-surface-alt text-faint',
+                        )}
+                      >
+                        {valueCount}
+                      </span>
+                    )}
+                  </button>
+                  <span aria-live="polite" aria-atomic="true" className="sr-only">
+                    {showValue ? `Filtrado a ${valueCount ?? 0} partidos con valor` : 'Mostrando todos los partidos'}
+                  </span>
+                </>
+              )}
+              {isFeed && onShowPastChange !== undefined && showPast !== undefined && (
+                <>
+                  <button
+                    type="button"
+                    aria-pressed={showPast}
+                    aria-label={t('showPast')}
+                    title={t('showPastHint')}
+                    onClick={() => onShowPastChange(!showPast)}
+                    className={cn(
+                      'inline-flex min-h-9 shrink-0 cursor-pointer items-center rounded-full border px-3 text-xs font-bold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                      showPast ? 'border-primary bg-primary text-primary-fg shadow-sm' : 'border-border bg-surface text-muted hover:bg-surface-hover hover:text-foreground',
+                    )}
+                  >
+                    <span>{t('showPast')}</span>
+                  </button>
+                  <span aria-live="polite" aria-atomic="true" className="sr-only">
+                    {showPast ? t('showingPast') : t('showingUpcoming')}
+                  </span>
+                </>
               )}
               <StatusCluster count={statusCount} updatedAt={statusUpdatedAt} />
             </div>

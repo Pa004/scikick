@@ -258,7 +258,7 @@ export function FeedBoard({
             onClick={allExpanded ? collapseAll : expandAll}
             className="h-7 min-h-0 px-2 text-xs"
           >
-            {allExpanded ? (locale === 'es' ? 'Colapsar todo' : 'Collapse all') : (locale === 'es' ? 'Expandir todo' : 'Expand all')}
+            {allExpanded ? t('collapseDates') : t('expandDates')}
           </Button>
         </div>
       )}
@@ -287,9 +287,14 @@ export function FeedBoard({
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <p role="status" className="text-sm text-faint">
-          {showValue ? t('noValueMatches') : t('noFixtures')}
-        </p>
+        <div role="status" className="rounded-[14px] border border-dashed border-border-strong bg-surface p-6 text-center">
+          <p className="text-sm font-medium text-foreground">{showValue ? t('noValueMatches') : t('noFixtures')}</p>
+          {showValue && (
+            <p className="mt-1.5 text-xs text-muted">
+              No hay cuotas por encima del modelo en los {fixtures.length} cargados. Prueba otra liga o vuelve luego.
+            </p>
+          )}
+        </div>
       ) : (
         <>
           {!showValue && (

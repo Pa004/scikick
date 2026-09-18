@@ -15,6 +15,7 @@ import { NotFound } from './pages/NotFound'
 import { ScrollToTop } from './components/layout/ScrollToTop'
 import { ModelDrawer } from './components/feed/ModelDrawer'
 import { CommandPalette } from './components/search/CommandPalette'
+import { getCachedValue, prefetchValues } from './api/detail'
 
 function App() {
   const { t } = useLanguage()
@@ -29,6 +30,8 @@ function App() {
   const [fetchedAt, setFetchedAt] = useState<number | null>(null)
   const { followed, toggle } = useFollowedTeams()
   const [showValue, setShowValue] = useState(false)
+  const [valueCount, setValueCount] = useState(0)
+  const [showPast, setShowPast] = useState(false)
 
   const leagueRequestId = useRef(0)
   const [leagueCounts, setLeagueCounts] = useState<Record<string, number> | undefined>(undefined)
@@ -41,7 +44,7 @@ function App() {
     setLoading(true)
     setError(false)
 
-    fetchFixtures(wantLeague, league === '' ? 100 : 30)
+    fetchFixtures(wantLeague, league === '' ? 100 : 30, !showPast)
       .then(data => {
         if (requestId !== leagueRequestId.current) return
         setFixtures(data)
@@ -54,12 +57,12 @@ function App() {
         setLoading(false)
         setError(true)
       })
-  }, [league, attempt])
+  }, [league, attempt, showPast])
 
   // League pill counts (live totals) — best-effort, cached per session.
   useEffect(() => {
     let active = true
-    fetchFixtures('all', 100)
+    fetchFixtures('all', 100, !showPast)
       .then(all => {
         if (!active) return
         const counts: Record<string, number> = { '': all.length }
@@ -75,7 +78,31 @@ function App() {
     return () => {
       active = false
     }
-  }, [fetchedAt, attempt])
+  }, [fetchedAt, attempt, showPast])
+
+  // Value pill count — best-effort background check for current league fixtures
+  useEffect(() => {
+    if (fixtures.length === 0) {
+      setValueCount(0)
+      return
+    }
+    let cancelled = false
+    const ranked = [...fixtures]
+      .sort((a, b) => Number(b.prediction != null) - Number(a.prediction != null))
+      .slice(0, 15)
+      .map(f => f.id)
+    void prefetchValues(ranked).then(() => {
+      if (cancelled) return
+      const count = fixtures.filter(f => {
+        const e = getCachedValue(f.id)
+        return e != null && Object.values(e.outcomes).some(o => o.value)
+      }).length
+      setValueCount(count)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [fixtures])
 
   const handleLeagueChange = (value: string) => {
     setLeague(value)
@@ -121,6 +148,9 @@ function App() {
       savedCount={followed.length}
       showValue={showValue}
       onShowValueChange={setShowValue}
+      valueCount={valueCount}
+      showPast={showPast}
+      onShowPastChange={setShowPast}
       actions={
         <>
           <ModelDrawer league={league} open={modelOpen} onOpenChange={setModelOpen} />

@@ -8,9 +8,10 @@ async function fetchJson<T>(url: string): Promise<T> {
   return res.json()
 }
 
-export async function fetchFixtures(league?: string, limit = 30): Promise<Fixture[]> {
+export async function fetchFixtures(league?: string, limit = 30, upcoming = false): Promise<Fixture[]> {
   const params = new URLSearchParams({ limit: String(limit) })
   if (league) params.set('league', league)
+  if (upcoming) params.set('upcoming', 'true')
   const data = await fetchJson<{ fixtures: Fixture[] }>(`${API_BASE}/fixtures?${params}`)
   return data.fixtures || []
 }

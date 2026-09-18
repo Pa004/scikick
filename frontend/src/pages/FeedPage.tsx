@@ -32,9 +32,9 @@ export function FeedPage({
 
   return (
     <main id="main-content">
-      <h2 className="mb-2 font-display text-lg font-semibold text-foreground">
+      <h1 className="mb-2 font-display text-lg font-semibold text-foreground">
         {t('fixtures')}
-      </h2>
+      </h1>
       {error ? (
         <div
           role="alert"

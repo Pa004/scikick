@@ -147,21 +147,34 @@ describe('App feed', () => {
     expect(vi.mocked(fetch)).toHaveBeenCalledWith(expect.stringContaining('league=SP1'))
   })
 
+  it('fetches upcoming fixtures by default and all when past is shown', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    const calls = vi.mocked(fetch).mock.calls.map(c => String(c[0]))
+    expect(calls.some(u => u.includes('/fixtures') && u.includes('upcoming=true'))).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Past' }))
+    await screen.findAllByText(/Arsenal/)
+    const latest = vi.mocked(fetch).mock.calls.map(c => String(c[0])).filter(u => u.includes('/fixtures')).pop() ?? ''
+    expect(latest).not.toContain('upcoming')
+  })
+
   it('expands one story at a time with verdict and match center', async () => {
     renderApp()
     await screen.findByText('Pick of the Day')
     fireEvent.click(screen.getByRole('button', { name: /Pick of the Day/ }))
     expect(await screen.findByText(/Arsenal win/)).toBeDefined()
     expect(screen.getByText('Match Center')).toBeDefined()
-    expect(await screen.findByText((_c, el) => el?.textContent === 'Arsenal 2 - 1 - 0 Chelsea')).toBeDefined()
+    expect(await screen.findByText((_c, el) => el?.textContent === 'Arsenal won 2 · 1 draws · Chelsea won 0')).toBeDefined()
     fireEvent.click(screen.getByRole('button', { name: /Liverpool vs Man City/ }))
     await screen.findByText((_c, el) => el?.tagName === 'P' && /Liverpool win|Man City win|Draw/.test(el?.textContent ?? ''))
-    expect(screen.queryByText((_c, el) => el?.textContent === 'Arsenal 2 - 1 - 0 Chelsea')).toBeNull()
+    expect(screen.queryByText((_c, el) => el?.textContent === 'Arsenal won 2 · 1 draws · Chelsea won 0')).toBeNull()
   })
 
   it('opens the model drawer with calibration', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
+    expect(screen.queryByRole('menuitem', { name: 'About the model' })).toBeNull()
+    fireEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Analyst' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'About the model' }))
     expect(await screen.findByText('Well calibrated. Predictions land close to actual outcomes.')).toBeDefined()
   })
@@ -290,6 +303,7 @@ describe('App feed', () => {
   it('closes the model drawer with Escape', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
+    fireEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Analyst' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'About the model' }))
     await screen.findByText('Calibration')
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -330,7 +344,7 @@ describe('App feed', () => {
     // Server context 404s: form falls back to loaded fixtures (Arsenal W, Chelsea L)
     const badges = await screen.findAllByRole('listitem', { name: /Win|Loss/ })
     expect(badges.length).toBe(2)
-    expect(screen.getByText((_c, el) => el?.textContent === 'Arsenal 1 - 0 - 0 Chelsea')).toBeDefined()
+    expect(screen.getByText((_c, el) => el?.textContent === 'Arsenal won 1 · 0 draws · Chelsea won 0')).toBeDefined()
   })
 
   it('persists the theme toggle across reloads', async () => {
