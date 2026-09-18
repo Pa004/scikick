@@ -17,6 +17,7 @@ import { Skeleton } from '../ui/skeleton'
 import { cn } from '../../lib/cn'
 import PredictionPanel from '../PredictionPanel'
 import ScorerPanel from '../ScorerPanel'
+import type { DisplayMode } from '../../hooks/useDisplayMode'
 
 interface MatchCardProps {
   fixture: Fixture
@@ -29,6 +30,11 @@ interface MatchCardProps {
   analyst: boolean
   fixtures: Fixture[]
   hideDate?: boolean
+  hideLeague?: boolean
+  displayMode?: DisplayMode
+  onDisplayModeChange?: (mode: DisplayMode) => void
+  marketLayout?: 'stack' | 'parallel'
+  storyTabs?: boolean
 }
 
 export function FollowStar({
@@ -64,6 +70,8 @@ export function FollowStar({
 }
 
 export function FormStrip({ form, label }: { form: FormOutcome[]; label: string }) {
+  const { locale } = useLanguage()
+  const letter = (o: FormOutcome) => (locale === 'es' ? (o === 'W' ? 'V' : o === 'D' ? 'E' : 'D') : o)
   if (form.length === 0) return null
   return (
     <span className="flex items-center gap-1.5" role="img" aria-label={label}>
@@ -80,7 +88,7 @@ export function FormStrip({ form, label }: { form: FormOutcome[]; label: string 
                 : 'border-danger/50 bg-danger-soft text-danger-ink',
           )}
         >
-          {o}
+          {letter(o)}
         </span>
       ))}
     </span>
@@ -98,6 +106,11 @@ export function MatchCard({
   analyst,
   fixtures,
   hideDate = false,
+  hideLeague = false,
+  displayMode,
+  onDisplayModeChange,
+  marketLayout = 'stack',
+  storyTabs = false,
 }: MatchCardProps) {
   const { t, locale } = useLanguage()
   const [market, setMarket] = useState('1x2')
@@ -122,25 +135,29 @@ export function MatchCard({
           aria-controls={storyId}
           className="min-w-0 flex-1 cursor-pointer rounded-lg text-left"
         >
-          <span className="flex items-baseline justify-between gap-2">
-            <span className="text-xs font-bold tracking-[0.08em] text-faint uppercase">
-              {leagueName}
+          {(!hideLeague || !hideDate) && (
+            <span className="flex items-baseline justify-between gap-2">
+              {!hideLeague && (
+                <span className="text-xs font-bold tracking-[0.08em] text-faint uppercase">
+                  {leagueName}
+                </span>
+              )}
+              {!hideDate && (
+                <span className="font-mono text-[13px] text-muted tabular-nums">
+                  {formatHumanDate(f.date, locale)}
+                </span>
+              )}
             </span>
-            {!hideDate && (
-              <span className="font-mono text-[13px] text-muted tabular-nums">
-                {formatHumanDate(f.date, locale)}
-              </span>
-            )}
-          </span>
-          <h2 id={`match-title-${f.id}`} className="mt-1.5 flex min-w-0 flex-wrap items-center gap-2 text-[17px] leading-snug font-bold text-foreground">
+          )}
+          <h2 id={`match-title-${f.id}`} className="flex min-w-0 flex-wrap items-center gap-2 text-[17px] leading-snug font-bold text-foreground">
             <span className="inline-flex min-w-0 items-center gap-1.5">
               <TeamAvatar team={f.home} crest={f.home_crest} />
               <span className="min-w-0 truncate" title={displayTeam(f.home)}>
                 {displayTeam(f.home)}
               </span>
             </span>
-            <span>vs</span>
-            <span className="inline-flex min-w-0 items-center gap-1.5">
+            <span className="inline-flex min-w-0 items-center gap-1.5 whitespace-nowrap">
+              <span>vs</span>
               <span className="min-w-0 truncate" title={displayTeam(f.away)}>
                 {displayTeam(f.away)}
               </span>
@@ -159,7 +176,7 @@ export function MatchCard({
               </Badge>
             )}
             {hasValue === true && (
-              <Badge variant="value" className="text-xs">
+              <Badge variant="value" className="text-xs" title="Valor esperado positivo: cuota con valor">
                 {t('valueIsValue')}
               </Badge>
             )}
@@ -249,20 +266,19 @@ export function MatchCard({
 
       {expanded && (
         <div role="region" aria-label={`${displayTeam(f.home)} vs ${displayTeam(f.away)}`} id={storyId} className="animate-fade border-t border-border px-4 py-4">
-          <div className="mb-3 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onToggle}
-              aria-label={t('backToFeed')}
-              title={t('backToFeed')}
-              className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
-            >
-              <ArrowLeft aria-hidden="true" className="size-5" />
-            </button>
-            <span className="text-xs font-semibold tracking-[0.08em] text-faint uppercase">
-              {formatHumanDate(f.date, locale)} · {leagueName}
-            </span>
-          </div>
+          {!hideDate && (
+            <div className="mb-3 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onToggle}
+                aria-label={t('backToFeed')}
+                title={t('backToFeed')}
+                className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+              >
+                <ArrowLeft aria-hidden="true" className="size-5" />
+              </button>
+            </div>
+          )}
           {detail.loading && (
             <div role="status" aria-label={t('loadingMatch')} className="flex flex-col gap-2">
               <Skeleton className="h-8 w-3/4" />
@@ -280,14 +296,15 @@ export function MatchCard({
           )}
           {detail.data && (
             <>
-              <div id={`${storyId}-verdict`} className="scroll-mt-40">
+              <div id={`${storyId}-verdict`} className="scroll-mt-[200px]">
                 <VerdictHero
                   fixture={f}
                   probableScore={detail.data.prediction.probable_score}
                   probs={asOutcomeProbs(detail.data.prediction.probabilities['1x2'])}
+                  analyst={analyst}
                 />
               </div>
-              <div id={`${storyId}-markets`} className="scroll-mt-40">
+              <div id={`${storyId}-markets`} className="scroll-mt-[200px]">
                 <PredictionPanel
                   prediction={detail.data.prediction}
                   selectedMarket={market}
@@ -298,9 +315,13 @@ export function MatchCard({
                   analyst={analyst}
                   bare
                   initialValue={detail.data.value}
+                  displayMode={displayMode}
+                  onDisplayModeChange={onDisplayModeChange}
+                  marketLayout={marketLayout}
+                  storyTabs={storyTabs}
                 />
               </div>
-              <div id={`${storyId}-scorers`} className="scroll-mt-40">
+              <div id={`${storyId}-scorers`} className="scroll-mt-[200px]">
                 {detail.data.scorer ? (
                   <ScorerPanel key={detail.data.scorer.fixture_id} scorer={detail.data.scorer} />
                 ) : (

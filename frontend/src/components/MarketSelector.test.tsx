@@ -24,17 +24,25 @@ describe('MarketSelector', () => {
     expect(screen.queryByText('Corners')).toBeNull()
   })
 
-  it('opens the group containing the selected market by default', () => {
+  it('opens the group holding the selection on mount', () => {
     renderSelector('ht_1x2')
     expect(screen.queryByText('Double chance')).toBeNull()
+    expect(screen.queryByText('Full-time result')).toBeNull()
     expect(screen.getByText('1st Half')).toBeDefined()
+    expect(screen.getByText('Results')).toBeDefined()
   })
 
-  it('keeps one group open at a time', () => {
+  it('marks the active group with a selected-market note', () => {
+    renderSelector()
+    expect(screen.getByText('Double chance')).toBeDefined()
+    expect(screen.getByText(/Contains the selected market/)).toBeDefined()
+  })
+
+  it('keeps multiple groups open at a time', () => {
     renderSelector()
     expect(screen.getByText('Double chance')).toBeDefined()
     fireEvent.click(screen.getByText('Goals'))
-    expect(screen.queryByText('Double chance')).toBeNull()
+    expect(screen.getByText('Double chance')).toBeDefined()
     expect(screen.getByText('Over / Under 2.5 goals')).toBeDefined()
   })
 
@@ -42,5 +50,51 @@ describe('MarketSelector', () => {
     const onChange = renderSelector()
     fireEvent.click(screen.getByText('Double chance'))
     expect(onChange).toHaveBeenCalledWith('double_chance')
+  })
+
+  it('keeps the group open after selecting an option', () => {
+    const onChange = vi.fn()
+    const { rerender } = render(
+      <LanguageProvider>
+        <MarketSelector selected="1x2" onChange={onChange} availableMarkets={available} />
+      </LanguageProvider>,
+    )
+    fireEvent.click(screen.getByText('Double chance'))
+    expect(onChange).toHaveBeenCalledWith('double_chance')
+    // Parent updates the selection; the open group must survive for live comparison.
+    rerender(
+      <LanguageProvider>
+        <MarketSelector selected="double_chance" onChange={onChange} availableMarkets={available} />
+      </LanguageProvider>,
+    )
+    expect(screen.getByText('Double chance')).toBeDefined()
+  })
+
+  it('filters markets by text, keeping their groups', () => {
+    renderSelector()
+    fireEvent.change(screen.getByPlaceholderText(/Search markets/), { target: { value: 'over' } })
+    expect(screen.getByText('Over / Under 2.5 goals')).toBeDefined()
+    expect(screen.queryByText('Double chance')).toBeNull()
+    expect(screen.getByText('Goals')).toBeDefined()
+    expect(screen.queryByText('Results')).toBeNull()
+  })
+
+  it('shows an empty state without matches', () => {
+    renderSelector()
+    fireEvent.change(screen.getByPlaceholderText(/Search markets/), { target: { value: 'zzz' } })
+    expect(screen.getByText('No matching markets.')).toBeDefined()
+  })
+
+  it('aligns count badges in a fixed centered cell', () => {
+    const { container } = render(
+      <LanguageProvider>
+        <MarketSelector selected="1x2" onChange={() => {}} availableMarkets={available} />
+      </LanguageProvider>,
+    )
+    const triggers = container.querySelectorAll('button[aria-expanded]')
+    expect(triggers.length).toBeGreaterThan(1)
+    triggers.forEach(trigger => {
+      expect(trigger.querySelector(':scope > span.w-12')).not.toBeNull()
+    })
   })
 })

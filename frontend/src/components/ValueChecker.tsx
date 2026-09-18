@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { fetchValue } from '../api'
 import type { ValueOutcome, ValueResponse } from '../types'
 import { displayTeam } from '../utils/teamNames'
-import { useLanguage } from '../i18n'
+import { fillVars, useLanguage } from '../i18n'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardBody, CardTitle } from './ui/card'
@@ -30,13 +30,18 @@ function OutcomeRow({ label, outcome }: { label: string; outcome: ValueOutcome }
         {outcome.value ? t('valueIsValue') : t('valueNoValue')} · {t('valueEdge')} {edgePct}
       </Badge>
       {outcome.value && (
-        <span className="text-muted tabular-nums">
-          {t('valueKelly')} {(outcome.kelly * 100).toFixed(1)}%
+        <span
+          className="basis-full text-xs text-faint tabular-nums"
+          title={t('valueKellyMethod')}
+        >
+          {fillVars(t('valueStakeHint'), { pct: `${(outcome.kelly * 100).toFixed(1)}%` })}
         </span>
       )}
     </div>
   )
 }
+
+
 
 interface ValueCheckerProps {
   fixtureId: number
@@ -56,12 +61,14 @@ export default function ValueChecker({
   const { t } = useLanguage()
   const [odds, setOdds] = useState<Record<Side, string>>({ home: '', draw: '', away: '' })
   const [result, setResult] = useState<ValueResponse | null>(autoResult ?? null)
+  const [manual, setManual] = useState(false)
   const [pending, setPending] = useState(false)
   const [autoError, setAutoError] = useState(false)
 
   useEffect(() => {
     setOdds({ home: '', draw: '', away: '' })
     setAutoError(false)
+    setManual(false)
     if (autoResult !== undefined) {
       setResult(autoResult)
       return
@@ -105,6 +112,7 @@ export default function ValueChecker({
         away: parsed.away as number,
       })
       setResult(data)
+      setManual(true)
     } catch {
       setResult(null)
     } finally {
@@ -142,6 +150,18 @@ export default function ValueChecker({
         <div role="status" aria-live="polite" className="border-t border-border pt-3">
           {result ? (
             <div className="flex flex-col gap-2">
+              <div className="m-0 text-xs text-faint">
+                <p className="m-0">
+                  {manual || !result.source
+                    ? t('valueManualSource')
+                    : fillVars(t('valueStoredSource'), {
+                        source: result.source === 'best-eu' ? t('valueBestEu') : result.source,
+                      })}
+                </p>
+                {!manual && result.source === 'best-eu' && (
+                  <p className="m-0">{t('valueMultiBookNote')}</p>
+                )}
+              </div>
               {SIDES.map((side) => result.outcomes[side] && (
                 <OutcomeRow key={side} label={labels[side]} outcome={result.outcomes[side]} />
               ))}

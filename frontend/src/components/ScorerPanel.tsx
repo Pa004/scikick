@@ -13,7 +13,7 @@ import {
 import { displayTeam } from '../utils/teamNames'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
-import { Card } from './ui/card'
+import { Card, CardBody, CardTitle } from './ui/card'
 import { Input } from './ui/input'
 import { SegmentedButton, SegmentedGroup } from './ui/segmented'
 import { Table, TableRegion, Td, Th } from './ui/table'
@@ -123,20 +123,23 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
   }
 
   return (
-    <div className="mt-4">
-      <h3 className="mb-3 font-display text-base font-semibold text-foreground">{t('goalscorer')}</h3>
-
-      <Badge
-        variant={scorer.data_quality === 'lineup_confirmed' ? 'success' : 'neutral'}
-        className="mb-3 px-3 py-1 text-xs"
-      >
-        {scorer.data_quality === 'lineup_confirmed' ? t('lineupConfirmed') : t('lineupProjected')}
-      </Badge>
+    <Card className="mt-4">
+      <CardBody>
+        <CardTitle className="mb-3">{t('goalscorer')}</CardTitle>
 
       {list.length === 0 ? (
-        <p className="text-sm text-faint">{t('noScorerData')}</p>
+        <>
+          <p className="m-0 text-sm text-faint">{t('noScorerData')}</p>
+          <p className="mt-1 mb-0 text-xs text-faint">{t('noScorerDataHint')}</p>
+        </>
       ) : (
         <>
+          <Badge
+            variant={scorer.data_quality === 'lineup_confirmed' ? 'success' : 'neutral'}
+            className="mb-3 px-3 py-1 text-xs"
+          >
+            {scorer.data_quality === 'lineup_confirmed' ? t('lineupConfirmed') : t('lineupProjected')}
+          </Badge>
           <ScorerControls query={query} onQuery={setQuery} team={team} onTeam={setTeam} />
           {rows.length === 0 ? (
             <p className="text-sm text-faint">{t('noScorerMatch')}</p>
@@ -192,6 +195,7 @@ export default function ScorerPanel({ scorer }: ScorerPanelProps) {
           )}
         </>
       )}
-    </div>
+      </CardBody>
+    </Card>
   )
 }

@@ -73,6 +73,13 @@ describe('ScorerPanel', () => {
   it('shows no-data state without controls for empty list', () => {
     renderPanel({ fixture_id: 1, data_quality: 'projected', scorers: [] })
     expect(screen.getByText('No scorer data available for this fixture.')).toBeDefined()
+    expect(screen.getByText('No candidates yet — check back once minutes and lineups are recorded.')).toBeDefined()
     expect(screen.queryByLabelText(/Search player or team/)).toBeNull()
+  })
+
+  it('hides the lineup badge when there are no candidates', () => {
+    renderPanel({ fixture_id: 1, data_quality: 'projected', scorers: [] })
+    expect(screen.queryByText(/Projected XI/)).toBeNull()
+    expect(screen.queryByText(/Lineup confirmed/)).toBeNull()
   })
 })

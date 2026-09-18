@@ -47,8 +47,12 @@ export function OverflowMenu({ analyst, onAnalystChange, onOpenModel }: Overflow
         <MenuCheckboxItem checked={analyst} onCheckedChange={onAnalystChange}>
           {t('analystSwitch')}
         </MenuCheckboxItem>
-        <MenuSeparator />
-        <MenuItem onSelect={onOpenModel}>{t('aboutModel')}</MenuItem>
+        {analyst && (
+          <>
+            <MenuSeparator />
+            <MenuItem onSelect={onOpenModel}>{t('aboutModel')}</MenuItem>
+          </>
+        )}
       </MenuContent>
     </Menu>
   )

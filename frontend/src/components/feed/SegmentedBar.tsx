@@ -46,14 +46,17 @@ export function SegmentedBar({ probs, home, away, onSelect, compact = false }: S
         ))}
       </span>
       {!compact && (
-        <ul className="mt-3 grid list-none gap-2 p-0">
-          {segments.map(s => (
-            <li key={s.key} className="flex items-center gap-2.5 text-[15px] text-foreground">
-              <span aria-hidden="true" className={cn('size-3.5 flex-none rounded border border-border', s.key === 'home' ? 'bg-primary' : s.key === 'draw' ? 'bg-surface-alt' : 'bg-danger')} />
-              <span>{s.label} <strong className="font-mono tabular-nums">{s.pct.toFixed(0)}%</strong></span>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="mt-3 grid list-none gap-2 p-0">
+            {segments.map(s => (
+              <li key={s.key} className="flex items-center gap-2.5 text-[15px] text-foreground">
+                <span aria-hidden="true" className={cn('size-3.5 flex-none rounded border border-border', s.key === 'home' ? 'bg-primary' : s.key === 'draw' ? 'bg-surface-alt' : 'bg-danger')} />
+                <span>{s.label} <strong className="font-mono tabular-nums">{s.pct.toFixed(0)}%</strong></span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 mb-0 text-xs text-faint">{t('oneXTwoLegend')}</p>
+        </>
       )}
     </span>
   )

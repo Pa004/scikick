@@ -80,14 +80,16 @@ describe('getHeadToHead', () => {
 
 describe('getMomentum', () => {
   it('computes points share over the shared window', () => {
-    expect(getMomentum(['W', 'W'], ['L'])).toEqual({ homePct: 100, awayPct: 0 })
+    expect(getMomentum(['W', 'W'], ['L'])).toEqual({ homePct: 100, awayPct: 0, homePoints: 6, awayPoints: 0, maxPoints: 6 })
     const even = getMomentum(['W', 'D'], ['W', 'D'])
     expect(even.homePct).toBeCloseTo(66.67, 1)
     expect(even.awayPct).toBeCloseTo(66.67, 1)
+    expect(even.homePoints).toBe(4)
+    expect(even.maxPoints).toBe(6)
   })
 
   it('handles empty form', () => {
-    expect(getMomentum([], [])).toEqual({ homePct: 0, awayPct: 0 })
+    expect(getMomentum([], [])).toEqual({ homePct: 0, awayPct: 0, homePoints: 0, awayPoints: 0, maxPoints: 3 })
   })
 })
 

@@ -130,11 +130,26 @@ function formPoints(form: FormOutcome[]): number {
 }
 
 // Points share over the same window, so both bars are comparable.
-export function getMomentum(homeForm: FormOutcome[], awayForm: FormOutcome[]): { homePct: number; awayPct: number } {
+// Points and max are exposed so the UI can show "x of y pts" instead of
+// a bare percentage that reads like a win probability.
+export interface Momentum {
+  homePct: number
+  awayPct: number
+  homePoints: number
+  awayPoints: number
+  maxPoints: number
+}
+
+export function getMomentum(homeForm: FormOutcome[], awayForm: FormOutcome[]): Momentum {
   const window = Math.max(homeForm.length, awayForm.length, 1)
+  const homePoints = formPoints(homeForm)
+  const awayPoints = formPoints(awayForm)
   return {
-    homePct: (formPoints(homeForm) / (3 * window)) * 100,
-    awayPct: (formPoints(awayForm) / (3 * window)) * 100,
+    homePct: (homePoints / (3 * window)) * 100,
+    awayPct: (awayPoints / (3 * window)) * 100,
+    homePoints,
+    awayPoints,
+    maxPoints: 3 * window,
   }
 }
 

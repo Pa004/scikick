@@ -168,15 +168,35 @@ describe('MatchCard story', () => {
 
 describe('FormStrip', () => {
   it('renders letter pips with text labels, not color alone', () => {
-    render(<FormStrip form={['W', 'D', 'L']} label="Liverpool: Form" />)
+    render(
+      <LanguageProvider>
+        <FormStrip form={['W', 'D', 'L']} label="Liverpool: Form" />
+      </LanguageProvider>,
+    )
     expect(screen.getByRole('img', { name: 'Liverpool: Form' })).toBeDefined()
     expect(screen.getByText('W')).toBeDefined()
     expect(screen.getByText('D')).toBeDefined()
     expect(screen.getByText('L')).toBeDefined()
   })
 
+  it('localizes pips to V/E/D in Spanish', () => {
+    window.localStorage.setItem('scikick.locale', 'es')
+    render(
+      <LanguageProvider>
+        <FormStrip form={['W', 'D', 'L']} label="Liverpool: Forma" />
+      </LanguageProvider>,
+    )
+    expect(screen.getByText('V')).toBeDefined()
+    expect(screen.getAllByText('E').length).toBeGreaterThan(0)
+    window.localStorage.removeItem('scikick.locale')
+  })
+
   it('renders nothing without form', () => {
-    const { container } = render(<FormStrip form={[]} label="None: Form" />)
+    const { container } = render(
+      <LanguageProvider>
+        <FormStrip form={[]} label="None: Form" />
+      </LanguageProvider>,
+    )
     expect(container.textContent).toBe('')
   })
 })
@@ -190,6 +210,15 @@ describe('SegmentedBar', () => {
     )
     expect(screen.getByLabelText('1 · A: 50.0%')).toBeDefined()
     expect(screen.getByLabelText('X · Draw: 30.0%')).toBeDefined()
+  })
+
+  it('explains the 1X2 codes under the legend', () => {
+    render(
+      <LanguageProvider>
+        <SegmentedBar probs={{ home: 0.5, draw: 0.3, away: 0.2 }} home="A" away="B" onSelect={vi.fn()} />
+      </LanguageProvider>,
+    )
+    expect(screen.getByText('1 = home win · X = draw · 2 = away win')).toBeDefined()
   })
 
   it('uses semantic 1X2 fills without presentation wrapper', () => {
