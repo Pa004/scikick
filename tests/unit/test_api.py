@@ -173,6 +173,49 @@ def test_list_fixtures_upcoming_first(tmp_path: Path):
     assert dates[0] == "2026-09-12"
 
 
+def test_list_fixtures_upcoming_filters_stale_pre(tmp_path: Path):
+    import datetime
+
+    db_path = _setup_db(tmp_path)
+    today = datetime.date.today()
+    past = (today - datetime.timedelta(days=10)).isoformat()
+    future = (today + datetime.timedelta(days=10)).isoformat()
+    conn = sqlite3.connect(db_path)
+    conn.execute(
+        "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+        "status, source, source_fixture_id) "
+        "VALUES ('E0', ?, 1, 2, 'pre', 'football_data_org', 'fdorg_past')",
+        (past,),
+    )
+    conn.execute(
+        "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+        "status, source, source_fixture_id) "
+        "VALUES ('E0', ?, 1, 2, 'pre', 'football_data_org', 'fdorg_future')",
+        (future,),
+    )
+    conn.execute(
+        "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+        "status, source, source_fixture_id) "
+        "VALUES ('E0', ?, 2, 1, 'post', 'football_data_org', 'fdorg_post')",
+        (past,),
+    )
+    conn.commit()
+    conn.close()
+    app = create_app()
+    client = TestClient(app)
+    with patch("app.api.routers.fixtures.get_connection", side_effect=_make_get_conn(db_path)):
+        upcoming = client.get("/api/fixtures?league=E0&upcoming=true")
+    assert upcoming.status_code == 200
+    dates = [f["date"] for f in upcoming.json()["fixtures"]]
+    assert past not in dates
+    assert future in dates
+    assert all(f["status"] == "pre" for f in upcoming.json()["fixtures"])
+    with patch("app.api.routers.fixtures.get_connection", side_effect=_make_get_conn(db_path)):
+        all_resp = client.get("/api/fixtures?league=E0")
+    assert all_resp.status_code == 200
+    assert past in [f["date"] for f in all_resp.json()["fixtures"]]
+
+
 def test_get_stats(tmp_path: Path):
     db_path = _setup_db(tmp_path)
     app = create_app()

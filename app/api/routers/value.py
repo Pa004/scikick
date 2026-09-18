@@ -35,6 +35,7 @@ def compute_value(req: ValueRequest):
                 detail="This fixture has no result probabilities saved",
             )
 
+        source: str | None = None
         if req.odds is not None:
             given = {"home": req.odds.home, "draw": req.odds.draw, "away": req.odds.away}
         else:
@@ -56,6 +57,7 @@ def compute_value(req: ValueRequest):
                     detail="No bookmaker odds matched for this fixture yet",
                 )
             given = {"home": stored["home"], "draw": stored["draw"], "away": stored["away"]}
+            source = stored["bookmaker"]
     finally:
         conn.close()
 
@@ -63,4 +65,4 @@ def compute_value(req: ValueRequest):
         side: evaluate_outcome(float(probs[side]), float(given[side]))
         for side in ("home", "draw", "away")
     }
-    return ValueResponse(fixture_id=req.fixture_id, outcomes=outcomes)
+    return ValueResponse(fixture_id=req.fixture_id, outcomes=outcomes, source=source)

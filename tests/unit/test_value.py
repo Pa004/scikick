@@ -40,6 +40,13 @@ def test_evaluate_outcome_shape():
     assert result["kelly"] > 0
 
 
+def test_evaluate_outcome_caps_absurd_edge():
+    result = evaluate_outcome(0.234, 19.50)
+    assert result["edge"] == pytest.approx(3.563)
+    assert result["value"] is False
+    assert result["kelly"] == 0.0
+
+
 def _setup_value_db(tmp_path: Path, monkeypatch):
     db_path = str(tmp_path / "value.db")
     run_migrations(db_path)
@@ -86,6 +93,7 @@ def test_value_endpoint(tmp_path: Path, monkeypatch):
     assert body["outcomes"]["home"]["value"] is True
     assert body["outcomes"]["home"]["edge"] == pytest.approx(0.092)
     assert body["outcomes"]["away"]["value"] is False
+    assert body["source"] is None
 
 
 def test_value_endpoint_rejects_bad_odds(tmp_path: Path, monkeypatch):
@@ -118,6 +126,7 @@ def test_value_endpoint_auto_odds(tmp_path: Path, monkeypatch):
     body = resp.json()
     assert body["outcomes"]["home"]["value"] is True
     assert body["outcomes"]["home"]["edge"] == pytest.approx(0.092)
+    assert body["source"] == "best-eu"
 
 
 def test_value_endpoint_auto_missing_odds(tmp_path: Path, monkeypatch):
