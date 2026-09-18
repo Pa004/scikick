@@ -11,185 +11,89 @@ SciKick is an **analytical instrument, not a betting tool**. It answers "who win
 
 ## What it does
 
-- **Every upcoming match, 5 leagues**: Premier League, La Liga, Bundesliga, Serie A, Ligue 1 — from today on, nearest first, paginated 12 at a time, with a toggle to look back at past dates.
-- **One story per match**: each fixture is a card — verdict first ("Arsenal wins 7 in 10" with a 10-dot visual), then the evidence. The match page splits the story into Mercados / Contexto / Valor tabs with a market search in the tab row; scroll position is restored on return.
-- **Verdicts in plain language**: human dates ("Today", "12 Sep"), frequency framing ("6 in 10"), no codes unless analyst mode is on. The probable scoreline only appears next to the verdict when both agree.
-- **Explore every market live**: category accordions open on the active market, the chart updates in place side by side (sticky on desktop), including half-time scenarios one at a time instead of a 48-bar wall.
-- **Match center**: recent points as a fraction of the maximum ("4 of 15 pts"), a labeled head-to-head sentence, and localized form pips (V/E/D) — no probability lookalikes.
-- **Value check**: stored bookmaker odds name their source ("best European odds", one sign each possibly from a different shop) and flag +EV cards — or paste your own odds for expected value and a plain-words suggested stake. Edges above +100% are treated as bad data, never as opportunities.
-- **Model combo with a warning label**: the strongest pick per market with an independence-assumption estimate, labeled as a rough guide.
-- **Follow your teams**: star any club, dedicated Followed page. Persisted locally, no account.
-- **Goalscorer in-story**: anytime probabilities from Understat xG90 with search, team filter and sorting; a minutes-projected XI badge only when candidates exist, labeled as such.
-- **Model drawer (analyst mode)**: calibration, Brier by matchday and accuracy tables live outside the story flow — with league-scope chip, market search and precision sorting.
-- **Shareable stories**: `/partido/<id>` routes (legacy `?partido=<id>` still resolves), no full reload.
-- **Crests**: club badges from football-data.org with initial avatars as fallback.
-- **ES/EN switch** in the header, dual light/dark pine theme.
+- **Every upcoming match, 5 leagues** (Premier, La Liga, Bundesliga, Serie A, Ligue 1) — from today on, nearest first, 12 per page, with a toggle for past dates.
+- **One story per match**: verdict first ("Arsenal wins 7 in 10"), then the evidence across Mercados / Contexto / Valor tabs. Verdict, charts and context stay in plain language; the probable scoreline only appears when it agrees with the verdict.
+- **Full-market explorer**: accordions open on the active market, the chart updates live side by side; half-time scenarios one at a time.
+- **Value check that names its source** ("best European odds", possibly split across shops) with plain-words stakes; edges above +100% are treated as bad data. Model combo labeled as a rough guide.
+- **Followed page, scorer search, shareable `/partido/:id` routes**, ES/EN switch, light/dark pine theme.
 
 ## The model
 
-- **Per-team Dixon-Coles** (`app/models/`): attack/defence strengths per club (not league averages) with a shrinkage prior (`k=8` games) for promoted teams with no history.
-- **LightGBM ensemble + isotonic calibration**, blended with the Dixon-Coles output; walk-forward Brier (Sep 2026 retrain) per league:
+- **Per-team Dixon-Coles** (`app/models/`): attack/defence strengths per club with a shrinkage prior (`k=8` games) for promoted teams; **LightGBM ensemble + isotonic calibration**. Walk-forward Brier (Sep 2026):
 
-| League | Brier | Matches |
-|---|---|---|
-| E0 | 0.596 | 37 |
-| SP1 | 0.527 | 34 |
-| D1 | 0.470 | 27 |
-| I1 | 0.626 | 30 |
-| F1 | 0.603 | 34 |
+| E0 | SP1 | D1 | I1 | F1 |
+|---|---|---|---|---|
+| 0.596 | 0.527 | 0.470 | 0.626 | 0.603 |
 
-Small test sets — judge trends over retrain cycles, see `docs/retrain.md`.
-
-- **Scorer** (`app/players/`): Understat xG90 with position shrinkage and a dynamic minutes gate that scales early season; top-11-by-minutes projected XI when lineups are unconfirmed.
-- Every train persists params, per-team strengths and metrics (`data/runs/<league>/`); the loader serves the newest by mtime; tests never pollute it (`persist_run=False`).
+Small test sets (27–37 matches) — judge trends over cycles, see `docs/retrain.md`. Scorer: Understat xG90 with position shrinkage and a minutes gate that scales early season.
 
 ## How it works
 
 ```
-football-data.org ──▶ future fixtures ──┐
-football-data.co.uk ─▶ history (CSVs) ──┤──▶ sync ──▶ features ──▶ models ──▶ API ──▶ UI
-Understat ──────────▶ player xG ────────┤         Elo, form,   per-team DC +
-The Odds API ───────▶ bookmaker odds ───┘         xG           LightGBM blend
+football-data.org ──▶ fixtures ──┐
+football-data.co.uk ─▶ history ───┤──▶ sync ──▶ features ──▶ models ──▶ API ──▶ UI
+Understat ──────────▶ player xG ──┤         Elo + form + xG ──▶ per-team DC + LightGBM
+The Odds API ───────▶ odds ───────┘         (1 credit/league/day, best EU price stored)
 ```
 
-- **Ingestion** (`app/ingestion/`): football-data.org (scheduled fixtures + team crests, primary), football-data.co.uk CSVs (history), Understat (player xG), The Odds API (1 credit/league/day, best EU price per outcome stored). API-Football code is dormant: its free tier covers seasons 2022–2024 only, so resolvers stay off behind `LINEUPS_ENABLED=false`.
-- **API** (`app/api/`): FastAPI + SQLite. `GET /fixtures` (`league=all|E0|…`, `upcoming` filter, crests included), `GET /predict/{id}`, `POST /value` (manual or stored odds, source included), `GET /context` (form + H2H + crests), `GET /predict/scorer/{id}`, half-time markets, rare events, stats + calibration, `POST /refresh` and `POST /resolve` (token auth). The client composes one cached bundle per story (predict required, scorer/context/value degrade gracefully).
-- **UI** (`frontend/`): React + TypeScript, EN/ES, dual light/dark pine theme in OKLCH with Radix primitives — real tables, focus management, chart data tables, 44px touch targets, reduced-motion support. Every color pair is measured by `frontend/scripts/audit-contrast.mjs` (WCAG AA 4.5:1 text, 3:1 UI). Runtime deps: React, Recharts, Radix, lucide-react. `VITE_API_URL` points at any backend.
+FastAPI + SQLite (`GET /fixtures` with `upcoming` filter, `/predict/{id}`, `POST /value` with source, `/context`, `/predict/scorer/{id}`, stats, token-authed `/refresh` + `/resolve`). React + TypeScript UI (Radix, Recharts, WCAG-AA audited palette). `VITE_API_URL` points at any backend.
 
 ## The interface
 
 ![Feed with verdict blocks, 1X2 legend and value badges](docs/screenshots/accents/port-f1-light.png)
 
-![Feed in dark mode](docs/screenshots/accents/port-f1-dark.png)
-
 ![Match page with tabs and parallel chart](docs/screenshots/accents/port-match.png)
-
-![Team page with form pips](docs/screenshots/accents/f2-team.png)
-
-![Followed empty state](docs/screenshots/accents/f2-followed.png)
 
 ![Model drawer with explainer and calibration](docs/screenshots/accents/f3-drawer.png)
 
-## Engineering highlights
+## Health
 
-- **Reproducible runs**: every train persists params, per-team strengths, metrics (`data/runs/<league>/`); the loader serves the newest by mtime; tests never pollute it (`persist_run=False`).
-- **Honest failures**: adapters log quota/plan blocks, endpoints explain causes (no silent `[]`), refresh reports per-season validation; stories show skeleton → content, error → retry.
-- **Tested**: 47 backend test files / 309 tests (pytest) + 213 frontend tests across 28 files (vitest) as of Sep 2026; `oxlint` + `vite build` green on every PR via split CI workflows.
-- **CPU-only, free-tier**: SQLite, no GPU, all data sources free. Full monthly ops in `docs/retrain.md`.
-
-## Quality metrics
-
-| Area | Status (Sep 2026) |
-|---|---|
-| Backend tests | 309 tests / 47 files, pytest, CI green |
-| Frontend tests | 213 tests / 28 files, vitest, CI green |
-| Lint / build | `oxlint` clean, `vite build` OK |
-| Model Brier | E0 0.596 · SP1 0.527 · D1 0.470 · I1 0.626 · F1 0.603 (see `docs/retrain.md`) |
+- **Tested**: 309 backend tests / 47 files (pytest) + 213 frontend tests / 28 files (vitest); `oxlint` + `vite build` green on every PR via split CI.
+- **Reproducible**: every train persists params, strengths and metrics (`data/runs/<league>/`); monthly ops in `docs/retrain.md`. CPU-only, free-tier sources.
 
 ## Quick start
 
 ```powershell
-# 1. Environment
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-# 2. Dependencies
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-Copy-Item .env.example .env   # then fill in the keys below
-```
-
-Keys (all free tiers, no card): `FOOTBALL_DATA_ORG_KEY` (future fixtures, required), `ODDS_API_KEY` (bookmaker odds, optional — manual paste works without it), `API_FOOTBALL_KEY` (dormant unless Pro), `SERVICE_TOKEN` (for `/refresh` and `/resolve`).
-
-```powershell
-# 3. Sync data (all leagues, history + upcoming; also backfills team crests)
+Copy-Item .env.example .env   # fill in: FOOTBALL_DATA_ORG_KEY (required), ODDS_API_KEY (optional), SERVICE_TOKEN (/refresh + /resolve)
 .\.venv\Scripts\python.exe -m app.cli sync --league E0,SP1,D1,I1,F1 --seasons 3
-
-# 4. Train one league (~10 min on CPU, repeat per league)
-.\.venv\Scripts\python.exe -m app.cli train --league E0
-
-# 5. Predict upcoming fixtures
+.\.venv\Scripts\python.exe -m app.cli train --league E0   # ~10 min CPU, repeat per league
 .\.venv\Scripts\python.exe -m app.cli predict --league E0
-
-# 6. Run the API (syncs automatically on startup, in background)
 .\.venv\Scripts\python.exe -m uvicorn app.api.main:app --port 8000
-```
-
-Frontend:
-
-```powershell
-cd frontend
-npm ci
-npm run dev      # http://localhost:5173 (VITE_API_URL override in frontend/.env)
+cd frontend; npm ci; npm run dev      # http://localhost:5173
 ```
 
 ## Project structure
 
 ```
-app/
-  config.py       — Settings via pydantic-settings (reads .env, singleton)
-  db/             — SQLite connection, migrations
-  ingestion/      — adapters (football-data.org, football-data.co.uk, Understat,
-                    API-Football, The Odds API), seasons, aliases, sync, odds_sync
-  features/       — Elo, form, xG, match_features table
-  models/         — Dixon-Coles (per-team + shrinkage), LightGBM, blend,
-                    calibration, predict, value
-  api/            — FastAPI routers (fixtures, predict, scorer, value, context,
-                    half-time markets, rare events, stats, refresh, resolve)
-  players/        — Goalscorer (ingest, model, lineups, pipeline)
-  scheduler.py    — APScheduler definitions (sync, lineups; run manually)
-frontend/
-  src/
-    api/            — endpoint clients + cached story bundle (predict/scorer/context/value)
-    components/
-      feed/         — story cards (MatchCard, VerdictHero, SegmentedBar, Dots10,
-                      TeamAvatar), filters, model drawer
-      ui/           — primitives (Button, Badge, Card, Tabs, Accordion, Table,
-                      Segmented, Drawer, Skeleton, Input)
-      layout/       — AppShell, league switcher
-    theme/          — dual light/dark provider (persisted, no-flash preload)
-    hooks/          — analyst/display/followed/detail/movement/count-up
-    lib/            — cn(), ?partido= deep links
-    utils/          — verdicts, markets, scorer, odds, match center
-    i18n/           — EN/ES dictionaries
-migrations/       — numbered SQL files applied via PRAGMA user_version (001–008)
-docs/retrain.md   — monthly ops playbook (sync, train, predict, resolve, quotas)
+app/          — config, db + migrations, ingestion, features, models, api, players
+frontend/src/ — api clients, feed/match components, ui primitives, i18n EN/ES
+migrations/   — numbered SQL (001–008) via PRAGMA user_version
+docs/         — retrain.md (monthly ops), screenshots/
 ```
-
-**Core tables** (SQLite): `leagues`, `teams` (+`crest_url`), `team_aliases`, `fixtures` (+`api_football_id`), `fixture_odds`, `tracked` + `match_features` (regenerable) and player tables (`players`, `player_features`, `lineups`).
 
 ## Development
 
 ```powershell
-# Backend (conftest sets ENV=test; override keys to simulate CI without secrets)
-$env:API_FOOTBALL_KEY=""; $env:FOOTBALL_DATA_ORG_KEY=""; $env:ODDS_API_KEY=""
-.\.venv\Scripts\python.exe -m pytest tests/ -m "not slow"
-
-# Frontend
-cd frontend
-npm run lint
-npm test
-npm run build
+.\.venv\Scripts\python.exe -m pytest tests/ -m "not slow"  # ENV=test via conftest
+cd frontend; npm run lint; npm test; npm run build
 ```
-
-Split CI (`.github/workflows/ci-backend.yml`, `ci-frontend.yml`) runs backend tests and frontend lint/test/build per pull request, filtered by paths.
 
 ## Known limitations
 
-- **2025/26 season history**: football-data.co.uk has not published the 2526 CSVs yet (empty placeholders sit in `data/raw/`); the model trains on 22/23–24/25 until they appear (the sync window picks them up automatically).
-- **Lineups**: confirmed XIs need API-Football Pro; the in-story scorer section projects from minutes and says so.
-- **Early season noise**: with few matchdays played, edges vs bookmakers run large; outcomes above +100% edge are treated as bad data, never as opportunities. Calibration needs 30+ resolved predictions (`POST /resolve` biweekly).
-- **Stored odds are best-per-outcome**: each 1X2 sign keeps the best EU price, possibly from different shops — a +EV set is not necessarily buyable in one place.
-- **Team name display**: a few canonicals lack accents (`Espanol`, `Alaves`) — mapping artifact, fix planned.
-- **Crests**: backfilled from the next sync on; until then teams show initial avatars.
-- **Transfer windows**: the model does not capture mid-season roster changes.
-- **In-play**: pre-match only, no live markets.
+- **2025/26 history**: 2526 CSVs unpublished (empty placeholders in `data/raw/`); trains on 22/23–24/25 meanwhile.
+- **No confirmed lineups** (needs API-Football Pro) — scorer projects from minutes and says so; no transfers, no in-play.
+- **Early-season noise**: edges above +100% treated as bad data; calibration needs 30+ resolved predictions.
+- **Stored odds are best-per-outcome**, possibly split across shops — a +EV set may not be buyable in one place.
+- **Display data**: some canonicals lack accents (`Espanol`); crests backfill from the next sync.
 
 ## Roadmap
 
 - Display-name mapping for accent-less canonicals.
 - Hosted backend (frontend is Vercel-ready via `VITE_API_URL`).
-- Quieter value prefetch: stop 404-chasing fixtures without stored odds.
-- Inline +EV micro-glossary for first-time users (1X2 legend already shipped).
+- Quieter value prefetch (stop 404-chasing fixtures without stored odds).
+- +EV micro-glossary for first-time users.
 - Weekly review loop for atypical stored odds.
 
 ## License
