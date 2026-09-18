@@ -9,10 +9,6 @@ interface FeedPageProps {
   loading: boolean
   error: boolean
   onRetry: () => void
-  leagueName: (code: string) => string
-  followed: string[]
-  onToggleFollow: (team: string) => void
-  analyst: boolean
   showValue: boolean
 }
 
@@ -21,10 +17,6 @@ export function FeedPage({
   loading,
   error,
   onRetry,
-  leagueName,
-  followed,
-  onToggleFollow,
-  analyst,
   showValue,
 }: FeedPageProps) {
   const { t } = useLanguage()
@@ -49,10 +41,6 @@ export function FeedPage({
         <FeedBoard
           fixtures={fixtures}
           loading={loading}
-          leagueName={leagueName}
-          followed={followed}
-          onToggleFollow={onToggleFollow}
-          analyst={analyst}
           fixturesForContext={fixtures}
           showValue={showValue}
           onDeepLink={id => navigate(`/partido/${id}`, { replace: true })}

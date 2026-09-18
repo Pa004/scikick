@@ -1,8 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 import { LanguageProvider } from '../../i18n'
 import { MatchCard, FormStrip } from './MatchCard'
+import { FeedProvider } from './FeedContext'
 import { SegmentedBar } from './SegmentedBar'
 import { Dots10 } from '../fixtures/Dots10'
 import { TeamAvatar } from './TeamAvatar'
@@ -15,24 +17,34 @@ const fixture: Fixture = {
   league: 'E0',
 }
 
-function renderCard(expanded = false, onToggle = vi.fn()) {
-  return render(
+function withFeed(children: ReactNode, onToggleFollow = vi.fn()) {
+  return (
     <MemoryRouter>
       <LanguageProvider>
-        <MatchCard
-          fixture={fixture}
-          expanded={expanded}
-          onToggle={onToggle}
-          leagueName="Premier League"
+        <FeedProvider
           followed={[]}
-          onToggleFollow={vi.fn()}
-          hasValue={null}
+          onToggleFollow={onToggleFollow}
           analyst={false}
-          fixtures={[fixture]}
-        />
+          onAnalystChange={() => {}}
+        >
+          {children}
+        </FeedProvider>
       </LanguageProvider>
-    </MemoryRouter>,
+    </MemoryRouter>
   )
+}
+
+function renderCard(expanded = false, onToggle = vi.fn(), onToggleFollow = vi.fn()) {
+  return render(withFeed(
+    <MatchCard
+      fixture={fixture}
+      expanded={expanded}
+      onToggle={onToggle}
+      hasValue={null}
+      fixtures={[fixture]}
+    />,
+    onToggleFollow,
+  ))
 }
 
 beforeEach(() => {
@@ -66,23 +78,15 @@ describe('MatchCard', () => {
       ...fixture, id: 9, home: 'Alaves', away: 'Espanol',
       prediction: { probabilities: { home: 0.4, draw: 0.3, away: 0.3 } },
     }
-    render(
-      <MemoryRouter>
-        <LanguageProvider>
-          <MatchCard
-            fixture={alaves}
-            expanded={false}
-            onToggle={vi.fn()}
-            leagueName="La Liga"
-            followed={[]}
-            onToggleFollow={vi.fn()}
-            hasValue={null}
-            analyst={false}
-            fixtures={[alaves]}
-          />
-        </LanguageProvider>
-      </MemoryRouter>,
-    )
+    render(withFeed(
+      <MatchCard
+        fixture={alaves}
+        expanded={false}
+        onToggle={vi.fn()}
+        hasValue={null}
+        fixtures={[alaves]}
+      />,
+    ))
     expect(screen.getByRole('heading', { name: /Alavés vs Español/ })).toBeDefined()
     const mono = screen.getAllByText((_c, el) => el?.tagName === 'P' && (el?.textContent ?? '').includes('40%'))
     expect(mono.length).toBeGreaterThan(0)
@@ -91,23 +95,7 @@ describe('MatchCard', () => {
   })
 
   it('toggles follow with accessible name', () => {    const onToggleFollow = vi.fn()
-    render(
-      <MemoryRouter>
-        <LanguageProvider>
-          <MatchCard
-            fixture={fixture}
-            expanded={false}
-            onToggle={vi.fn()}
-            leagueName="Premier League"
-            followed={[]}
-            onToggleFollow={onToggleFollow}
-            hasValue={null}
-            analyst={false}
-            fixtures={[fixture]}
-          />
-        </LanguageProvider>
-      </MemoryRouter>,
-    )
+    renderCard(false, vi.fn(), onToggleFollow)
     fireEvent.click(screen.getByRole('button', { name: 'Follow match' }))
     expect(onToggleFollow).toHaveBeenCalledWith('Liverpool')
   })
@@ -115,12 +103,9 @@ describe('MatchCard', () => {
 
 describe('MatchCard story', () => {
   const historyProps = {
-    leagueName: 'Premier League',
-    followed: [] as string[],
-    onToggleFollow: vi.fn(),
     hasValue: null as boolean | null,
-    analyst: false,
   }
+  const withProvider = (children: ReactNode) => withFeed(children)
   const withHistory: Fixture = {
     ...fixture,
     id: 11,
@@ -132,36 +117,28 @@ describe('MatchCard story', () => {
   }
 
   it('keeps collapsed cards clean without form strips', () => {
-    render(
-      <MemoryRouter>
-        <LanguageProvider>
-          <MatchCard
-            fixture={withHistory}
-            expanded={false}
-            onToggle={vi.fn()}
-            fixtures={[withHistory, played]}
-            {...historyProps}
-          />
-        </LanguageProvider>
-      </MemoryRouter>,
-    )
+    render(withProvider(
+      <MatchCard
+        fixture={withHistory}
+        expanded={false}
+        onToggle={vi.fn()}
+        fixtures={[withHistory, played]}
+        {...historyProps}
+      />,
+    ))
     expect(screen.queryByRole('img', { name: 'Liverpool: Form' })).toBeNull()
   })
 
   it('shows a back control when expanded', () => {
-    render(
-      <MemoryRouter>
-        <LanguageProvider>
-          <MatchCard
-            fixture={withHistory}
-            expanded
-            onToggle={vi.fn()}
-            fixtures={[withHistory, played]}
-            {...historyProps}
-          />
-        </LanguageProvider>
-      </MemoryRouter>,
-    )
+    render(withProvider(
+      <MatchCard
+        fixture={withHistory}
+        expanded
+        onToggle={vi.fn()}
+        fixtures={[withHistory, played]}
+        {...historyProps}
+      />,
+    ))
     expect(screen.getByRole('button', { name: 'Back to matches' })).toBeDefined()
   })
 })

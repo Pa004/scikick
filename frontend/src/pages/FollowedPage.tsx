@@ -4,9 +4,7 @@ import type { Fixture } from '../types'
 import { fetchFixtures } from '../api'
 import { useLanguage } from '../i18n'
 import { displayTeam } from '../utils/teamNames'
-import { useAnalystMode } from '../hooks/useAnalystMode'
-import { useFollowedTeams } from '../hooks/useFollowedTeams'
-import { useLeagueName } from '../hooks/useLeagueName'
+import { useFeed } from '../components/feed/FeedContext'
 import { MatchCard } from '../components/feed/MatchCard'
 import { Button } from '../components/ui/button'
 import { Skeleton } from '../components/ui/skeleton'
@@ -14,8 +12,7 @@ import { getCachedValue } from '../api/detail'
 
 export function FollowedPage() {
   const { t } = useLanguage()
-  const [analyst] = useAnalystMode()
-  const { followed, toggle } = useFollowedTeams()
+  const { followed } = useFeed()
   const [fixtures, setFixtures] = useState<Fixture[] | null>(null)
   const [failed, setFailed] = useState(false)
   const [expandedId, setExpandedId] = useState<number | null>(null)
@@ -33,8 +30,6 @@ export function FollowedPage() {
       active = false
     }
   }, [])
-
-  const leagueName = useLeagueName()
 
   if (fixtures === null && !failed) {
     return (
@@ -86,11 +81,7 @@ export function FollowedPage() {
                 fixture={f}
                 expanded={expandedId === f.id}
                 onToggle={() => setExpandedId(prev => (prev === f.id ? null : f.id))}
-                leagueName={leagueName(f.league)}
-                followed={followed}
-                onToggleFollow={toggle}
                 hasValue={entry === undefined ? null : entry !== null && Object.values(entry.outcomes).some(o => o.value)}
-                analyst={analyst}
                 fixtures={fixtures ?? []}
               />
             )

@@ -4,6 +4,7 @@ import { useLanguage } from '../../i18n'
 import { asOutcomeProbs } from '../../utils/matchCenter'
 import type { DisplayMode } from '../../hooks/useDisplayMode'
 import type { useFixtureDetail } from '../../hooks/useFixtureDetail'
+import { useFeed } from './FeedContext'
 import { VerdictHero } from './VerdictHero'
 import PredictionPanel from '../PredictionPanel'
 import ScorerPanel from '../ScorerPanel'
@@ -17,7 +18,6 @@ interface MatchStoryExpandedProps {
   market: string
   onMarketChange: (market: string) => void
   onToggle: () => void
-  analyst: boolean
   fixtures: Fixture[]
   hideDate: boolean
   displayMode?: DisplayMode
@@ -33,7 +33,6 @@ export function MatchStoryExpanded({
   market,
   onMarketChange,
   onToggle,
-  analyst,
   fixtures,
   hideDate,
   displayMode,
@@ -42,6 +41,7 @@ export function MatchStoryExpanded({
   storyTabs = false,
 }: MatchStoryExpandedProps) {
   const { t } = useLanguage()
+  const { analyst } = useFeed()
   return (
     <>
       {!hideDate && (
