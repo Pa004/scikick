@@ -25,7 +25,7 @@ SciKick is an **analytical instrument, not a betting tool**. It answers "who win
 |---|---|---|---|---|
 | 0.596 | 0.527 | 0.470 | 0.626 | 0.603 |
 
-Small test sets (27–37 matches) — judge trends over cycles, see `docs/retrain.md`. Scorer: Understat xG90 with position shrinkage and a minutes gate that scales early season.
+Small test sets (27–37 matches) — judge trends over cycles, see `docs/retrain.md`. Scorer: Understat xG90 with position shrinkage and a minutes gate that scales early season. Served predictions carry the evaluated blend (`blend_applied`), never Dixon-Coles alone.
 
 ## How it works
 
@@ -46,7 +46,7 @@ FastAPI + SQLite (`GET /fixtures` with `upcoming` filter, `/predict/{id}`, `POST
 
 ## Health
 
-- **Tested**: 309 backend tests / 47 files (pytest) + 213 frontend tests / 28 files (vitest); `oxlint` + `vite build` green on every PR via split CI.
+- **Tested**: 362 backend tests / 52 files (pytest) + 226 frontend tests / 33 files (vitest); `oxlint` + `vite build` green on every PR via split CI.
 - **Reproducible**: every train persists params, strengths and metrics (`data/runs/<league>/`); monthly ops in `docs/retrain.md`. CPU-only, free-tier sources.
 
 ## Quick start
@@ -67,7 +67,7 @@ cd frontend; npm ci; npm run dev      # http://localhost:5173
 ```
 app/          — config, db + migrations, ingestion, features, models, api, players
 frontend/src/ — api clients, feed/match components, ui primitives, i18n EN/ES
-migrations/   — numbered SQL (001–008) via PRAGMA user_version
+migrations/   — numbered SQL (001–009) via PRAGMA user_version
 docs/         — retrain.md (monthly ops), screenshots/
 ```
 
@@ -93,15 +93,7 @@ cd frontend; npm run lint; npm test; npm run build
 - **No confirmed lineups** (needs API-Football Pro) — scorer projects from minutes and says so; no transfers, no in-play.
 - **Early-season noise**: edges above +100% treated as bad data; calibration needs 30+ resolved predictions.
 - **Stored odds are best-per-outcome**, possibly split across shops — a +EV set may not be buyable in one place.
-- **Display data**: some canonicals lack accents (`Espanol`); crests backfill from the next sync.
-
-## Roadmap
-
-- Display-name mapping for accent-less canonicals.
-- Hosted backend (frontend is Vercel-ready via `VITE_API_URL`).
-- Quieter value prefetch (stop 404-chasing fixtures without stored odds).
-- +EV micro-glossary for first-time users.
-- Weekly review loop for atypical stored odds.
+- **Display data**: canonicals render with accents mapped (`Espanol` → `Español`); crests backfill from the next sync.
 
 ## License
 
