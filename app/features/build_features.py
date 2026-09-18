@@ -54,9 +54,16 @@ def _compute_h2h(
     return home_wins / len(recent), draws / len(recent)
 
 
-def _compute_referee_cards(conn: sqlite3.Connection, referee: str, n: int = 30) -> float:
+def _compute_referee_cards(
+    conn: sqlite3.Connection,
+    referee: str,
+    n: int = 30,
+    cache: dict | None = None,
+) -> float:
     if not referee:
         return 2.5
+    if cache is not None and referee in cache:
+        return cache[referee]
     row = conn.execute(
         "SELECT AVG(home_yellow + away_yellow) as avg_cards FROM fixtures f "
         "WHERE f.referee = ? AND f.source = 'football_data' "
@@ -64,7 +71,10 @@ def _compute_referee_cards(conn: sqlite3.Connection, referee: str, n: int = 30) 
         "ORDER BY f.match_date DESC LIMIT ?",
         (referee, n),
     ).fetchone()
-    return row["avg_cards"] if row and row["avg_cards"] else 2.5
+    value = row["avg_cards"] if row and row["avg_cards"] else 2.5
+    if cache is not None:
+        cache[referee] = value
+    return value
 
 
 def _rolling_avg(history: list[float], n: int) -> float:
@@ -104,6 +114,7 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
 
     corners_history: dict[int, list[float]] = {t: [] for t in df["home_team_id"].unique()}
     yellow_history: dict[int, list[float]] = {t: [] for t in df["home_team_id"].unique()}
+    referee_cache: dict[str, float] = {}
 
     feature_rows = []
     for _, row in df.iterrows():
@@ -131,7 +142,7 @@ def build_features(conn: sqlite3.Connection, league: str) -> pd.DataFrame:
         ay = int(row["away_yellow"]) if pd.notna(row.get("away_yellow")) else 0
         referee = str(row["referee"]) if pd.notna(row.get("referee")) else None
 
-        referee_cards = _compute_referee_cards(conn, referee)
+        referee_cards = _compute_referee_cards(conn, referee, cache=referee_cache)
 
         home_corners = corners_history.get(home_id, [])
         away_corners = corners_history.get(away_id, [])

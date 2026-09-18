@@ -27,6 +27,28 @@ def lineups_job():
         conn.close()
 
 
+def odds_review_job():
+    import logging
+
+    from app.models.odds_review import review_stored_odds
+
+    logger = logging.getLogger(__name__)
+    conn = get_connection()
+    try:
+        flagged = review_stored_odds(conn)
+        if flagged:
+            worst = flagged[0]
+            logger.warning(
+                "Odds review: %d atypical (fixture, side) pairs; worst #%s %s edge=+%.1f%%",
+                len(flagged), worst["fixture_id"], worst["match"], worst["edge"] * 100,
+            )
+        else:
+            logger.info("Odds review: no atypical stored odds")
+        return flagged
+    finally:
+        conn.close()
+
+
 def start_scheduler():
     settings = get_settings()
     scheduler = BlockingScheduler()
@@ -44,5 +66,11 @@ def start_scheduler():
         ),
         id="lineups_fetch",
         name="Fetch lineups for upcoming fixtures",
+    )
+    scheduler.add_job(
+        odds_review_job,
+        CronTrigger(day_of_week="mon", hour=7, minute=0),
+        id="odds_review",
+        name="Weekly review of atypical stored odds",
     )
     scheduler.start()
