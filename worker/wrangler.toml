@@ -1,0 +1,10 @@
+name = "scikick-api"
+main = "src/index.js"
+compatibility_date = "2026-09-18"
+
+# Static export bundle (manifest.json at root) served by a free Pages
+# project: wrangler pages deploy dist-cf --project-name=scikick-data
+[vars]
+DATA_URL = "https://scikick-data.pages.dev"
+# Set to the frontend Pages URL, e.g. https://scikick.pages.dev
+ALLOWED_ORIGIN = "https://scikick.pages.dev"

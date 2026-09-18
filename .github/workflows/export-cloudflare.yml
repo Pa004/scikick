@@ -1,0 +1,53 @@
+name: Export Cloudflare
+
+# Daily static export of the read API -> R2 + Worker deploy (all free tier).
+# Training stays local per docs/retrain.md; this job only exports + deploys.
+on:
+  schedule:
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: cf-export
+  cancel-in-progress: true
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv pip install --system -r requirements.txt
+      - name: Sync fixtures (best effort, needs API keys)
+        run: python -m app.cli sync --seasons 1 || true
+        env:
+          FOOTBALL_DATA_ORG_KEY: ${{ secrets.FOOTBALL_DATA_ORG_KEY }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          SERVICE_TOKEN: dummy-export-run
+      - name: Predict upcoming (best effort, needs trained runs)
+        run: |
+          for league in E0 SP1 D1 I1 F1; do
+            python -m app.cli predict --league "$league" || true
+          done
+        env:
+          SERVICE_TOKEN: dummy-export-run
+      - name: Init empty DB when sync has no keys
+        run: python -c "from app.db.migrations import run_migrations; run_migrations('data/futbol.db')"
+      - run: python -m scripts.export_cloudflare --db data/futbol.db --out dist-cf
+        env:
+          SERVICE_TOKEN: dummy-export-run
+      - name: Deploy data bundle + Worker
+        if: ${{ secrets.CF_API_TOKEN != '' }}
+        run: |
+          npm install -g wrangler
+          wrangler pages deploy dist-cf --project-name=scikick-data
+          wrangler deploy --config worker/wrangler.toml
+        working-directory: .
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}

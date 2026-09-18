@@ -28,6 +28,9 @@ frontend/dist/
 *.db-wal
 *.db-shm
 
+# === Cloudflare static export (regenerable via export-cloudflare.yml) ===
+dist-cf/
+
 # === Logs ===
 logs/
 
