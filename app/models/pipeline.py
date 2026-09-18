@@ -400,6 +400,8 @@ def train_league(
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     run_id = None
     if persist_run:
+        from app.models.runs.manager import write_manifest
+
         run_dir = Path(RUNS_DIR) / league
         run_dir.mkdir(parents=True, exist_ok=True)
         run_file = run_dir / f"pipeline_{mode}_{ts}.json"
@@ -407,6 +409,15 @@ def train_league(
 
         ensemble_file = run_dir / f"ensemble_{ts}.joblib"
         joblib.dump(final_lgbm_ensemble.models, ensemble_file)
+        write_manifest(run_dir, {
+            "run_id": str(run_file),
+            "league": league,
+            "mode": mode,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "pipeline_file": run_file.name,
+            "ensemble_file": ensemble_file.name,
+            "overall_brier": overall["brier"],
+        })
         run_id = str(run_file)
 
     return {

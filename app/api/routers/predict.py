@@ -30,17 +30,12 @@ _ensemble_cache: dict[str, tuple[float, object, object | None]] = {}
 
 
 def _load_latest_ensemble(league: str):
-    run_dir = _RUNS_DIR / league
-    if not run_dir.exists():
+    from app.models.runs.manager import resolve_latest
+
+    resolved = resolve_latest(_RUNS_DIR / league)
+    newest = resolved["ensemble"]
+    if newest is None:
         return None
-    ensemble_files = sorted(
-        run_dir.glob("ensemble_*.joblib"),
-        key=lambda p: (p.stat().st_mtime, p.name),
-        reverse=True,
-    )
-    if not ensemble_files:
-        return None
-    newest = ensemble_files[0]
     mtime = newest.stat().st_mtime
     cached = _ensemble_cache.get(league)
     if cached is not None and cached[0] >= mtime:

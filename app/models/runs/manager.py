@@ -58,3 +58,50 @@ def list_runs(run_dir: str | Path) -> list[dict]:
 def get_latest_run(run_dir: str | Path) -> dict | None:
     runs = list_runs(run_dir)
     return runs[-1] if runs else None
+
+
+MANIFEST_NAME = "manifest.json"
+
+
+def write_manifest(run_dir: str | Path, entry: dict) -> Path:
+    """Atomically record the latest artifacts. Readers prefer this over globs."""
+    root = Path(run_dir)
+    root.mkdir(parents=True, exist_ok=True)
+    manifest_path = root / MANIFEST_NAME
+    tmp_path = root / f"{MANIFEST_NAME}.tmp"
+    tmp_path.write_text(json.dumps(entry, indent=2, default=str), encoding="utf-8")
+    tmp_path.replace(manifest_path)
+    return manifest_path
+
+
+def _glob_latest(root: Path, pattern: str) -> Path | None:
+    files = sorted(
+        root.glob(pattern),
+        key=lambda p: (p.stat().st_mtime, p.name),
+        reverse=True,
+    )
+    return files[0] if files else None
+
+
+def resolve_latest(run_dir: str | Path) -> dict[str, Path | None]:
+    """Manifest-first artifact resolution with mtime-glob fallback.
+
+    Returns {"pipeline": Path | None, "ensemble": Path | None}. A corrupt
+    or stale manifest (missing files) falls back to globs instead of
+    silently serving the wrong model.
+    """
+    root = Path(run_dir)
+    if root.exists():
+        try:
+            manifest = json.loads((root / MANIFEST_NAME).read_text(encoding="utf-8"))
+            pipe = root / manifest["pipeline_file"]
+            ens_name = manifest.get("ensemble_file")
+            ens = root / ens_name if ens_name else None
+            if pipe.exists() and (ens is None or ens.exists()):
+                return {"pipeline": pipe, "ensemble": ens}
+        except (OSError, ValueError, KeyError, TypeError):
+            pass
+    return {
+        "pipeline": _glob_latest(root, "pipeline_*.json") if root.exists() else None,
+        "ensemble": _glob_latest(root, "ensemble_*.joblib") if root.exists() else None,
+    }
