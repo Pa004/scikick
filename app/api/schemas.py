@@ -75,6 +75,10 @@ class ValueRequest(BaseModel):
     odds: ValueOdds | None = None
 
 
+class ValueBatchRequest(BaseModel):
+    fixture_ids: list[int]
+
+
 class ValueOutcome(BaseModel):
     prob: float
     odds: float

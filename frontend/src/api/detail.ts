@@ -97,14 +97,27 @@ export async function fetchFixtureDetail(
 
 // Background +EV badges for the top predicted cards. Best-effort:
 // failures stay undefined (no badge) and never block the feed.
+// Uses the batch endpoint so fixtures without stored odds resolve to null
+// with a single 200 instead of one console-spamming 404 per card.
 export async function prefetchValues(ids: number[]): Promise<void> {
-  await Promise.allSettled(
-    ids
-      .filter(id => !valueCache.has(id))
-      .map(id =>
+  const missing = ids.filter(id => !valueCache.has(id))
+  if (missing.length === 0) return
+  try {
+    const res = await fetch(`${API_BASE}/value/batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fixture_ids: missing.slice(0, 50) }),
+    })
+    if (!res.ok) throw new Error(`API error: ${res.status}`)
+    const data = await res.json() as { values?: Record<string, ValueResponse | null> }
+    for (const id of missing) valueCache.set(id, data.values?.[String(id)] ?? null)
+  } catch {
+    await Promise.allSettled(
+      missing.map(id =>
         fetchValue(id)
           .then(v => valueCache.set(id, v))
           .catch(() => valueCache.set(id, null)),
       ),
-  )
+    )
+  }
 }
