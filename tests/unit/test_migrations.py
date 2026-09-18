@@ -4,15 +4,19 @@ from app.db.connection import get_connection
 from app.db.migrations import get_user_version, run_migrations
 
 
+def _migration_count() -> int:
+    return len(list((Path(__file__).resolve().parent.parent.parent / "migrations").glob("*.sql")))
+
+
 def test_run_migrations_applies_001(tmp_path: Path) -> None:
     db_path = str(tmp_path / "test.db")
     applied = run_migrations(db_path)
-    assert applied == 9
+    assert applied == _migration_count()
 
     conn = get_connection(db_path)
     try:
         version = get_user_version(conn)
-        assert version == 9
+        assert version == _migration_count()
 
         tables = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
@@ -48,12 +52,12 @@ def test_run_migrations_resumes_after_partial_apply(tmp_path: Path) -> None:
     applied = run_migrations(db_path)
     conn = get_connection(db_path)
     try:
-        assert get_user_version(conn) == 9
+        assert get_user_version(conn) == _migration_count()
         cols = [row[1] for row in conn.execute("PRAGMA table_info(fixtures)").fetchall()]
         assert "home_corners" in cols
     finally:
         conn.close()
-    assert applied == 8
+    assert applied == _migration_count() - 1
 
 
 def test_migration_009_indexes_and_odds_cascade(tmp_path: Path) -> None:
