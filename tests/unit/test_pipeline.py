@@ -83,12 +83,13 @@ def test_train_league_insufficient_data(tmp_path: Path):
 
 def test_calibrate_reduces_brier(tmp_path: Path):
     import numpy as np
-    y = np.random.randint(0, 3, 200)
-    probs = np.random.dirichlet([1, 1, 1], 200)
+    rng = np.random.default_rng(42)
+    y = rng.integers(0, 3, 200)
+    probs = rng.dirichlet([1, 1, 1], 200)
     raw = brier_score(y, probs)
     cal, _ = calibrate(probs, y)
     cal_brier = brier_score(y, cal)
-    assert cal_brier <= raw + 0.05
+    assert cal_brier <= raw
 
 
 def test_train_league_saves_run_file(tmp_path: Path, monkeypatch):
