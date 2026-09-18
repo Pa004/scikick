@@ -4,77 +4,117 @@ import { getMarketLabel } from '../utils/marketLabels'
 import { MARKET_CATEGORIES, type MarketCategoryKey } from './marketCategories'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion'
 import { Badge } from './ui/badge'
+import { Input } from './ui/input'
+
+function groupOf(market: string, avail: string[] | undefined): MarketCategoryKey | null {
+  for (const [category, markets] of Object.entries(MARKET_CATEGORIES) as [MarketCategoryKey, string[]][]) {
+    if (markets.includes(market) && (!avail || avail.includes(market))) return category
+  }
+  return null
+}
 
 interface MarketSelectorProps {
   selected: string
   onChange: (market: string) => void
   availableMarkets?: string[]
   analyst?: boolean
+  // In parallel layout the column is too narrow for the 2-col group grid.
+  singleColumn?: boolean
+  // Controlled search (e.g. rendered in the tab row above). When absent,
+  // the selector owns its input and renders it inline.
+  query?: string
+  onQueryChange?: (q: string) => void
 }
 
-const PREFIX_CATEGORY: [string, MarketCategoryKey][] = [
-  ['corners_', 'corners'],
-  ['cards_', 'cards'],
-  ['ht_', 'firstHalf'],
-  ['ft_result_given_ht', 'halfFull'],
-  ['both_halves', 'halfFull'],
-  ['over_under_', 'goals'],
-  ['handicap_', 'handicap'],
-  ['asian_handicap_', 'handicap'],
-]
 
-function findCategory(market: string, available?: string[]): MarketCategoryKey | null {
-  for (const [category, markets] of Object.entries(MARKET_CATEGORIES)) {
-    const visible = available ? markets.filter(m => available.includes(m)) : markets
-    if (visible.includes(market)) return category as MarketCategoryKey
-  }
-  for (const [prefix, category] of PREFIX_CATEGORY) {
-    if (market.startsWith(prefix) && (!available || available.includes(market))) {
-      return category
-    }
-  }
-  return null
-}
 
-export default function MarketSelector({ selected, onChange, availableMarkets, analyst = false }: MarketSelectorProps) {
+export default function MarketSelector({ selected, onChange, availableMarkets, analyst = false, singleColumn = false, query: controlledQuery, onQueryChange }: MarketSelectorProps) {
   const { t, locale } = useLanguage()
   const availKey = (availableMarkets ?? []).join('|')
-  // Derived state (React-endorsed "previous render info" pattern):
-  // manual toggles persist, but programmatic market changes re-open their group.
-  const [nav, setNav] = useState(() => ({
-    prevSelected: selected,
-    prevAvailable: availKey,
-    open: findCategory(selected, availableMarkets) ?? 'results' as MarketCategoryKey | null,
-  }))
-  if (nav.prevSelected !== selected || nav.prevAvailable !== availKey) {
-    setNav({ prevSelected: selected, prevAvailable: availKey, open: findCategory(selected, availableMarkets) ?? 'results' })
+  const [internalQuery, setInternalQuery] = useState('')
+  const external = onQueryChange !== undefined
+  const query = external ? (controlledQuery ?? '') : internalQuery
+  const setQuery = external ? onQueryChange : setInternalQuery
+  // Open the group holding the selection on mount so the chart has context.
+  // Keep open groups when only the selection changes so the chart can be
+  // compared live; reset only when the market set changes (other fixture).
+  const [nav, setNav] = useState(() => {
+    const initial = groupOf(selected, availableMarkets)
+    return {
+      prevSelected: selected,
+      prevAvailable: availKey,
+      open: initial ? [initial] : ([] as MarketCategoryKey[]),
+    }
+  })
+  if (nav.prevAvailable !== availKey) {
+    const reopen = groupOf(selected, availableMarkets)
+    if (!external) setQuery('')
+    setNav({ prevSelected: selected, prevAvailable: availKey, open: reopen ? [reopen] : [] })
+  } else if (nav.prevSelected !== selected) {
+    setNav(n => ({ ...n, prevSelected: selected }))
   }
 
+  const q = query.trim().toLowerCase()
   const groups = (Object.entries(MARKET_CATEGORIES) as [MarketCategoryKey, string[]][])
     .map(([category, markets]) => ({
       category,
-      visible: availableMarkets ? markets.filter(m => availableMarkets.includes(m)) : markets,
+      visible: (availableMarkets ? markets.filter(m => availableMarkets.includes(m)) : markets)
+        .filter(m => !q || getMarketLabel(m, locale).toLowerCase().includes(q)),
     }))
     .filter(g => g.visible.length > 0)
+    // Pair similar heights to avoid large white-space when one card in a row expands.
+    // Goles (10) is the outlier -> full width; remaining pair by count (5/5, 6/5, 4/3).
+    .sort((a, b) => {
+      if (a.category === 'goals') return -1
+      if (b.category === 'goals') return 1
+      return b.visible.length - a.visible.length
+    })
+
+  // While searching, every matching group stays open for scanning.
+  const openValue = q ? groups.map(g => g.category) : nav.open
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      value={nav.open ?? ''}
-      onValueChange={v => setNav(n => ({ ...n, open: (v || null) as MarketCategoryKey | null }))}
-    >
-      {groups.map(({ category, visible }) => (
-        <AccordionItem key={category} value={category}>
-          <AccordionTrigger>
-            <span>{t(marketCategoryLabel(category))}</span>
-            <span className="flex items-center gap-2">
-              <Badge variant="accent" className="text-xs" aria-hidden="true">
-                {visible.length}
-              </Badge>
-            </span>
-          </AccordionTrigger>
-          <AccordionContent>
+    <div>
+      {!external && (
+        <Input
+          type="search"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder={t('marketSearch')}
+          aria-label={t('marketSearch')}
+          className="mb-3"
+        />
+      )}
+      {groups.length === 0 ? (
+        <p className="m-0 text-sm text-faint">{t('noMarketMatch')}</p>
+      ) : (
+        <Accordion
+          type="multiple"
+          value={openValue}
+          onValueChange={v => setNav(n => ({ ...n, open: v as MarketCategoryKey[] }))}
+          className={singleColumn ? 'grid grid-cols-1 gap-3 md:items-start' : 'grid grid-cols-1 gap-3 md:grid-cols-2 md:items-start'}
+        >
+          {groups.map(({ category, visible }) => (
+            <AccordionItem
+              key={category}
+              value={category}
+              className={category === 'goals' && !singleColumn ? 'md:col-span-2' : undefined}
+            >
+              <AccordionTrigger>
+                <span className="inline-flex min-w-0 flex-1 items-center gap-2">
+                  {visible.includes(selected) && (
+                    <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-primary" />
+                  )}
+                  <span className="truncate">{t(marketCategoryLabel(category))}</span>
+                  {visible.includes(selected) && <span className="sr-only"> · {t('activeMarketGroup')}</span>}
+                </span>
+                <span className="flex w-12 shrink-0 items-center justify-center">
+                  <Badge variant="accent" className="text-xs" aria-hidden="true">
+                    {visible.length}
+                  </Badge>
+                </span>
+              </AccordionTrigger>
+              <AccordionContent>
             <div className="flex flex-wrap gap-2">
               {visible.map(m => (
                 <button
@@ -92,9 +132,11 @@ export default function MarketSelector({ selected, onChange, availableMarkets, a
                 </button>
               ))}
             </div>
-          </AccordionContent>
-        </AccordionItem>
-      ))}
-    </Accordion>
+            </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      )}
+    </div>
   )
 }

@@ -110,6 +110,15 @@ describe('header', () => {
     expect(screen.queryByRole('radiogroup')).toBeNull()
   })
 
+  it('switches language from the visible header control', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    expect(screen.getByRole('button', { name: 'English' }).getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(screen.getByRole('button', { name: 'Español' }))
+    expect(await screen.findByRole('heading', { name: 'Partidos' })).toBeDefined()
+    expect(localStorage.getItem('scikick.locale')).toBe('es')
+  })
+
   it('toggles analyst mode from the overflow menu', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
@@ -122,7 +131,7 @@ describe('header', () => {
       <MemoryRouter initialEntries={['/']}>
         <ThemeProvider>
           <LanguageProvider>
-            <OverflowMenu analyst={false} onAnalystChange={() => {}} onOpenModel={onOpenModel} />
+            <OverflowMenu analyst={true} onAnalystChange={() => {}} onOpenModel={onOpenModel} />
           </LanguageProvider>
         </ThemeProvider>
       </MemoryRouter>,
@@ -132,9 +141,16 @@ describe('header', () => {
     unmount()
   })
 
+  it('hides the model drawer entry from lay users', async () => {
+    renderApp()
+    await screen.findAllByText(/Arsenal/)
+    expect(screen.queryByRole('menuitem', { name: 'About the model' })).toBeNull()
+  })
+
   it('opens the model drawer from the app overflow', async () => {
     renderApp()
     await screen.findAllByText(/Arsenal/)
+    fireEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Analyst' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'About the model' }))
     expect(await screen.findByText('No results to calibrate yet. Check back after the matchday.')).toBeDefined()
     expect(screen.getByText('How SciKick calls a match')).toBeDefined()

@@ -13,11 +13,26 @@ interface VerdictHeroProps {
   // Fresh bundle probabilities win over the feed-embedded snapshot,
   // which may be missing or stale.
   probs?: OutcomeProbs | null
+  // Analysts always see the probable score; lay users only when it agrees
+  // with the verdict (a contradicting scoreline destroys trust in the lede).
+  analyst?: boolean
+}
+
+// The most likely exact score can disagree with the most likely outcome
+// (e.g. 1-1 tops scores while home wins the 1X2). Only show it alongside
+// the verdict when both point the same way.
+export function scoreMatchesVerdict(
+  outcome: 'home' | 'draw' | 'away',
+  score: { home: number; away: number },
+): boolean {
+  if (outcome === 'draw') return score.home === score.away
+  if (outcome === 'home') return score.home > score.away
+  return score.home < score.away
 }
 
 // The story lede: one big natural-language sentence plus the frequency
 // made visible. Everything below is evidence for this claim.
-export function VerdictHero({ fixture, probableScore, probs }: VerdictHeroProps) {
+export function VerdictHero({ fixture, probableScore, probs, analyst = false }: VerdictHeroProps) {
   const { t } = useLanguage()
   const embedded = fixtureVerdict(fixture)
   const v = probs
@@ -43,7 +58,7 @@ export function VerdictHero({ fixture, probableScore, probs }: VerdictHeroProps)
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <Dots10 filled={v.frequency} label={text} />
-        {probableScore && (
+        {probableScore && (analyst || scoreMatchesVerdict(v.outcome, probableScore)) && (
           <span className="text-sm text-muted">
             {t('probableScore')}{' '}
             <Badge variant="accent" className="px-3 py-1 font-mono text-sm tabular-nums">

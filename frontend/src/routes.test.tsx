@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MemoryRouter } from 'react-router'
 import { LanguageProvider } from './i18n'
@@ -41,6 +41,16 @@ beforeEach(() => {
 })
 
 describe('routes', () => {
+  it('exposes one h1 per page', async () => {
+    const { unmount } = renderAt(['/'])
+    await screen.findAllByText(/Arsenal/)
+    expect(screen.getByRole('heading', { level: 1, name: 'Fixtures' })).toBeDefined()
+    unmount()
+    renderAt(['/partido/1'])
+    await screen.findByText(/Arsenal win/)
+    expect(screen.getByRole('heading', { level: 1, name: 'Arsenal vs Chelsea' })).toBeDefined()
+  })
+
   it('navigates between feed and followed via nav with aria-current', async () => {
     renderAt(['/'])
     await screen.findAllByText(/Arsenal/)
@@ -56,8 +66,8 @@ describe('routes', () => {
   it('renders the team page with upcoming matches', async () => {
     renderAt(['/equipo/Arsenal'])
     expect(await screen.findByText('Upcoming')).toBeDefined()
-    expect(screen.getByText(/Arsenal vs Chelsea/)).toBeDefined()
-    expect(screen.queryByText(/Liverpool vs Arsenal/)).toBeNull()
+    expect(screen.getByRole('heading', { name: /Arsenal vs Chelsea/ })).toBeDefined()
+    expect(screen.queryByRole('heading', { name: /Liverpool vs Arsenal/ })).toBeNull()
   })
 
   it('shows team form as letter pips', async () => {
@@ -67,14 +77,12 @@ describe('routes', () => {
     expect(screen.getByText('W')).toBeDefined()
   })
 
-  it('shows match subnav anchors on the match page', async () => {
+  it('shows no subnav on the match page, with back action in the follow card', async () => {
     renderAt(['/partido/1'])
     await screen.findByText(/Arsenal win/)
-    const nav = screen.getByRole('navigation', { name: 'Match context' })
-    expect(nav).toBeDefined()
-    expect(nav.querySelector('a[href="#story-1-verdict"]')).not.toBeNull()
-    expect(nav.querySelector('a[href="#story-1-markets"]')).not.toBeNull()
-    expect(nav.querySelector('a[href="#story-1-scorers"]')).not.toBeNull()
+    expect(screen.queryByRole('navigation', { name: 'Match context' })).toBeNull()
+    const aside = screen.getByRole('complementary', { name: 'Match context' })
+    expect(within(aside).getByRole('button', { name: 'Back to matches' })).toBeDefined()
   })
 
   it('shows an actionable empty state on followed', async () => {
@@ -85,6 +93,9 @@ describe('routes', () => {
 
   it('opens team pages from match center links', async () => {
     renderAt(['/partido/1'])
+    await screen.findByText(/Arsenal win/)
+    // Match center lives in the Context tab on the match page.
+    fireEvent.click(screen.getByRole('tab', { name: 'Context' }))
     const teamLink = await screen.findByRole('link', { name: 'Arsenal' })
     fireEvent.click(teamLink)
     expect(await screen.findByText('Upcoming')).toBeDefined()

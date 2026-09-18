@@ -33,9 +33,11 @@ export function Eyebrow({ className, ...props }: HTMLAttributes<HTMLSpanElement>
 }
 
 // Section titles that belong in the heading outline (h3 under card h2s).
-export function SectionHeading({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
+// level 4 nests subsections under the card title for a correct outline.
+export function SectionHeading({ level = 3, className, ...props }: HTMLAttributes<HTMLHeadingElement> & { level?: 3 | 4 }) {
+  const Tag = level === 4 ? 'h4' : 'h3'
   return (
-    <h3
+    <Tag
       className={cn(
         'mb-2 text-xs font-semibold tracking-[0.08em] text-faint uppercase',
         className,

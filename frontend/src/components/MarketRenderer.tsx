@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
 import { TrendingDown, TrendingUp } from 'lucide-react'
 import { useLanguage } from '../i18n'
 import { formatDecimal } from '../utils/odds'
-import { getOutcomeLabel } from '../utils/marketLabels'
+import { getMarketLabel, getOutcomeLabel } from '../utils/marketLabels'
 import type { DisplayMode } from '../hooks/useDisplayMode'
 import type { MoveDirection } from '../hooks/useMovement'
 import { useChartTheme } from './charts/chartTheme'
@@ -61,12 +62,71 @@ function isNestedGroups(data: Record<string, number>): boolean {
   return typeof first === 'object' && first !== null
 }
 
+// One halftime scenario at a time: 16 stacked groups become one chip row
+// plus 3 bars, so the card fits the parallel layout again.
+function HtGroupsPanel({ market, nested, mode, moves }: {
+  market: string
+  nested: Record<string, Record<string, number>>
+  mode: DisplayMode
+  moves: Record<string, MoveDirection>
+}) {
+  const { locale } = useLanguage()
+  const keys = Object.keys(nested)
+  const [active, setActive] = useState(keys[0] ?? '')
+  const [prevMarket, setPrevMarket] = useState(market)
+  if (prevMarket !== market) {
+    setPrevMarket(market)
+    setActive(keys[0] ?? '')
+  }
+  const current = keys.includes(active) ? active : keys[0] ?? ''
+  const group = nested[current] ?? {}
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-2" role="group" aria-label={getMarketLabel(market, locale)}>
+        {keys.map(k => (
+          <button
+            key={k}
+            type="button"
+            aria-pressed={k === current}
+            onClick={() => setActive(k)}
+            className={
+              k === current
+                ? 'min-h-11 cursor-pointer rounded-full bg-primary px-4 text-sm font-semibold text-primary-fg shadow-sm transition-colors duration-150'
+                : 'min-h-11 cursor-pointer rounded-full border border-border px-4 text-sm font-medium text-muted transition-colors duration-150 hover:border-border-strong hover:text-foreground'
+            }
+          >
+            {getOutcomeLabel(market, k, locale)}
+          </button>
+        ))}
+      </div>
+      <div className="flex flex-col gap-2">
+        {['home', 'draw', 'away']
+          .filter(o => typeof group[o] === 'number' && group[o] > 0)
+          .map(o => (
+            <ProbBar
+              key={o}
+              label={getOutcomeLabel('1x2', o, locale)}
+              prob={group[o]}
+              mode={mode}
+              move={moves[`${current}.${o}`] ?? 'flat'}
+            />
+          ))}
+      </div>
+    </div>
+  )
+}
+
 function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
   const { t, locale } = useLanguage()
   const chart = useChartTheme()
-  const bar = (key: string, prob: number, label?: string) => (
-    <ProbBar label={label ?? getOutcomeLabel(market, key, locale)} prob={prob} mode={mode} move={moves[key] ?? 'flat'} />
-  )
+  const bar = (key: string, prob: number, label?: string) => {
+    // Zero-probability rows (e.g. draw in void-if-draw markets) carry no
+    // information and only confuse the chart.
+    if (!(prob > 0)) return null
+    return (
+      <ProbBar key={key} label={label ?? getOutcomeLabel(market, key, locale)} prob={prob} mode={mode} move={moves[key] ?? 'flat'} />
+    )
+  }
 
   const threeWay = () => (
     <div className="flex flex-col gap-2">
@@ -78,6 +138,19 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
 
   const overUnder = () => {
     const sides = (['over', 'under'] as const).filter(k => data[k] !== undefined)
+    if (sides.length === 0) {
+      return <span className="text-sm text-faint">{t('marketMissing')}</span>
+    }
+    return (
+      <div className="flex flex-col gap-2">
+        {sides.map(k => bar(k, data[k]))}
+      </div>
+    )
+  }
+
+  const doubleChance = () => {
+    const sides = (['home_or_draw', 'draw_or_away', 'home_or_away'] as const)
+      .filter(k => typeof data[k] === 'number')
     if (sides.length === 0) {
       return <span className="text-sm text-faint">{t('marketMissing')}</span>
     }
@@ -111,31 +184,6 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
       </div>
     )
   }
-
-  const htGroups = (nested: Record<string, Record<string, number>>) => (
-    <div className="flex flex-col gap-3">
-      {Object.entries(nested).map(([k, group]) => (
-        <div key={k}>
-          <div className="mb-1 text-xs font-semibold tracking-[0.08em] text-muted uppercase">
-            {getOutcomeLabel(market, k, locale)}
-          </div>
-          <div className="flex flex-col gap-2">
-            {['home', 'draw', 'away']
-              .filter(o => typeof group[o] === 'number')
-              .map(o => (
-                <ProbBar
-                  key={o}
-                  label={getOutcomeLabel('1x2', o, locale)}
-                  prob={group[o]}
-                  mode={mode}
-                  move={moves[`${k}.${o}`] ?? 'flat'}
-                />
-              ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
 
   const totalGoals = () => {
     const rank = (k: string) => (k.endsWith('+') ? 999 : Number.parseInt(k, 10))
@@ -198,14 +246,18 @@ function MarketRendererInner({ market, data, mode, moves }: InnerProps) {
 
   if (market === 'ft_result_given_ht') {
     if (!isNestedGroups(data)) return fallback()
-    return htGroups(data as unknown as Record<string, Record<string, number>>)
+    return <HtGroupsPanel market={market} nested={data as unknown as Record<string, Record<string, number>>} mode={mode} moves={moves} />
   }
 
-  if (['1x2', 'draw_no_bet', 'double_chance', 'win_to_nil', 'ht_1x2', 'ht_double_chance'].includes(market)) {
+  if (['1x2', 'draw_no_bet', 'win_to_nil', 'ht_1x2'].includes(market)) {
     return threeWay()
   }
 
-  if (market.startsWith('over_under_') && !isCorners && !isCards) {
+  if (market === 'double_chance' || market === 'ht_double_chance') {
+    return doubleChance()
+  }
+
+  if ((market.startsWith('over_under_') || market.startsWith('ht_over_under_')) && !isCorners && !isCards) {
     return overUnder()
   }
 

@@ -15,6 +15,7 @@ LEAGUES = ("E0", "SP1", "D1", "I1", "F1")
 def list_fixtures(
     league: str = "E0",
     limit: int = Query(default=100, ge=1, le=200),
+    upcoming: bool = False,
 ):
     if league != "all" and league not in LEAGUES:
         raise HTTPException(
@@ -23,6 +24,12 @@ def list_fixtures(
         )
     clause = "" if league == "all" else "AND f.league = ?"
     params: tuple = () if league == "all" else (league,)
+    # Upcoming drops stale pre fixtures so the feed starts at today.
+    upcoming_clause = (
+        "AND f.status = 'pre' AND f.match_date >= date('now', 'localtime')"
+        if upcoming
+        else ""
+    )
     conn = get_connection()
     try:
         rows = conn.execute(
@@ -34,7 +41,7 @@ def list_fixtures(
             "FROM fixtures f "
             "JOIN teams t1 ON f.home_team_id = t1.id "
             "JOIN teams t2 ON f.away_team_id = t2.id "
-            f"WHERE 1 = 1 {clause} "
+            f"WHERE 1 = 1 {clause} {upcoming_clause} "
             "ORDER BY CASE WHEN f.status = 'pre' THEN 0 ELSE 1 END, "
             "CASE WHEN f.status = 'pre' THEN f.match_date ELSE '9999' END ASC, "
             "f.match_date DESC "

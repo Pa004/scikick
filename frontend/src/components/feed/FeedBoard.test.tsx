@@ -20,7 +20,7 @@ function makeFixtures(n: number): Fixture[] {
   }))
 }
 
-function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: string[] = ['/'], onDeepLink?: (id: number) => void) {
+function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: string[] = ['/'], onDeepLink?: (id: number) => void, showValue = false) {
   return render(
     <MemoryRouter initialEntries={entries}>
       <LanguageProvider>
@@ -32,6 +32,7 @@ function renderBoard(fixtures: Fixture[], followed: string[] = [], entries: stri
         onToggleFollow={vi.fn()}
         analyst={false}
         fixturesForContext={fixtures}
+        showValue={showValue}
         onDeepLink={onDeepLink}
       />
       </LanguageProvider>
@@ -49,12 +50,16 @@ beforeEach(() => {
 })
 
 describe('FeedBoard', () => {
-  it('paginates with show more and announces counts', async () => {
+  it('paginates with numbered pages and announces range', async () => {
     renderBoard(makeFixtures(25))
-    expect(screen.getByText('Showing 20 of 25 matches')).toBeDefined()
+    expect(screen.getByText('Showing 1-12 of 25')).toBeDefined()
+    expect(screen.queryByRole('heading', { name: /Home13/ })).toBeNull()
     expect(screen.queryByRole('heading', { name: /Home25/ })).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: /Show more/ }))
-    expect(screen.getByText('Showing 25 of 25 matches')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Página 2 de 3' }))
+    expect(screen.getByText('Showing 13-24 of 25')).toBeDefined()
+    expect(screen.getByRole('heading', { name: /Home13/ })).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Página 3 de 3' }))
+    expect(screen.getByText('Showing 25-25 of 25')).toBeDefined()
     expect(screen.getByRole('heading', { name: /Home25/ })).toBeDefined()
   })
 
@@ -78,18 +83,24 @@ describe('FeedBoard', () => {
     expect(screen.queryByText(/Home1 win 6 in 10/)).toBeNull()
   })
 
-  it('filters to followed teams only', () => {
-    renderBoard(makeFixtures(3), ['Home2'])
-    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
-    expect(screen.queryByRole('heading', { name: /Home1/ })).toBeNull()
-    expect(screen.getByRole('heading', { name: /Home2/ })).toBeDefined()
-    expect(screen.queryByRole('heading', { name: /Home3/ })).toBeNull()
+  it('filters to value matches only', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/value/')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ fixture_id: 2, btts: { fixtures: [] }, scorer: { fixtures: [] }, value: { outcomes: { home: { value: true } } } }),
+        })
+      }
+      return Promise.resolve({ ok: false, status: 404 })
+    }))
+    renderBoard(makeFixtures(3), [], ['/'], undefined, true)
+    // Without prefetched values the filter shows the empty value state
+    expect(screen.getByText('No value found in the loaded matches yet.')).toBeDefined()
   })
 
-  it('shows empty state for unmatched search', () => {
-    renderBoard(makeFixtures(2))
-    fireEvent.change(screen.getByLabelText(/Search team or league/), { target: { value: 'zzz' } })
-    expect(screen.getByText('No matches for this search.')).toBeDefined()
+  it('shows empty state when no fixtures match filter', () => {
+    renderBoard(makeFixtures(2), [], ['/'], undefined, true)
+    expect(screen.getByText('No value found in the loaded matches yet.')).toBeDefined()
   })
 
   it('groups cards under date headings', () => {
@@ -104,12 +115,43 @@ describe('FeedBoard', () => {
   })
 
   it('resets pagination when toggling filters', () => {
-    renderBoard(makeFixtures(25))
-    fireEvent.click(screen.getByRole('button', { name: /Show more/ }))
-    expect(screen.getByText('Showing 25 of 25 matches')).toBeDefined()
-    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Followed' }))
-    expect(screen.getByText('Showing 20 of 25 matches')).toBeDefined()
+    const { rerender } = renderBoard(makeFixtures(25))
+    fireEvent.click(screen.getByRole('button', { name: 'Página 2 de 3' }))
+    expect(screen.getByText('Showing 13-24 of 25')).toBeDefined()
+    rerender(
+      <MemoryRouter initialEntries={['/']}>
+        <LanguageProvider>
+          <FeedBoard
+            fixtures={makeFixtures(25)}
+            loading={false}
+            leagueName={() => 'Premier League'}
+            followed={[]}
+            onToggleFollow={vi.fn()}
+            analyst={false}
+            fixturesForContext={makeFixtures(25)}
+            showValue={true}
+          />
+        </LanguageProvider>
+      </MemoryRouter>,
+    )
+    expect(screen.getByText('No value found in the loaded matches yet.')).toBeDefined()
+    rerender(
+      <MemoryRouter initialEntries={['/']}>
+        <LanguageProvider>
+          <FeedBoard
+            fixtures={makeFixtures(25)}
+            loading={false}
+            leagueName={() => 'Premier League'}
+            followed={[]}
+            onToggleFollow={vi.fn()}
+            analyst={false}
+            fixturesForContext={makeFixtures(25)}
+            showValue={false}
+          />
+        </LanguageProvider>
+      </MemoryRouter>,
+    )
+    expect(screen.getByText('Showing 1-12 of 25')).toBeDefined()
   })
 
   it('notices deep links missing from the feed and dismisses', () => {
@@ -131,15 +173,15 @@ describe('FeedBoard', () => {
     expect(onDeepLink).toHaveBeenCalledWith(1)
     expect(screen.queryByText(/Home1 win 6 in 10/)).toBeNull()
     const saved = JSON.parse(sessionStorage.getItem('scikick.feed-state') ?? '{}')
-    expect(saved.visibleCount).toBe(20)
+    expect(saved.page).toBe(1)
   })
 
   it('restores saved scroll state once on mount', () => {
-    sessionStorage.setItem('scikick.feed-state', JSON.stringify({ y: 500, visibleCount: 40, query: '' }))
+    sessionStorage.setItem('scikick.feed-state', JSON.stringify({ y: 500, page: 2 }))
     const scrollTo = vi.fn()
     vi.stubGlobal('scrollTo', scrollTo)
     renderBoard(makeFixtures(50))
-    expect(screen.getByText('Showing 40 of 50 matches')).toBeDefined()
+    expect(screen.getByText('Showing 13-24 of 50')).toBeDefined()
     expect(sessionStorage.getItem('scikick.feed-state')).toBeNull()
   })
 })

@@ -19,6 +19,7 @@ app/models/runs/*
 !app/models/runs/__init__.py
 
 # === Frontend ===
+node_modules/
 frontend/node_modules/
 frontend/dist/
 

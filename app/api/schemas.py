@@ -86,3 +86,6 @@ class ValueOutcome(BaseModel):
 class ValueResponse(BaseModel):
     fixture_id: int
     outcomes: dict[str, ValueOutcome]
+    # Where the compared odds came from: bookmaker name for stored odds,
+    # None when the caller pasted their own.
+    source: str | None = None

@@ -39,6 +39,54 @@ describe('MarketRenderer display mode', () => {
   })
 })
 
+function renderMarket(market: string, probabilities: Record<string, Record<string, number>>) {
+  return render(
+    <LanguageProvider>
+      <MarketRenderer market={market} probabilities={probabilities} />
+    </LanguageProvider>,
+  )
+}
+
+describe('MarketRenderer market routing', () => {
+  it('renders half-time over/under as bars instead of raw JSON', () => {
+    renderMarket('ht_over_under_1.5', { 'ht_over_under_1.5': { over: 0.43, under: 0.57 } })
+    expect(screen.getByText('43.0%')).toBeDefined()
+    expect(screen.getByText('57.0%')).toBeDefined()
+    expect(screen.queryByText(/"over"/)).toBeNull()
+  })
+
+  it('renders double chance with its three real outcomes', () => {
+    renderMarket('double_chance', { double_chance: { home_or_draw: 0.58, draw_or_away: 0.73, home_or_away: 0.69 } })
+    expect(screen.getByText('Home or draw')).toBeDefined()
+    expect(screen.getByText('Draw or away')).toBeDefined()
+    expect(screen.getByText('Home or away')).toBeDefined()
+    expect(screen.getByText('58.0%')).toBeDefined()
+  })
+
+  it('hides zero-probability rows in void-if-draw markets', () => {
+    renderMarket('draw_no_bet', { draw_no_bet: { home: 0.39, draw: 0, away: 0.61 } })
+    expect(screen.getByText('39.0%')).toBeDefined()
+    expect(screen.getByText('61.0%')).toBeDefined()
+    expect(screen.queryByText('Draw (void)')).toBeNull()
+  })
+
+  it('shows one halftime scenario at a time with chips', () => {
+    const { container } = renderMarket('ft_result_given_ht', {
+      ft_result_given_ht: {
+        'ht_0-0_ft_1x2': { home: 0.26, draw: 0.32, away: 0.42 },
+        'ht_1-0_ft_1x2': { home: 0.55, draw: 0.24, away: 0.21 },
+      },
+    } as unknown as Record<string, Record<string, number>>)
+    expect(container.querySelectorAll('.prob-bar-fill')).toHaveLength(3)
+    expect(screen.getByText('26.0%')).toBeDefined()
+    expect(screen.queryByText('55.0%')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Half-time 1-0' }))
+    expect(container.querySelectorAll('.prob-bar-fill')).toHaveLength(3)
+    expect(screen.getByText('55.0%')).toBeDefined()
+    expect(screen.queryByText('26.0%')).toBeNull()
+  })
+})
+
 describe('DisplayModeToggle', () => {
   it('reflects mode and notifies on change', () => {
     const onChange = vi.fn()

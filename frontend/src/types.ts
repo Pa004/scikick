@@ -32,6 +32,8 @@ export interface ValueOutcome {
 export interface ValueResponse {
   fixture_id: number
   outcomes: Record<string, ValueOutcome>
+  // Bookmaker behind stored odds; absent when the user pasted their own.
+  source?: string | null
 }
 
 export interface ContextFormEntry {
