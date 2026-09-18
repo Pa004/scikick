@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { CalibrationData, MatchdayData, Stats } from '../../types'
 import { fetchCalibration, fetchMatchdayStats, fetchStats } from '../../api'
 import { useLanguage } from '../../i18n'
+import { LEAGUES } from '../layout/LeagueSwitcher'
 import StatsDashboard from '../StatsDashboard'
 import { Button } from '../ui/button'
 import { Drawer, DrawerContent } from '../ui/drawer'
@@ -51,11 +52,10 @@ export function ModelDrawer({ league, open, onOpenChange }: {
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent
-        title={t('modelTrust')}
-        description={t('trustTitle')}
-        closeLabel={t('close')}
-      >
+        <DrawerContent
+          title={t('modelTrust')}
+          closeLabel={t('close')}
+        >
         <div className="mb-4">
           <h2 className="text-[26px] leading-tight font-bold text-foreground">{t('drawerHow')}</h2>
           <p className="mt-2 max-w-[65ch] text-[15px] text-muted">{t('drawerB1')}</p>
@@ -78,6 +78,7 @@ export function ModelDrawer({ league, open, onOpenChange }: {
             matchdayData={matchdayData}
             calibrationData={calibrationData}
             selectedMarket="1x2"
+            scopeName={t(LEAGUES.find(l => l.code === league)?.labelKey ?? 'allLeagues')}
           />
         ) : (
           <div role="status" aria-label={t('loading')} className="flex flex-col gap-2">

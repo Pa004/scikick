@@ -20,12 +20,23 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
     count: d.count,
   }))
   const summary = `${t('predictedPct')} / ${t('actualPct')}: ${fillVars(t('chartBins'), { n: chartData.length })}`
+  // Dot area grows with sample size so an n=3 bin never reads like an n=99 one.
+  const maxCount = Math.max(1, ...chartData.map(d => d.count))
+  const radiusOf = (count: number) => 3 + 7 * Math.sqrt(count / maxCount)
+  const renderDot = (props: { cx?: number; cy?: number; payload?: { count?: number } }) => (
+    <circle
+      cx={props.cx}
+      cy={props.cy}
+      r={radiusOf(props.payload?.count ?? 0)}
+      fill={chart.accent}
+    />
+  )
 
   return (
     <div className="rounded-xl border border-border bg-surface p-3 shadow-sm">
       <div role="img" aria-label={summary} className="h-70">
       <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
+          <ScatterChart margin={{ top: 10, right: 10, bottom: 30, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
           <XAxis
             type="number"
@@ -59,8 +70,9 @@ export default function CalibrationChart({ data }: CalibrationChartProps) {
             stroke={chart.reference}
             strokeDasharray="5 5"
             name={t('perfect')}
+            label={{ value: t('perfect'), position: 'insideTopRight', fontSize: 11, fill: chart.tick }}
           />
-          <Scatter data={chartData} fill={chart.accent} />
+          <Scatter data={chartData} fill={chart.accent} shape={renderDot} />
         </ScatterChart>
       </ResponsiveContainer>
       </div>

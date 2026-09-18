@@ -153,8 +153,8 @@ describe('header', () => {
     fireEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Analyst' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'About the model' }))
     expect(await screen.findByText('No results to calibrate yet. Check back after the matchday.')).toBeDefined()
-    expect(screen.getByText('How SciKick calls a match')).toBeDefined()
-    expect(screen.getByText('Calibrated, checked weekly')).toBeDefined()
+    expect(screen.getByText('How SciKick works')).toBeDefined()
+    expect(screen.getByText('Calibrated model')).toBeDefined()
   })
 })
 
