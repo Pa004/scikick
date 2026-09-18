@@ -40,8 +40,6 @@ FastAPI + SQLite (`GET /fixtures` with `upcoming` filter, `/predict/{id}`, `POST
 
 ## The interface
 
-![Feed with verdict blocks, 1X2 legend and value badges](docs/screenshots/accents/port-f1-light.png)
-
 ![Match page with tabs and parallel chart](docs/screenshots/accents/port-match.png)
 
 ![Model drawer with explainer and calibration](docs/screenshots/accents/f3-drawer.png)
