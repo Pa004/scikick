@@ -50,7 +50,7 @@ jobs:
       - name: Deploy data bundle + Worker
         if: env.HAS_CF_TOKEN != '' && steps.check.outputs.fixtures != '0'
         run: |
-          npm install -g wrangler
+          npm install -g wrangler@4.135.0
           wrangler pages deploy dist-cf --project-name=scikick-data
           wrangler deploy --config worker/wrangler.toml
         working-directory: .
