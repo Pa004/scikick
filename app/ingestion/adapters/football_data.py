@@ -49,15 +49,17 @@ def download_csv(
     if not force and dest.exists() and dest.stat().st_size > 100:
         return dest
 
-    import subprocess
-    result = subprocess.run(
-        ["curl.exe", "--insecure", "-s", "-o", str(dest), url],
-        capture_output=True, text=True, timeout=30,
-    )
-    if result.returncode != 0 or not dest.exists() or dest.stat().st_size < 100:
-        raise ConnectionError(f"Failed to download {url}: {result.stderr}")
+    import requests
 
-    head = dest.read_bytes()[:200]
+    try:
+        resp = requests.get(url, timeout=30, verify=False)
+    except requests.RequestException as exc:
+        raise ConnectionError(f"Failed to download {url}: {exc}") from exc
+    if resp.status_code != 200 or len(resp.content) < 100:
+        raise ConnectionError(f"Failed to download {url}: HTTP {resp.status_code}")
+
+    dest.write_bytes(resp.content)
+    head = resp.content[:200]
     if b"Div," not in head:
         dest.unlink(missing_ok=True)
         raise ConnectionError(f"Not a CSV (season file missing?): {url}")
