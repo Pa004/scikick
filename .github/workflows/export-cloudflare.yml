@@ -1,11 +1,18 @@
 name: Export Cloudflare
 
-# Daily static export of the read API -> R2 + Worker deploy (all free tier).
-# Training stays local per docs/retrain.md; this job only exports + deploys.
+# Static export of the read API -> Pages bundle + Worker (all free tier).
+# Daily: fixture/odds refresh + export (deploys only if the bundle keeps
+# predictions). Sundays: full retrain first, so CI fully sustains production.
 on:
   schedule:
     - cron: "30 6 * * *"
+    - cron: "0 7 * * 0"
   workflow_dispatch:
+    inputs:
+      full_retrain:
+        description: "Train all leagues before export (~1h CPU)"
+        type: boolean
+        default: false
 
 concurrency:
   group: cf-export
@@ -32,6 +39,16 @@ jobs:
           FOOTBALL_DATA_ORG_KEY: ${{ secrets.FOOTBALL_DATA_ORG_KEY }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           SERVICE_TOKEN: dummy-export-run
+      - name: Sync bookmaker odds (best effort, keeps +EV badges)
+        run: python -m app.cli odds || true
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+      - name: Train all leagues (Sundays or forced, ~10 min each)
+        if: github.event.schedule == '0 7 * * 0' || inputs.full_retrain
+        run: |
+          for league in E0 SP1 D1 I1 F1; do
+            python -m app.cli train --league "$league" || true
+          done
       - name: Predict upcoming (best effort, needs trained runs)
         run: |
           for league in E0 SP1 D1 I1 F1; do
@@ -44,11 +61,12 @@ jobs:
       - run: python -m scripts.export_cloudflare --db data/futbol.db --out dist-cf
         env:
           SERVICE_TOKEN: dummy-export-run
-      - name: Check export is non-empty
+      - name: Check export quality gate
         id: check
-        run: python -c "import json,os; print('fixtures=' + str(json.load(open('dist-cf/manifest.json'))['fixtures']))" >> "$GITHUB_OUTPUT"
+        run: |
+          python -c "import json; m = json.load(open('dist-cf/manifest.json')); print('fixtures=' + str(m['fixtures'])); print('predicted=' + str(m['predicted']))" >> "$GITHUB_OUTPUT"
       - name: Deploy data bundle + Worker
-        if: env.HAS_CF_TOKEN != '' && steps.check.outputs.fixtures != '0'
+        if: env.HAS_CF_TOKEN != '' && steps.check.outputs.fixtures != '0' && steps.check.outputs.predicted != '0'
         run: |
           npm install -g wrangler@4.135.0
           wrangler pages deploy dist-cf --project-name=scikick-data
