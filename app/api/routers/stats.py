@@ -153,7 +153,8 @@ def get_stats_per_matchday(league: str | None = None, market: str = "1x2"):
             f"SELECT DATE(t.resolved_at) as matchday, "
             f"COUNT(*) as total, "
             f"SUM(CASE WHEN t.hit = 1 THEN 1 ELSE 0 END) as hits, "
-            f"AVG(t.confidence) as avg_confidence "
+            f"AVG(t.confidence) as avg_confidence, "
+            f"AVG((t.confidence - t.hit) * (t.confidence - t.hit)) as brier "
             f"FROM tracked t {base_filter} "
             f"GROUP BY DATE(t.resolved_at) "
             f"ORDER BY DATE(t.resolved_at)",
@@ -166,7 +167,7 @@ def get_stats_per_matchday(league: str | None = None, market: str = "1x2"):
             hits = r["hits"] or 0
             accuracy = round(hits / total, 4) if total > 0 else 0
             avg_conf = r["avg_confidence"] or 0
-            brier = round((1 - accuracy) ** 2 + (1 - avg_conf) ** 2, 4) if total > 0 else 0
+            brier = round(r["brier"], 4) if r["brier"] is not None else 0
             result.append({
                 "matchday": r["matchday"],
                 "total": total,

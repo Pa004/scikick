@@ -242,6 +242,19 @@ def test_get_stats_cold_start(tmp_path: Path):
     assert resp.json()["cold_start"] is True
 
 
+def test_get_stats_per_matchday_brier(tmp_path: Path):
+    db_path = _setup_db(tmp_path)
+    app = create_app()
+    client = TestClient(app)
+    with patch("app.api.routers.stats.get_connection", side_effect=_make_get_conn(db_path)):
+        resp = client.get("/api/stats/per-matchday?market=1x2")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["data"]) == 1
+    # Single tracked row: confidence 0.55, hit 1 -> (0.55 - 1)^2.
+    assert data["data"][0]["brier"] == round((0.55 - 1) ** 2, 4)
+
+
 def test_refresh_requires_token(tmp_path: Path):
     app = create_app()
     client = TestClient(app)

@@ -35,4 +35,15 @@ export async function fetchCalibration(market = '1x2', league?: string): Promise
 }
 
 export { fetchContext, fetchPrediction, fetchScorer, fetchValue } from './api/detail'
+
+export async function fetchHealth(): Promise<{ exported_at: string | null }> {
+  try {
+    const data = await fetchJson<{ exported_at?: string | null }>(
+      `${API_BASE.replace(/\/api$/, '')}/health`,
+    )
+    return { exported_at: data.exported_at ?? null }
+  } catch {
+    return { exported_at: null }
+  }
+}
 export type { DetailBundle } from './api/detail'

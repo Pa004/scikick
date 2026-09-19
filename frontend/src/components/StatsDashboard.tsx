@@ -14,8 +14,8 @@ import MatchdayChart from './MatchdayChart'
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 
-// Thresholds calibrated to the backend's approximate matchday Brier
-// (range 0-2), not the classic 0-1 probabilistic Brier.
+// Thresholds for the classic 0-1 Brier score served per matchday:
+// mean((confidence - hit)^2), lower is better.
 const BRIER_EXCELLENT_MAX = 0.1
 const BRIER_REASONABLE_MAX = 0.3
 const CALIBRATION_TOLERANCE = 0.1

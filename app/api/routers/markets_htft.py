@@ -14,10 +14,12 @@ ComboType = Literal["ht-ft", "both-halves"]
 @router.get("/predict/{fixture_id}/first-half")
 def predict_first_half(fixture_id: int):
     conn = get_connection()
-    row = conn.execute(
-        "SELECT id, prediction FROM fixtures WHERE id = ?", (fixture_id,)
-    ).fetchone()
-    conn.close()
+    try:
+        row = conn.execute(
+            "SELECT id, prediction FROM fixtures WHERE id = ?", (fixture_id,)
+        ).fetchone()
+    finally:
+        conn.close()
 
     if not row:
         raise HTTPException(status_code=404, detail="Fixture not found")
@@ -47,10 +49,12 @@ def predict_first_half(fixture_id: int):
 @router.get("/predict/{fixture_id}/half-time-full-time")
 def predict_half_time_full_time(fixture_id: int):
     conn = get_connection()
-    row = conn.execute(
-        "SELECT id, prediction FROM fixtures WHERE id = ?", (fixture_id,)
-    ).fetchone()
-    conn.close()
+    try:
+        row = conn.execute(
+            "SELECT id, prediction FROM fixtures WHERE id = ?", (fixture_id,)
+        ).fetchone()
+    finally:
+        conn.close()
 
     if not row:
         raise HTTPException(status_code=404, detail="Fixture not found")
@@ -81,10 +85,12 @@ def predict_half_time_full_time(fixture_id: int):
 @router.get("/predict/{fixture_id}/combo/{tipo}")
 def predict_combo(fixture_id: int, tipo: ComboType):
     conn = get_connection()
-    row = conn.execute(
-        "SELECT id, prediction FROM fixtures WHERE id = ?", (fixture_id,)
-    ).fetchone()
-    conn.close()
+    try:
+        row = conn.execute(
+            "SELECT id, prediction FROM fixtures WHERE id = ?", (fixture_id,)
+        ).fetchone()
+    finally:
+        conn.close()
 
     if not row:
         raise HTTPException(status_code=404, detail="Fixture not found")
