@@ -1,8 +1,9 @@
 # Monthly retrain playbook
 
-Models go stale as new matches are played. This checklist keeps them current.
-Run it once a month (or when `football-data.co.uk` publishes a new season file).
-No automation: full retrains take hours on CPU.
+Models go stale as new matches are played. The Sunday CI retrain
+(`export-cloudflare.yml`, 07:00 UTC: sync → train → predict → export → gated
+deploy) keeps production current automatically. Use this checklist for local
+retrains, season-file checks, and judging whether a cycle regressed.
 
 ## 0. Check for the new season file (5 seconds, weekly)
 
@@ -49,11 +50,11 @@ loader picks the newest remaining by mtime).
 
 | League | Last brier | Date | Samples |
 |--------|-----------|------|---------|
-| E0 | 0.5959 | 2026-09-07 | 37 |
-| SP1 | 0.5270 | 2026-09-07 | 34 |
-| D1 | 0.4701 | 2026-09-07 | 27 |
-| I1 | 0.6258 | 2026-09-07 | 30 |
-| F1 | 0.6029 | 2026-09-07 | 34 |
+| E0 | 0.6271 | 2026-09-19 | 17 |
+| SP1 | 0.6068 | 2026-09-19 | 21 |
+| D1 | 0.6285 | 2026-09-19 | 16 |
+| I1 | 0.5495 | 2026-09-19 | 30 |
+| F1 | 0.6151 | 2026-09-19 | 11 |
 
 Note: test sets are small (27–37 matches), so single retrains are noisy. Judge
 trends over 2–3 cycles, not one number.

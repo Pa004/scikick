@@ -7,6 +7,8 @@ SciKick is an **analytical instrument, not a betting tool**. It answers "who win
 ![Backend CI](https://github.com/Pa004/scikick/actions/workflows/ci-backend.yml/badge.svg)
 ![Frontend CI](https://github.com/Pa004/scikick/actions/workflows/ci-frontend.yml/badge.svg)
 
+**Live:** https://scikick.pages.dev — daily static export served from Cloudflare (Pages + read-only Worker), retrained weekly by CI.
+
 ![SciKick feed with verdict blocks and value badges](docs/screenshots/accents/port-f1-light.png)
 
 ## What it does
@@ -46,7 +48,7 @@ FastAPI + SQLite (`GET /fixtures` with `upcoming` filter, `/predict/{id}`, `POST
 
 ## Health
 
-- **Tested**: 362 backend tests / 52 files (pytest) + 226 frontend tests / 33 files (vitest); `oxlint` + `vite build` green on every PR via split CI.
+- **Tested**: 364 backend tests / 53 files (pytest) + 226 frontend tests / 33 files (vitest); `oxlint` + `vite build` green on every PR via split CI.
 - **Reproducible**: every train persists params, strengths and metrics (`data/runs/<league>/`); monthly ops in `docs/retrain.md`. CPU-only, free-tier sources.
 
 ## Quick start
@@ -73,9 +75,15 @@ docs/         — retrain.md (monthly ops), screenshots/
 
 ## Deploy
 
+Production is Cloudflare-only (free tier): the frontend ships to Pages, the
+API is a read-only Worker over a static JSON bundle on a second Pages project,
+and `.github/workflows/export-cloudflare.yml` rebuilds it — daily data refresh
+(06:30 UTC), full retrain Sundays (07:00 UTC), deploy gated on a non-empty
+bundle that keeps predictions. API: https://scikick-api.pablodo004.workers.dev.
+
 ```powershell
 Copy-Item .env.example .env   # set SERVICE_TOKEN + API keys
-docker compose up --build -d  # API on :8000, SQLite persisted in ./data
+docker compose up --build -d  # local API on :8000, SQLite persisted in ./data
 ```
 
 The frontend deploys anywhere static (Vercel-ready) with `VITE_API_URL` pointing at the API.
