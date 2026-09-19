@@ -34,7 +34,7 @@ jobs:
           enable-cache: true
       - run: uv pip install --system -r requirements.txt
       - name: Sync fixtures (best effort, needs API keys)
-        run: python -m app.cli sync --seasons 1 || true
+        run: python -m app.cli sync --seasons 3 || true
         env:
           FOOTBALL_DATA_ORG_KEY: ${{ secrets.FOOTBALL_DATA_ORG_KEY }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
