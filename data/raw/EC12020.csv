@@ -1,0 +1,243 @@
+Div,Date,HomeTeam,AwayTeam,FTHG,FTAG,FTR
+EC1,14/02/2020,Independiente del Valle,Mushuc Runa,2,1,H
+EC1,15/02/2020,Deportivo Cuenca,Liga de Quito,1,2,A
+EC1,15/02/2020,Aucas,Delfín,1,2,A
+EC1,15/02/2020,Orense,Emelec,2,2,D
+EC1,15/02/2020,Macará,Universidad Católica (Quito),1,1,D
+EC1,16/02/2020,El Nacional,Liga de Portoviejo,2,1,H
+EC1,16/02/2020,Guayaquil City FC,Olmedo,4,1,H
+EC1,16/02/2020,Barcelona SC,Técnico Universitario,0,0,D
+EC1,22/02/2020,Liga de Portoviejo,Deportivo Cuenca,2,4,A
+EC1,22/02/2020,Olmedo,Macará,1,2,A
+EC1,22/02/2020,Delfín,Barcelona SC,1,2,A
+EC1,22/02/2020,Liga de Quito,Independiente del Valle,2,3,A
+EC1,23/02/2020,Universidad Católica (Quito),Orense,4,0,H
+EC1,23/02/2020,Mushuc Runa,El Nacional,1,1,D
+EC1,23/02/2020,Emelec,Guayaquil City FC,1,2,A
+EC1,25/02/2020,Técnico Universitario,Aucas,2,0,H
+EC1,28/02/2020,Delfín,Técnico Universitario,0,2,A
+EC1,29/02/2020,El Nacional,Liga de Quito,0,3,A
+EC1,29/02/2020,Orense,Guayaquil City FC,1,0,H
+EC1,01/03/2020,Barcelona SC,Liga de Portoviejo,1,1,D
+EC1,01/03/2020,Independiente del Valle,Olmedo,1,2,A
+EC1,01/03/2020,Aucas,Mushuc Runa,3,0,H
+EC1,01/03/2020,Macará,Emelec,1,0,H
+EC1,03/03/2020,Deportivo Cuenca,Universidad Católica (Quito),1,2,A
+EC1,07/03/2020,Técnico Universitario,Mushuc Runa,1,1,D
+EC1,07/03/2020,Liga de Portoviejo,Delfín,2,1,H
+EC1,07/03/2020,Independiente del Valle,Universidad Católica (Quito),2,2,D
+EC1,07/03/2020,Liga de Quito,Barcelona SC,2,1,H
+EC1,08/03/2020,Olmedo,Orense,2,2,D
+EC1,08/03/2020,Guayaquil City FC,Macará,1,1,D
+EC1,08/03/2020,Emelec,Aucas,4,0,H
+EC1,10/03/2020,El Nacional,Deportivo Cuenca,1,1,D
+EC1,14/03/2020,Técnico Universitario,Liga de Portoviejo,3,1,H
+EC1,14/03/2020,Mushuc Runa,Macará,2,0,H
+EC1,14/08/2020,Deportivo Cuenca,Guayaquil City FC,1,1,D
+EC1,15/08/2020,Barcelona SC,Orense,1,0,H
+EC1,15/08/2020,El Nacional,Independiente del Valle,2,4,A
+EC1,15/08/2020,Delfín,Emelec,2,0,H
+EC1,16/08/2020,Olmedo,Liga de Quito,2,3,A
+EC1,16/08/2020,Universidad Católica (Quito),Aucas,3,1,H
+EC1,18/08/2020,Independiente del Valle,Macará,4,4,D
+EC1,18/08/2020,Orense,Liga de Portoviejo,1,1,D
+EC1,18/08/2020,Deportivo Cuenca,Barcelona SC,0,3,A
+EC1,19/08/2020,Guayaquil City FC,Delfín,0,0,D
+EC1,19/08/2020,Técnico Universitario,Olmedo,1,3,A
+EC1,19/08/2020,Aucas,El Nacional,2,0,H
+EC1,19/08/2020,Liga de Quito,Universidad Católica (Quito),2,1,H
+EC1,20/08/2020,Emelec,Mushuc Runa,2,0,H
+EC1,21/08/2020,Delfín,Orense,0,0,D
+EC1,22/08/2020,Macará,Deportivo Cuenca,2,1,H
+EC1,22/08/2020,Técnico Universitario,Independiente del Valle,0,1,A
+EC1,22/08/2020,Liga de Portoviejo,Guayaquil City FC,3,1,H
+EC1,22/08/2020,Aucas,Liga de Quito,2,0,H
+EC1,23/08/2020,Olmedo,Mushuc Runa,1,2,A
+EC1,23/08/2020,Universidad Católica (Quito),El Nacional,1,1,D
+EC1,23/08/2020,Barcelona SC,Emelec,2,1,H
+EC1,25/08/2020,Deportivo Cuenca,Orense,2,2,D
+EC1,25/08/2020,Macará,Técnico Universitario,0,0,D
+EC1,25/08/2020,Independiente del Valle,Aucas,1,1,D
+EC1,26/08/2020,Liga de Quito,Delfín,1,0,H
+EC1,26/08/2020,Mushuc Runa,Universidad Católica (Quito),1,2,A
+EC1,26/08/2020,El Nacional,Olmedo,3,2,H
+EC1,26/08/2020,Emelec,Liga de Portoviejo,2,1,H
+EC1,27/08/2020,Guayaquil City FC,Barcelona SC,2,1,H
+EC1,29/08/2020,Aucas,Macará,1,0,H
+EC1,29/08/2020,Mushuc Runa,Deportivo Cuenca,1,1,D
+EC1,29/08/2020,Orense,Liga de Quito,1,2,A
+EC1,29/08/2020,Barcelona SC,Olmedo,3,1,H
+EC1,30/08/2020,Técnico Universitario,Emelec,2,0,H
+EC1,30/08/2020,Universidad Católica (Quito),Liga de Portoviejo,4,0,H
+EC1,30/08/2020,Delfín,El Nacional,2,1,H
+EC1,30/08/2020,Independiente del Valle,Guayaquil City FC,3,0,H
+EC1,01/09/2020,Deportivo Cuenca,Técnico Universitario,2,2,D
+EC1,01/09/2020,Orense,Mushuc Runa,0,2,A
+EC1,01/09/2020,Liga de Quito,Macará,1,0,H
+EC1,02/09/2020,Barcelona SC,Aucas,4,2,H
+EC1,02/09/2020,Olmedo,Delfín,2,0,H
+EC1,02/09/2020,Guayaquil City FC,Universidad Católica (Quito),1,3,A
+EC1,02/09/2020,Liga de Portoviejo,Independiente del Valle,1,2,A
+EC1,03/09/2020,El Nacional,Emelec,2,1,H
+EC1,05/09/2020,Mushuc Runa,Barcelona SC,1,2,A
+EC1,05/09/2020,Universidad Católica (Quito),Olmedo,3,1,H
+EC1,05/09/2020,Liga de Portoviejo,Liga de Quito,1,1,D
+EC1,06/09/2020,Macará,El Nacional,1,0,H
+EC1,06/09/2020,Delfín,Deportivo Cuenca,2,1,H
+EC1,06/09/2020,Aucas,Guayaquil City FC,3,1,H
+EC1,06/09/2020,Emelec,Independiente del Valle,2,2,D
+EC1,08/09/2020,Técnico Universitario,Orense,2,0,H
+EC1,09/09/2020,Deportivo Cuenca,Independiente del Valle,1,3,A
+EC1,10/09/2020,Macará,Barcelona SC,1,1,D
+EC1,11/09/2020,Mushuc Runa,Liga de Portoviejo,1,0,H
+EC1,12/09/2020,Liga de Quito,Guayaquil City FC,2,0,H
+EC1,12/09/2020,El Nacional,Técnico Universitario,0,1,A
+EC1,12/09/2020,Olmedo,Emelec,1,1,D
+EC1,13/09/2020,Aucas,Deportivo Cuenca,2,0,H
+EC1,13/09/2020,Independiente del Valle,Delfín,4,2,H
+EC1,13/09/2020,Barcelona SC,Universidad Católica (Quito),1,0,H
+EC1,14/09/2020,Orense,Macará,1,2,A
+EC1,19/09/2020,Liga de Portoviejo,Olmedo,2,1,H
+EC1,19/09/2020,Orense,Aucas,2,2,D
+EC1,19/09/2020,Emelec,Liga de Quito,1,1,D
+EC1,20/09/2020,Universidad Católica (Quito),Técnico Universitario,2,1,H
+EC1,20/09/2020,Delfín,Mushuc Runa,4,1,H
+EC1,25/09/2020,El Nacional,Orense,2,2,D
+EC1,26/09/2020,Mushuc Runa,Guayaquil City FC,2,1,H
+EC1,26/09/2020,Olmedo,Aucas,3,2,H
+EC1,27/09/2020,Independiente del Valle,Barcelona SC,1,1,D
+EC1,27/09/2020,Técnico Universitario,Liga de Quito,0,5,A
+EC1,27/09/2020,Delfín,Universidad Católica (Quito),0,0,D
+EC1,27/09/2020,Emelec,Deportivo Cuenca,2,0,H
+EC1,28/09/2020,Liga de Portoviejo,Macará,2,2,D
+EC1,30/09/2020,Guayaquil City FC,El Nacional,2,1,H
+EC1,02/10/2020,Deportivo Cuenca,Olmedo,0,3,A
+EC1,03/10/2020,Aucas,Liga de Portoviejo,4,1,H
+EC1,03/10/2020,Liga de Quito,Mushuc Runa,2,0,H
+EC1,03/10/2020,Orense,Independiente del Valle,1,3,A
+EC1,03/10/2020,Barcelona SC,El Nacional,0,0,D
+EC1,04/10/2020,Macará,Delfín,5,1,H
+EC1,04/10/2020,Guayaquil City FC,Técnico Universitario,1,0,H
+EC1,04/10/2020,Universidad Católica (Quito),Emelec,4,1,H
+EC1,14/10/2020,Mushuc Runa,Independiente del Valle,3,2,H
+EC1,14/10/2020,Delfín,Aucas,2,2,D
+EC1,14/10/2020,Liga de Quito,Deportivo Cuenca,5,0,H
+EC1,14/10/2020,Técnico Universitario,Barcelona SC,0,2,A
+EC1,15/10/2020,Emelec,Orense,1,0,H
+EC1,15/10/2020,Olmedo,Guayaquil City FC,1,2,A
+EC1,15/10/2020,Liga de Portoviejo,El Nacional,3,0,H
+EC1,16/10/2020,Universidad Católica (Quito),Macará,2,1,H
+EC1,17/10/2020,Aucas,Técnico Universitario,2,1,H
+EC1,17/10/2020,Independiente del Valle,Liga de Quito,3,2,H
+EC1,18/10/2020,Barcelona SC,Delfín,1,0,H
+EC1,18/10/2020,El Nacional,Mushuc Runa,2,1,H
+EC1,18/10/2020,Orense,Universidad Católica (Quito),1,1,D
+EC1,18/10/2020,Macará,Olmedo,1,0,H
+EC1,19/10/2020,Guayaquil City FC,Emelec,1,0,H
+EC1,19/10/2020,Deportivo Cuenca,Liga de Portoviejo,2,1,H
+EC1,23/10/2020,Mushuc Runa,Aucas,1,4,A
+EC1,24/10/2020,Universidad Católica (Quito),Deportivo Cuenca,0,1,A
+EC1,24/10/2020,Emelec,Macará,0,0,D
+EC1,24/10/2020,Técnico Universitario,Delfín,1,1,D
+EC1,25/10/2020,Liga de Quito,El Nacional,1,0,H
+EC1,25/10/2020,Olmedo,Independiente del Valle,2,1,H
+EC1,25/10/2020,Liga de Portoviejo,Barcelona SC,0,2,A
+EC1,26/10/2020,Guayaquil City FC,Orense,1,1,D
+EC1,31/10/2020,Deportivo Cuenca,El Nacional,0,0,D
+EC1,31/10/2020,Mushuc Runa,Técnico Universitario,0,1,A
+EC1,31/10/2020,Delfín,Liga de Portoviejo,4,2,H
+EC1,31/10/2020,Universidad Católica (Quito),Independiente del Valle,3,1,H
+EC1,01/11/2020,Orense,Olmedo,2,1,H
+EC1,01/11/2020,Aucas,Emelec,1,1,D
+EC1,01/11/2020,Barcelona SC,Liga de Quito,2,2,D
+EC1,02/11/2020,Macará,Guayaquil City FC,1,1,D
+EC1,05/11/2020,Macará,Mushuc Runa,0,3,A
+EC1,06/11/2020,Independiente del Valle,Deportivo Cuenca,2,1,H
+EC1,06/11/2020,El Nacional,Delfín,1,3,A
+EC1,06/11/2020,Liga de Quito,Orense,4,0,H
+EC1,07/11/2020,Olmedo,Barcelona SC,1,0,H
+EC1,07/11/2020,Liga de Portoviejo,Técnico Universitario,0,2,A
+EC1,08/11/2020,Guayaquil City FC,Aucas,4,2,H
+EC1,08/11/2020,Emelec,Universidad Católica (Quito),2,0,H
+EC1,10/11/2020,Orense,Deportivo Cuenca,1,1,D
+EC1,10/11/2020,Técnico Universitario,El Nacional,1,0,H
+EC1,10/11/2020,Delfín,Macará,1,2,A
+EC1,11/11/2020,Barcelona SC,Independiente del Valle,2,0,H
+EC1,11/11/2020,Aucas,Olmedo,3,3,D
+EC1,11/11/2020,Mushuc Runa,Liga de Quito,1,2,A
+EC1,11/11/2020,Universidad Católica (Quito),Guayaquil City FC,2,1,H
+EC1,12/11/2020,Liga de Portoviejo,Emelec,0,6,A
+EC1,14/11/2020,Deportivo Cuenca,Delfín,2,1,H
+EC1,14/11/2020,Guayaquil City FC,Mushuc Runa,3,2,H
+EC1,14/11/2020,Macará,Orense,0,1,A
+EC1,15/11/2020,Liga de Quito,Aucas,4,1,H
+EC1,15/11/2020,Olmedo,Universidad Católica (Quito),2,1,H
+EC1,15/11/2020,Independiente del Valle,Liga de Portoviejo,2,3,A
+EC1,15/11/2020,Emelec,Técnico Universitario,1,1,D
+EC1,16/11/2020,El Nacional,Barcelona SC,1,1,D
+EC1,18/11/2020,Aucas,Independiente del Valle,3,3,D
+EC1,18/11/2020,Delfín,Guayaquil City FC,1,1,D
+EC1,18/11/2020,Técnico Universitario,Macará,0,1,A
+EC1,19/11/2020,Liga de Quito,Emelec,1,2,A
+EC1,19/11/2020,Mushuc Runa,Olmedo,1,1,D
+EC1,19/11/2020,El Nacional,Universidad Católica (Quito),0,2,A
+EC1,19/11/2020,Liga de Portoviejo,Orense,1,2,A
+EC1,20/11/2020,Barcelona SC,Deportivo Cuenca,2,0,H
+EC1,21/11/2020,Independiente del Valle,Técnico Universitario,1,0,H
+EC1,22/11/2020,Guayaquil City FC,Liga de Quito,1,1,D
+EC1,22/11/2020,Olmedo,El Nacional,1,2,A
+EC1,22/11/2020,Deportivo Cuenca,Aucas,3,3,D
+EC1,22/11/2020,Emelec,Delfín,3,2,H
+EC1,23/11/2020,Universidad Católica (Quito),Mushuc Runa,1,1,D
+EC1,23/11/2020,Orense,Barcelona SC,0,0,D
+EC1,23/11/2020,Macará,Liga de Portoviejo,1,0,H
+EC1,27/11/2020,Liga de Quito,Olmedo,3,0,H
+EC1,28/11/2020,Mushuc Runa,Emelec,2,3,A
+EC1,28/11/2020,Técnico Universitario,Deportivo Cuenca,1,1,D
+EC1,28/11/2020,Delfín,Independiente del Valle,1,0,H
+EC1,29/11/2020,El Nacional,Guayaquil City FC,0,3,A
+EC1,29/11/2020,Aucas,Orense,4,1,H
+EC1,29/11/2020,Liga de Portoviejo,Universidad Católica (Quito),2,1,H
+EC1,29/11/2020,Barcelona SC,Macará,3,0,H
+EC1,04/12/2020,Olmedo,Técnico Universitario,0,0,D
+EC1,05/12/2020,Deportivo Cuenca,Mushuc Runa,1,0,H
+EC1,05/12/2020,Orense,Delfín,1,1,D
+EC1,05/12/2020,Macará,Aucas,2,1,H
+EC1,06/12/2020,Universidad Católica (Quito),Liga de Quito,2,0,H
+EC1,06/12/2020,Independiente del Valle,El Nacional,2,0,H
+EC1,06/12/2020,Guayaquil City FC,Liga de Portoviejo,3,1,H
+EC1,07/12/2020,Emelec,Barcelona SC,1,1,D
+EC1,08/12/2020,Mushuc Runa,Orense,0,0,D
+EC1,08/12/2020,Deportivo Cuenca,Macará,2,1,H
+EC1,08/12/2020,Técnico Universitario,Universidad Católica (Quito),1,0,H
+EC1,09/12/2020,Delfín,Olmedo,3,1,H
+EC1,09/12/2020,El Nacional,Aucas,2,2,D
+EC1,09/12/2020,Liga de Quito,Liga de Portoviejo,1,1,D
+EC1,09/12/2020,Independiente del Valle,Emelec,3,0,H
+EC1,10/12/2020,Barcelona SC,Guayaquil City FC,2,0,H
+EC1,11/12/2020,Olmedo,Deportivo Cuenca,1,1,D
+EC1,12/12/2020,Universidad Católica (Quito),Delfín,0,0,D
+EC1,12/12/2020,Orense,Técnico Universitario,1,0,H
+EC1,12/12/2020,Liga de Portoviejo,Mushuc Runa,0,0,D
+EC1,13/12/2020,Emelec,El Nacional,3,0,H
+EC1,13/12/2020,Macará,Liga de Quito,3,4,A
+EC1,13/12/2020,Guayaquil City FC,Independiente del Valle,0,2,A
+EC1,14/12/2020,Aucas,Barcelona SC,2,1,H
+EC1,17/12/2020,Barcelona SC,Mushuc Runa,3,0,H
+EC1,17/12/2020,Delfín,Liga de Quito,2,0,H
+EC1,17/12/2020,Deportivo Cuenca,Emelec,2,1,H
+EC1,17/12/2020,Técnico Universitario,Guayaquil City FC,0,0,D
+EC1,18/12/2020,Aucas,Universidad Católica (Quito),1,1,D
+EC1,18/12/2020,El Nacional,Macará,2,1,H
+EC1,18/12/2020,Independiente del Valle,Orense,4,0,H
+EC1,18/12/2020,Olmedo,Liga de Portoviejo,1,3,A
+EC1,19/12/2020,Guayaquil City FC,Deportivo Cuenca,2,1,H
+EC1,19/12/2020,Mushuc Runa,Delfín,2,0,H
+EC1,20/12/2020,Liga de Portoviejo,Aucas,3,2,H
+EC1,20/12/2020,Orense,El Nacional,1,0,H
+EC1,21/12/2020,Emelec,Olmedo,4,1,H
+EC1,21/12/2020,Liga de Quito,Técnico Universitario,1,2,A
+EC1,21/12/2020,Macará,Independiente del Valle,1,0,H
+EC1,21/12/2020,Universidad Católica (Quito),Barcelona SC,0,0,D
+EC1,24/12/2020,Barcelona SC,Liga de Quito,1,1,D
+EC1,30/12/2020,Liga de Quito,Barcelona SC,0,0,D

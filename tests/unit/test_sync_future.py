@@ -66,6 +66,56 @@ def test_upsert_fixture_result_promotes_stale_pre(tmp_path):
         conn.close()
 
 
+def test_espn_source_used_for_ec1(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        sync_module,
+        "fetch_espn_fixtures",
+        lambda code: [{
+            "api_fixture_id": "401921387",
+            "date": "2026-09-20T00:00:00Z",
+            "home_team": "Emelec",
+            "away_team": "Libertad (Ecuador)",
+            "league": "EC1",
+        }],
+    )
+    conn = _make_conn(tmp_path)
+    try:
+        counts = sync_module._sync_future_fixtures(conn, "EC1")
+        conn.commit()
+        assert counts == {"football_data_org": 0, "api_football": 0, "espn": 1}
+        row = conn.execute(
+            "SELECT league, status, source, source_fixture_id FROM fixtures"
+        ).fetchone()
+        assert tuple(row) == ("EC1", "pre", "espn", "espn_401921387")
+    finally:
+        conn.close()
+
+
+def test_fuzzy_match_stays_within_league(tmp_path):
+    conn = _make_conn(tmp_path)
+    try:
+        conn.execute(
+            "INSERT INTO teams (id, canonical_name) VALUES (1, 'Lens')"
+        )
+        conn.execute(
+            "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+            "status, source, source_fixture_id) "
+            "VALUES ('F1', '2026-09-07', 1, 1, 'post', 'football_data', 'F1_x')"
+        )
+        conn.commit()
+        new_id = sync_module._resolve_team(conn, "Leones", league_code="EC1")
+        conn.commit()
+        row = conn.execute(
+            "SELECT canonical_name FROM teams WHERE id = ?", (new_id,)
+        ).fetchone()
+        assert row[0] == "Leones"
+        assert conn.execute(
+            "SELECT COUNT(*) FROM team_aliases WHERE source_name = 'Leones'"
+        ).fetchone()[0] == 1
+    finally:
+        conn.close()
+
+
 def test_primary_source_used_and_fallback_skipped(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(
@@ -80,7 +130,7 @@ def test_primary_source_used_and_fallback_skipped(tmp_path, monkeypatch):
     try:
         counts = sync_module._sync_future_fixtures(conn, "E0")
         conn.commit()
-        assert counts == {"football_data_org": 1, "api_football": 0}
+        assert counts == {"football_data_org": 1, "api_football": 0, "espn": 0}
         assert calls == []
         rows = conn.execute(
             "SELECT match_date, status, source, source_fixture_id FROM fixtures"
@@ -104,7 +154,7 @@ def test_fallback_used_when_primary_empty(tmp_path, monkeypatch):
     try:
         counts = sync_module._sync_future_fixtures(conn, "E0")
         conn.commit()
-        assert counts == {"football_data_org": 0, "api_football": 1}
+        assert counts == {"football_data_org": 0, "api_football": 1, "espn": 0}
         row = conn.execute("SELECT source FROM fixtures").fetchone()
         assert row[0] == "api_football"
     finally:

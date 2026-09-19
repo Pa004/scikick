@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     # dormant until this is explicitly enabled (Pro plan).
     lineups_enabled: bool = False
     xg_enabled: bool = True
-    leagues_initial: str = "E0,SP1,D1,I1,F1"
+    leagues_initial: str = "E0,SP1,D1,I1,F1,EC1"
     scheduler_sync_hour: int = 6
     scheduler_retrain_day: str = "sunday"
     scheduler_lineups_hour: int = 5

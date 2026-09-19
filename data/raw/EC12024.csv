@@ -1,0 +1,243 @@
+Div,Date,HomeTeam,AwayTeam,FTHG,FTAG,FTR
+EC1,02/03/2024,Delfín,Independiente del Valle,0,1,A
+EC1,02/03/2024,Mushuc Runa,Libertad (Ecuador),2,1,H
+EC1,02/03/2024,Aucas,Orense,2,0,H
+EC1,02/03/2024,Deportivo Cuenca,Emelec,1,2,A
+EC1,03/03/2024,Universidad Católica (Quito),El Nacional,3,0,H
+EC1,03/03/2024,Técnico Universitario,Cumbayá,1,0,H
+EC1,03/03/2024,Barcelona SC,Imbabura,2,0,H
+EC1,05/03/2024,Liga de Quito,Macará,2,1,H
+EC1,09/03/2024,Emelec,Mushuc Runa,0,0,D
+EC1,09/03/2024,Macará,El Nacional,1,0,H
+EC1,09/03/2024,Imbabura,Delfín,3,0,H
+EC1,09/03/2024,Independiente del Valle,Barcelona SC,3,1,H
+EC1,10/03/2024,Aucas,Técnico Universitario,3,1,H
+EC1,10/03/2024,Orense,Deportivo Cuenca,1,1,D
+EC1,10/03/2024,Cumbayá,Liga de Quito,1,3,A
+EC1,12/03/2024,Libertad (Ecuador),Universidad Católica (Quito),0,1,A
+EC1,15/03/2024,Macará,Libertad (Ecuador),3,0,H
+EC1,16/03/2024,Independiente del Valle,Cumbayá,3,0,H
+EC1,16/03/2024,Mushuc Runa,Imbabura,3,0,H
+EC1,16/03/2024,Liga de Quito,Aucas,1,2,A
+EC1,16/03/2024,Barcelona SC,Orense,0,0,D
+EC1,17/03/2024,Universidad Católica (Quito),Deportivo Cuenca,3,3,D
+EC1,17/03/2024,Delfín,Técnico Universitario,2,0,H
+EC1,17/03/2024,El Nacional,Emelec,0,1,A
+EC1,19/03/2024,Cumbayá,Mushuc Runa,2,1,H
+EC1,20/03/2024,Orense,Imbabura,1,2,A
+EC1,20/03/2024,Deportivo Cuenca,Macará,1,1,D
+EC1,21/03/2024,Aucas,El Nacional,3,4,A
+EC1,21/03/2024,Técnico Universitario,Independiente del Valle,1,1,D
+EC1,22/03/2024,Emelec,Delfín,2,0,H
+EC1,23/03/2024,Imbabura,Cumbayá,0,0,D
+EC1,24/03/2024,El Nacional,Deportivo Cuenca,2,1,H
+EC1,24/03/2024,Técnico Universitario,Macará,1,1,D
+EC1,24/03/2024,Independiente del Valle,Aucas,1,1,D
+EC1,25/03/2024,Delfín,Libertad (Ecuador),1,1,D
+EC1,26/03/2024,Orense,Emelec,1,1,D
+EC1,29/03/2024,Liga de Quito,Imbabura,5,0,H
+EC1,30/03/2024,Macará,Barcelona SC,1,1,D
+EC1,30/03/2024,Mushuc Runa,Aucas,0,2,A
+EC1,30/03/2024,Libertad (Ecuador),Técnico Universitario,1,0,H
+EC1,30/03/2024,Cumbayá,El Nacional,1,0,H
+EC1,31/03/2024,Universidad Católica (Quito),Orense,5,1,H
+EC1,31/03/2024,Deportivo Cuenca,Delfín,0,0,D
+EC1,31/03/2024,Emelec,Independiente del Valle,0,0,D
+EC1,06/04/2024,Orense,Mushuc Runa,2,2,D
+EC1,06/04/2024,Aucas,Cumbayá,3,0,H
+EC1,06/04/2024,El Nacional,Liga de Quito,1,2,A
+EC1,06/04/2024,Barcelona SC,Deportivo Cuenca,4,0,H
+EC1,07/04/2024,Independiente del Valle,Libertad (Ecuador),3,0,H
+EC1,07/04/2024,Delfín,Universidad Católica (Quito),0,2,A
+EC1,07/04/2024,Técnico Universitario,Emelec,1,1,D
+EC1,09/04/2024,Imbabura,Macará,0,1,A
+EC1,13/04/2024,Deportivo Cuenca,Aucas,3,3,D
+EC1,13/04/2024,Mushuc Runa,Técnico Universitario,1,2,A
+EC1,13/04/2024,Macará,Orense,0,0,D
+EC1,13/04/2024,Emelec,Cumbayá,2,0,H
+EC1,14/04/2024,Universidad Católica (Quito),Independiente del Valle,2,2,D
+EC1,14/04/2024,El Nacional,Imbabura,2,0,H
+EC1,14/04/2024,Libertad (Ecuador),Barcelona SC,0,3,A
+EC1,16/04/2024,Liga de Quito,Delfín,2,1,H
+EC1,17/04/2024,Cumbayá,Libertad (Ecuador),0,0,D
+EC1,18/04/2024,Técnico Universitario,Deportivo Cuenca,2,1,H
+EC1,18/04/2024,Imbabura,Universidad Católica (Quito),2,2,D
+EC1,18/04/2024,Independiente del Valle,Mushuc Runa,2,1,H
+EC1,19/04/2024,Barcelona SC,El Nacional,1,0,H
+EC1,19/04/2024,Delfín,Macará,1,1,D
+EC1,19/04/2024,Aucas,Emelec,3,1,H
+EC1,19/04/2024,Orense,Liga de Quito,1,0,H
+EC1,27/04/2024,Deportivo Cuenca,Mushuc Runa,5,0,H
+EC1,27/04/2024,Universidad Católica (Quito),Cumbayá,2,1,H
+EC1,27/04/2024,Libertad (Ecuador),Orense,1,1,D
+EC1,27/04/2024,Liga de Quito,Técnico Universitario,1,0,H
+EC1,28/04/2024,Imbabura,Independiente del Valle,0,1,A
+EC1,28/04/2024,Macará,Aucas,0,2,A
+EC1,28/04/2024,Emelec,Barcelona SC,1,1,D
+EC1,30/04/2024,El Nacional,Delfín,1,0,H
+EC1,01/05/2024,Libertad (Ecuador),Liga de Quito,2,3,A
+EC1,02/05/2024,Universidad Católica (Quito),Barcelona SC,0,1,A
+EC1,04/05/2024,Orense,El Nacional,0,1,A
+EC1,04/05/2024,Cumbayá,Macará,1,0,H
+EC1,04/05/2024,Mushuc Runa,Liga de Quito,0,1,A
+EC1,04/05/2024,Delfín,Barcelona SC,1,3,A
+EC1,05/05/2024,Aucas,Libertad (Ecuador),2,0,H
+EC1,05/05/2024,Independiente del Valle,Deportivo Cuenca,1,0,H
+EC1,05/05/2024,Emelec,Universidad Católica (Quito),2,1,H
+EC1,07/05/2024,Técnico Universitario,Imbabura,1,1,D
+EC1,11/05/2024,Deportivo Cuenca,Cumbayá,2,1,H
+EC1,11/05/2024,Imbabura,Libertad (Ecuador),4,2,H
+EC1,11/05/2024,Macará,Mushuc Runa,0,0,D
+EC1,11/05/2024,Liga de Quito,Emelec,2,2,D
+EC1,12/05/2024,El Nacional,Independiente del Valle,1,2,A
+EC1,12/05/2024,Delfín,Orense,0,1,A
+EC1,12/05/2024,Barcelona SC,Aucas,1,1,D
+EC1,14/05/2024,Universidad Católica (Quito),Técnico Universitario,3,2,H
+EC1,18/05/2024,Deportivo Cuenca,Imbabura,5,2,H
+EC1,18/05/2024,Libertad (Ecuador),El Nacional,0,2,A
+EC1,18/05/2024,Emelec,Macará,0,1,A
+EC1,18/05/2024,Independiente del Valle,Liga de Quito,1,1,D
+EC1,19/05/2024,Mushuc Runa,Delfín,5,0,H
+EC1,19/05/2024,Aucas,Universidad Católica (Quito),2,2,D
+EC1,19/05/2024,Cumbayá,Barcelona SC,0,1,A
+EC1,21/05/2024,Técnico Universitario,Orense,1,0,H
+EC1,22/05/2024,Mushuc Runa,Universidad Católica (Quito),2,1,H
+EC1,23/05/2024,Barcelona SC,Liga de Quito,2,0,H
+EC1,25/05/2024,Imbabura,Emelec,1,2,A
+EC1,26/05/2024,Barcelona SC,Técnico Universitario,3,0,H
+EC1,26/05/2024,Delfín,Aucas,2,0,H
+EC1,26/05/2024,Liga de Quito,Universidad Católica (Quito),2,1,H
+EC1,26/05/2024,Macará,Independiente del Valle,0,1,A
+EC1,26/05/2024,El Nacional,Mushuc Runa,1,0,H
+EC1,26/05/2024,Orense,Cumbayá,1,0,H
+EC1,28/05/2024,Libertad (Ecuador),Deportivo Cuenca,0,0,D
+EC1,01/06/2024,Técnico Universitario,El Nacional,1,2,A
+EC1,01/06/2024,Aucas,Imbabura,2,2,D
+EC1,01/06/2024,Cumbayá,Delfín,1,0,H
+EC1,01/06/2024,Emelec,Libertad (Ecuador),0,0,D
+EC1,02/06/2024,Universidad Católica (Quito),Macará,3,0,H
+EC1,02/06/2024,Deportivo Cuenca,Liga de Quito,2,2,D
+EC1,02/06/2024,Independiente del Valle,Orense,1,0,H
+EC1,02/06/2024,Mushuc Runa,Barcelona SC,1,0,H
+EC1,03/08/2024,Orense,Aucas,4,0,H
+EC1,03/08/2024,Libertad (Ecuador),Mushuc Runa,2,2,D
+EC1,03/08/2024,Independiente del Valle,Delfín,1,2,A
+EC1,04/08/2024,Imbabura,Barcelona SC,1,3,A
+EC1,04/08/2024,El Nacional,Universidad Católica (Quito),0,2,A
+EC1,04/08/2024,Macará,Liga de Quito,0,4,A
+EC1,04/08/2024,Emelec,Deportivo Cuenca,0,1,A
+EC1,06/08/2024,Cumbayá,Técnico Universitario,1,2,A
+EC1,10/08/2024,Deportivo Cuenca,Orense,1,2,A
+EC1,10/08/2024,Universidad Católica (Quito),Libertad (Ecuador),1,2,A
+EC1,10/08/2024,Liga de Quito,Cumbayá,2,1,H
+EC1,10/08/2024,Barcelona SC,Independiente del Valle,3,2,H
+EC1,11/08/2024,El Nacional,Macará,1,3,A
+EC1,11/08/2024,Delfín,Imbabura,1,1,D
+EC1,11/08/2024,Mushuc Runa,Emelec,3,0,H
+EC1,13/08/2024,Técnico Universitario,Aucas,2,0,H
+EC1,17/08/2024,Libertad (Ecuador),Macará,0,1,A
+EC1,17/08/2024,Cumbayá,Independiente del Valle,1,3,A
+EC1,17/08/2024,Aucas,Liga de Quito,0,1,A
+EC1,18/08/2024,Orense,Barcelona SC,3,2,H
+EC1,18/08/2024,Imbabura,Mushuc Runa,2,3,A
+EC1,18/08/2024,Deportivo Cuenca,Universidad Católica (Quito),1,2,A
+EC1,18/08/2024,Emelec,El Nacional,0,1,A
+EC1,20/08/2024,Técnico Universitario,Delfín,0,1,A
+EC1,24/08/2024,Macará,Deportivo Cuenca,3,1,H
+EC1,24/08/2024,Mushuc Runa,Cumbayá,0,0,D
+EC1,24/08/2024,El Nacional,Aucas,0,0,D
+EC1,24/08/2024,Delfín,Emelec,0,1,A
+EC1,25/08/2024,Independiente del Valle,Técnico Universitario,1,0,H
+EC1,25/08/2024,Liga de Quito,Libertad (Ecuador),3,0,H
+EC1,25/08/2024,Barcelona SC,Universidad Católica (Quito),1,0,H
+EC1,27/08/2024,Imbabura,Orense,0,1,A
+EC1,31/08/2024,Universidad Católica (Quito),Mushuc Runa,5,1,H
+EC1,31/08/2024,Deportivo Cuenca,El Nacional,1,2,A
+EC1,31/08/2024,Libertad (Ecuador),Delfín,2,0,H
+EC1,31/08/2024,Liga de Quito,Barcelona SC,3,0,H
+EC1,01/09/2024,Macará,Técnico Universitario,0,0,D
+EC1,01/09/2024,Aucas,Independiente del Valle,0,2,A
+EC1,01/09/2024,Emelec,Orense,2,1,H
+EC1,03/09/2024,Cumbayá,Imbabura,1,2,A
+EC1,14/09/2024,Orense,Universidad Católica (Quito),2,2,D
+EC1,14/09/2024,Delfín,Deportivo Cuenca,0,0,D
+EC1,14/09/2024,Imbabura,Liga de Quito,4,0,H
+EC1,15/09/2024,Independiente del Valle,Emelec,2,1,H
+EC1,15/09/2024,El Nacional,Cumbayá,2,1,H
+EC1,15/09/2024,Aucas,Mushuc Runa,1,2,A
+EC1,15/09/2024,Barcelona SC,Macará,2,1,H
+EC1,17/09/2024,Técnico Universitario,Libertad (Ecuador),3,0,H
+EC1,21/09/2024,Libertad (Ecuador),Independiente del Valle,1,1,D
+EC1,21/09/2024,Cumbayá,Aucas,0,3,A
+EC1,21/09/2024,Liga de Quito,El Nacional,1,1,D
+EC1,22/09/2024,Deportivo Cuenca,Barcelona SC,1,0,H
+EC1,22/09/2024,Macará,Imbabura,2,0,H
+EC1,22/09/2024,Mushuc Runa,Orense,3,0,H
+EC1,22/09/2024,Emelec,Técnico Universitario,3,1,H
+EC1,23/09/2024,Universidad Católica (Quito),Delfín,2,1,H
+EC1,27/09/2024,Orense,Macará,1,0,H
+EC1,28/09/2024,Imbabura,El Nacional,1,0,H
+EC1,28/09/2024,Independiente del Valle,Universidad Católica (Quito),5,2,H
+EC1,28/09/2024,Cumbayá,Emelec,1,0,H
+EC1,29/09/2024,Aucas,Deportivo Cuenca,1,4,A
+EC1,29/09/2024,Delfín,Liga de Quito,3,2,H
+EC1,29/09/2024,Barcelona SC,Libertad (Ecuador),0,0,D
+EC1,30/09/2024,Técnico Universitario,Mushuc Runa,2,2,D
+EC1,05/10/2024,Libertad (Ecuador),Cumbayá,2,1,H
+EC1,05/10/2024,Mushuc Runa,Independiente del Valle,1,1,D
+EC1,05/10/2024,Deportivo Cuenca,Técnico Universitario,1,1,D
+EC1,05/10/2024,El Nacional,Barcelona SC,3,0,H
+EC1,06/10/2024,Universidad Católica (Quito),Imbabura,2,1,H
+EC1,06/10/2024,Liga de Quito,Orense,2,0,H
+EC1,06/10/2024,Emelec,Aucas,0,0,D
+EC1,07/10/2024,Macará,Delfín,0,2,A
+EC1,18/10/2024,Cumbayá,Universidad Católica (Quito),1,1,D
+EC1,18/10/2024,Orense,Libertad (Ecuador),1,0,H
+EC1,19/10/2024,Mushuc Runa,Deportivo Cuenca,1,1,D
+EC1,19/10/2024,Técnico Universitario,Liga de Quito,1,2,A
+EC1,19/10/2024,Independiente del Valle,Imbabura,3,1,H
+EC1,20/10/2024,Aucas,Macará,3,1,H
+EC1,20/10/2024,Delfín,El Nacional,1,1,D
+EC1,20/10/2024,Barcelona SC,Emelec,2,1,H
+EC1,25/10/2024,Deportivo Cuenca,Independiente del Valle,0,2,A
+EC1,26/10/2024,Libertad (Ecuador),Aucas,1,1,D
+EC1,26/10/2024,Universidad Católica (Quito),Emelec,2,0,H
+EC1,26/10/2024,Liga de Quito,Mushuc Runa,1,1,D
+EC1,27/10/2024,Macará,Cumbayá,1,1,D
+EC1,27/10/2024,El Nacional,Orense,0,1,A
+EC1,27/10/2024,Barcelona SC,Delfín,4,0,H
+EC1,28/10/2024,Imbabura,Técnico Universitario,0,6,A
+EC1,01/11/2024,Orense,Delfín,0,0,D
+EC1,02/11/2024,Cumbayá,Deportivo Cuenca,1,0,H
+EC1,02/11/2024,Libertad (Ecuador),Imbabura,3,1,H
+EC1,02/11/2024,Aucas,Barcelona SC,1,1,D
+EC1,03/11/2024,Mushuc Runa,Macará,2,1,H
+EC1,03/11/2024,Independiente del Valle,El Nacional,2,0,H
+EC1,03/11/2024,Emelec,Liga de Quito,0,1,A
+EC1,04/11/2024,Técnico Universitario,Universidad Católica (Quito),2,0,H
+EC1,08/11/2024,Delfín,Mushuc Runa,4,2,H
+EC1,09/11/2024,Universidad Católica (Quito),Aucas,3,2,H
+EC1,09/11/2024,Macará,Emelec,1,1,D
+EC1,09/11/2024,Liga de Quito,Independiente del Valle,2,1,H
+EC1,10/11/2024,El Nacional,Libertad (Ecuador),1,4,A
+EC1,10/11/2024,Orense,Técnico Universitario,0,2,A
+EC1,10/11/2024,Barcelona SC,Cumbayá,8,1,H
+EC1,11/11/2024,Imbabura,Deportivo Cuenca,0,2,A
+EC1,23/11/2024,Cumbayá,Orense,2,2,D
+EC1,23/11/2024,Deportivo Cuenca,Libertad (Ecuador),1,1,D
+EC1,23/11/2024,Emelec,Imbabura,2,2,D
+EC1,23/11/2024,Técnico Universitario,Barcelona SC,2,2,D
+EC1,24/11/2024,Mushuc Runa,El Nacional,2,2,D
+EC1,24/11/2024,Aucas,Delfín,2,0,H
+EC1,24/11/2024,Independiente del Valle,Macará,7,0,H
+EC1,24/11/2024,Universidad Católica (Quito),Liga de Quito,2,4,A
+EC1,30/11/2024,Macará,Universidad Católica (Quito),1,2,A
+EC1,30/11/2024,Delfín,Cumbayá,6,4,H
+EC1,30/11/2024,Imbabura,Aucas,1,2,A
+EC1,30/11/2024,Libertad (Ecuador),Emelec,2,1,H
+EC1,01/12/2024,Barcelona SC,Mushuc Runa,2,2,D
+EC1,01/12/2024,El Nacional,Técnico Universitario,2,1,H
+EC1,01/12/2024,Liga de Quito,Deportivo Cuenca,5,0,H
+EC1,01/12/2024,Orense,Independiente del Valle,0,0,D
+EC1,07/12/2024,Liga de Quito,Independiente del Valle,3,0,H
+EC1,14/12/2024,Independiente del Valle,Liga de Quito,1,0,H

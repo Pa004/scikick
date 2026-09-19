@@ -16,7 +16,7 @@ import sqlite3
 from datetime import date, datetime, timezone
 from pathlib import Path
 
-LEAGUES = ("E0", "SP1", "D1", "I1", "F1")
+LEAGUES = ("E0", "SP1", "D1", "I1", "F1", "EC1")
 EXPORT_MARKET = "1x2"
 
 

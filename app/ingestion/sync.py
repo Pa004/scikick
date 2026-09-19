@@ -16,17 +16,21 @@ from app.ingestion.adapters.football_data import (
 )
 from app.ingestion.adapters.api_football import fetch_fixtures as fetch_api_football_fixtures
 from app.ingestion.adapters.football_data_org import fetch_scheduled as fetch_fdorg_fixtures
+from app.ingestion.adapters.espn import download_history as download_espn_history
+from app.ingestion.adapters.espn import fetch_scheduled as fetch_espn_fixtures
 from app.ingestion.aliases import find_best_match
 from app.ingestion.seasons import current_season_start
 from app.ingestion.validation import validate_all
 
 
 _LEAGUE_MAP = {
-    "E0": {"name": "Premier League", "country": "England", "tier": 1, "has_xg": 0},
-    "SP1": {"name": "La Liga", "country": "Spain", "tier": 1, "has_xg": 0},
-    "D1": {"name": "Bundesliga", "country": "Germany", "tier": 1, "has_xg": 0},
-    "I1": {"name": "Serie A", "country": "Italy", "tier": 1, "has_xg": 0},
-    "F1": {"name": "Ligue 1", "country": "France", "tier": 1, "has_xg": 0},
+    "E0": {"name": "Premier League", "country": "England", "tier": 1, "has_xg": 0, "month": 8},
+    "SP1": {"name": "La Liga", "country": "Spain", "tier": 1, "has_xg": 0, "month": 8},
+    "D1": {"name": "Bundesliga", "country": "Germany", "tier": 1, "has_xg": 0, "month": 8},
+    "I1": {"name": "Serie A", "country": "Italy", "tier": 1, "has_xg": 0, "month": 8},
+    "F1": {"name": "Ligue 1", "country": "France", "tier": 1, "has_xg": 0, "month": 8},
+    # Ecuador runs on calendar year (Feb-Dec), history comes from ESPN.
+    "EC1": {"name": "Liga Pro Ecuador", "country": "Ecuador", "tier": 1, "has_xg": 0, "month": 2},
 }
 
 
@@ -37,9 +41,9 @@ def _ensure_league(conn: sqlite3.Connection, league_code: str) -> None:
     conn.execute(
         "INSERT OR IGNORE INTO leagues (id, name, country, tier, source_csv_code, "
         "has_odds, has_xg, season_start_month, min_seasons) "
-        "VALUES (?, ?, ?, ?, ?, 1, ?, 8, 2)",
+        "VALUES (?, ?, ?, ?, ?, 1, ?, ?, 2)",
         (league_code, info["name"], info["country"], info["tier"],
-         league_code, info["has_xg"]),
+         league_code, info["has_xg"], info["month"]),
     )
 
 
@@ -51,7 +55,12 @@ def _store_crest(conn: sqlite3.Connection, team_id: int, crest: str | None) -> N
         )
 
 
-def _resolve_team(conn: sqlite3.Connection, team_name: str, crest: str | None = None) -> int:
+def _resolve_team(
+    conn: sqlite3.Connection,
+    team_name: str,
+    crest: str | None = None,
+    league_code: str | None = None,
+) -> int:
     row = conn.execute(
         "SELECT canonical_team_id FROM team_aliases WHERE source = 'football_data' AND source_name = ?",
         (team_name,),
@@ -67,7 +76,7 @@ def _resolve_team(conn: sqlite3.Connection, team_name: str, crest: str | None = 
         _store_crest(conn, row["id"], crest)
         return row["id"]
 
-    canonical = _fuzzy_canonical(conn, team_name)
+    canonical = _fuzzy_canonical(conn, team_name, league_code)
     if canonical is not None:
         canonical_id, canonical_name = canonical
         conn.execute(
@@ -88,12 +97,25 @@ def _resolve_team(conn: sqlite3.Connection, team_name: str, crest: str | None = 
 
 
 def _fuzzy_canonical(
-    conn: sqlite3.Connection, team_name: str
+    conn: sqlite3.Connection, team_name: str, league_code: str | None = None
 ) -> tuple[int, str] | None:
-    names = [
-        row["canonical_name"]
-        for row in conn.execute("SELECT id, canonical_name FROM teams").fetchall()
-    ]
+    # Scope fuzzy matching to teams already seen in THIS league: a global
+    # candidate pool once aliased 'Leones' (EC1) to 'Lens' (F1) and
+    # 'Barcelona SC' to 'Barcelona' (SP1). Newcomers fall through to
+    # creation instead of a wrong cross-league alias.
+    if league_code:
+        rows = conn.execute(
+            "SELECT DISTINCT t.canonical_name FROM teams t "
+            "JOIN fixtures f ON f.home_team_id = t.id OR f.away_team_id = t.id "
+            "WHERE f.league = ?",
+            (league_code,),
+        ).fetchall()
+        names = [row["canonical_name"] for row in rows]
+    else:
+        names = [
+            row["canonical_name"]
+            for row in conn.execute("SELECT id, canonical_name FROM teams").fetchall()
+        ]
     best = find_best_match(team_name, names)
     if not best:
         return None
@@ -129,8 +151,14 @@ def sync_league(
 ) -> dict:
     run_migrations(db_path)
 
-    is_current_season = start_year == current_season_start()
-    csv_path = download_csv(league_code, start_year, raw_dir, force=is_current_season)
+    if league_code == "EC1":
+        from datetime import date
+
+        is_current_season = start_year == date.today().year
+        csv_path = download_espn_history(league_code, start_year, raw_dir, force=is_current_season)
+    else:
+        is_current_season = start_year == current_season_start()
+        csv_path = download_csv(league_code, start_year, raw_dir, force=is_current_season)
     df = load_csv(csv_path)
     df = parse_dates_utc(df)
     df = map_results(df)
@@ -146,8 +174,8 @@ def sync_league(
         _ensure_league(conn, league_code)
 
         for _, row in df.iterrows():
-            home_id = _resolve_team(conn, str(row["HomeTeam"]))
-            away_id = _resolve_team(conn, str(row["AwayTeam"]))
+            home_id = _resolve_team(conn, str(row["HomeTeam"]), league_code=league_code)
+            away_id = _resolve_team(conn, str(row["AwayTeam"]), league_code=league_code)
 
             ht_home = int(row["HTHG"]) if pd.notna(row.get("HTHG")) else None
             ht_away = int(row["HTAG"]) if pd.notna(row.get("HTAG")) else None
@@ -250,8 +278,8 @@ def _insert_future_fixtures(
         if not home_name or not away_name or not match_date:
             continue
 
-        home_id = _resolve_team(conn, home_name, fix.get("home_crest"))
-        away_id = _resolve_team(conn, away_name, fix.get("away_crest"))
+        home_id = _resolve_team(conn, home_name, fix.get("home_crest"), league_code)
+        away_id = _resolve_team(conn, away_name, fix.get("away_crest"), league_code)
         source_id = f"{source}_{fix.get('api_fixture_id', '')}"
 
         conn.execute(
@@ -267,7 +295,11 @@ def _insert_future_fixtures(
 
 
 def _sync_future_fixtures(conn: sqlite3.Connection, league_code: str) -> dict:
-    counts = {"football_data_org": 0, "api_football": 0}
+    counts = {"football_data_org": 0, "api_football": 0, "espn": 0}
+    if league_code == "EC1":
+        events = fetch_espn_fixtures(league_code)
+        counts["espn"] = _insert_future_fixtures(conn, league_code, events, "espn")
+        return counts
     primary = fetch_fdorg_fixtures(league_code)
     counts["football_data_org"] = _insert_future_fixtures(
         conn, league_code, primary, "football_data_org"
@@ -280,18 +312,25 @@ def _sync_future_fixtures(conn: sqlite3.Connection, league_code: str) -> dict:
     return counts
 
 
+def _history_years(league_code: str, n_seasons: int) -> list[int]:
+    if league_code == "EC1":
+        from datetime import date
+
+        year = date.today().year
+    else:
+        year = current_season_start()
+    return [year - i for i in range(n_seasons)]
+
+
 def sync_all_leagues(
     league_codes: list[str],
     n_seasons: int,
     raw_dir: str = "data/raw",
     db_path: str | None = None,
 ) -> list[dict]:
-    season_start = current_season_start()
-    years = [season_start - i for i in range(n_seasons)]
-
     results = []
     for code in league_codes:
-        for year in years:
+        for year in _history_years(code, n_seasons):
             try:
                 result = sync_league(code, year, raw_dir, db_path)
                 results.append(result)

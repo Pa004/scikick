@@ -10,6 +10,7 @@ export interface LeagueOption {
     | 'bundesliga'
     | 'serieA'
     | 'ligue1'
+    | 'ligaPro'
 }
 
 export const LEAGUES: LeagueOption[] = [
@@ -19,6 +20,7 @@ export const LEAGUES: LeagueOption[] = [
   { code: 'D1', labelKey: 'bundesliga' },
   { code: 'I1', labelKey: 'serieA' },
   { code: 'F1', labelKey: 'ligue1' },
+  { code: 'EC1', labelKey: 'ligaPro' },
 ]
 
 interface LeagueSwitcherProps {

@@ -1,7 +1,14 @@
 // League-average rare-event rates, ported from app/models/rare_events.py.
 // Constants by design (source lacks per-team granularity).
-const PENALTY_PER_MATCH = { E0: 0.22, SP1: 0.24, D1: 0.2, I1: 0.23, F1: 0.21 };
-const OWN_GOAL_PER_MATCH = { E0: 0.06, SP1: 0.05, D1: 0.07, I1: 0.05, F1: 0.06 };
+const PENALTY_PER_MATCH = {
+  E0: 0.22, SP1: 0.24, D1: 0.2, I1: 0.23, F1: 0.21,
+  // EC1: no per-league estimate yet, league-average placeholder.
+  EC1: 0.22,
+};
+const OWN_GOAL_PER_MATCH = {
+  E0: 0.06, SP1: 0.05, D1: 0.07, I1: 0.05, F1: 0.06,
+  EC1: 0.06,
+};
 
 export function rareEvents(league) {
   const penalty = PENALTY_PER_MATCH[league] ?? 0.22;

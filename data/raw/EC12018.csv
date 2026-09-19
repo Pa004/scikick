@@ -1,0 +1,269 @@
+Div,Date,HomeTeam,AwayTeam,FTHG,FTAG,FTR
+EC1,17/02/2018,Barcelona SC,Universidad Católica (Quito),3,2,H
+EC1,17/02/2018,El Nacional,Emelec,1,2,A
+EC1,17/02/2018,Macará,Independiente del Valle,1,3,A
+EC1,18/02/2018,Deportivo Cuenca,Liga de Quito,2,1,H
+EC1,18/02/2018,Aucas,Delfín,0,0,D
+EC1,20/02/2018,Guayaquil City FC,Técnico Universitario,0,0,D
+EC1,24/02/2018,Emelec,Macará,2,0,H
+EC1,24/02/2018,Universidad Católica (Quito),Deportivo Cuenca,3,1,H
+EC1,24/02/2018,Independiente del Valle,Aucas,1,0,H
+EC1,25/02/2018,Técnico Universitario,Barcelona SC,0,1,A
+EC1,25/02/2018,Delfín,El Nacional,1,3,A
+EC1,27/02/2018,Liga de Quito,Guayaquil City FC,2,1,H
+EC1,03/03/2018,Barcelona SC,Independiente del Valle,0,0,D
+EC1,03/03/2018,Aucas,El Nacional,3,0,H
+EC1,03/03/2018,Deportivo Cuenca,Técnico Universitario,1,1,D
+EC1,04/03/2018,Universidad Católica (Quito),Liga de Quito,1,2,A
+EC1,06/03/2018,Guayaquil City FC,Emelec,0,3,A
+EC1,06/03/2018,Macará,Delfín,2,1,H
+EC1,10/03/2018,Técnico Universitario,Universidad Católica (Quito),0,2,A
+EC1,10/03/2018,Independiente del Valle,Guayaquil City FC,1,1,D
+EC1,10/03/2018,Emelec,Deportivo Cuenca,4,1,H
+EC1,11/03/2018,Delfín,Barcelona SC,0,1,A
+EC1,11/03/2018,Liga de Quito,Aucas,1,1,D
+EC1,13/03/2018,El Nacional,Macará,1,2,A
+EC1,17/03/2018,Deportivo Cuenca,Independiente del Valle,1,2,A
+EC1,17/03/2018,Liga de Quito,Técnico Universitario,4,0,H
+EC1,17/03/2018,Macará,Aucas,1,1,D
+EC1,18/03/2018,Barcelona SC,El Nacional,5,1,H
+EC1,19/03/2018,Guayaquil City FC,Delfín,0,1,A
+EC1,20/03/2018,Universidad Católica (Quito),Emelec,2,0,H
+EC1,24/03/2018,Independiente del Valle,Universidad Católica (Quito),2,1,H
+EC1,25/03/2018,Aucas,Barcelona SC,1,1,D
+EC1,25/03/2018,Delfín,Deportivo Cuenca,4,2,H
+EC1,25/03/2018,El Nacional,Guayaquil City FC,3,1,H
+EC1,25/03/2018,Macará,Técnico Universitario,1,1,D
+EC1,25/03/2018,Emelec,Liga de Quito,0,1,A
+EC1,31/03/2018,Universidad Católica (Quito),Delfín,3,1,H
+EC1,01/04/2018,Deportivo Cuenca,El Nacional,0,0,D
+EC1,01/04/2018,Liga de Quito,Independiente del Valle,2,1,H
+EC1,01/04/2018,Técnico Universitario,Emelec,1,1,D
+EC1,01/04/2018,Barcelona SC,Macará,4,1,H
+EC1,02/04/2018,Guayaquil City FC,Aucas,2,2,D
+EC1,07/04/2018,El Nacional,Universidad Católica (Quito),0,0,D
+EC1,07/04/2018,Independiente del Valle,Técnico Universitario,3,0,H
+EC1,08/04/2018,Aucas,Deportivo Cuenca,4,0,H
+EC1,08/04/2018,Barcelona SC,Emelec,3,1,H
+EC1,10/04/2018,Macará,Guayaquil City FC,2,0,H
+EC1,14/04/2018,Técnico Universitario,Delfín,3,2,H
+EC1,14/04/2018,Universidad Católica (Quito),Aucas,2,0,H
+EC1,14/04/2018,Liga de Quito,El Nacional,1,0,H
+EC1,15/04/2018,Deportivo Cuenca,Macará,1,1,D
+EC1,15/04/2018,Emelec,Independiente del Valle,2,1,H
+EC1,17/04/2018,Guayaquil City FC,Barcelona SC,0,1,A
+EC1,19/04/2018,Delfín,Liga de Quito,2,1,H
+EC1,21/04/2018,Aucas,Técnico Universitario,1,1,D
+EC1,21/04/2018,Guayaquil City FC,Universidad Católica (Quito),1,1,D
+EC1,21/04/2018,El Nacional,Independiente del Valle,1,2,A
+EC1,22/04/2018,Macará,Liga de Quito,0,1,A
+EC1,22/04/2018,Delfín,Emelec,3,1,H
+EC1,22/04/2018,Barcelona SC,Deportivo Cuenca,2,0,H
+EC1,28/04/2018,Deportivo Cuenca,Guayaquil City FC,1,1,D
+EC1,28/04/2018,Universidad Católica (Quito),Macará,3,1,H
+EC1,28/04/2018,Independiente del Valle,Delfín,0,1,A
+EC1,29/04/2018,Liga de Quito,Barcelona SC,2,1,H
+EC1,29/04/2018,Técnico Universitario,El Nacional,2,2,D
+EC1,01/05/2018,Emelec,Aucas,1,0,H
+EC1,05/05/2018,Barcelona SC,Liga de Quito,0,1,A
+EC1,05/05/2018,Macará,Universidad Católica (Quito),1,2,A
+EC1,05/05/2018,Guayaquil City FC,Deportivo Cuenca,1,0,H
+EC1,06/05/2018,Delfín,Independiente del Valle,2,1,H
+EC1,06/05/2018,Aucas,Emelec,2,0,H
+EC1,08/05/2018,El Nacional,Técnico Universitario,3,2,H
+EC1,12/05/2018,Emelec,Delfín,2,1,H
+EC1,12/05/2018,Universidad Católica (Quito),Guayaquil City FC,2,1,H
+EC1,12/05/2018,Independiente del Valle,El Nacional,0,1,A
+EC1,13/05/2018,Técnico Universitario,Aucas,0,1,A
+EC1,13/05/2018,Deportivo Cuenca,Barcelona SC,0,1,A
+EC1,15/05/2018,Liga de Quito,Macará,2,1,H
+EC1,19/05/2018,Barcelona SC,Guayaquil City FC,0,2,A
+EC1,19/05/2018,Macará,Deportivo Cuenca,1,1,D
+EC1,19/05/2018,Independiente del Valle,Emelec,0,2,A
+EC1,19/05/2018,Delfín,Técnico Universitario,3,1,H
+EC1,20/05/2018,El Nacional,Liga de Quito,2,1,H
+EC1,26/05/2018,Técnico Universitario,Independiente del Valle,2,1,H
+EC1,26/05/2018,Universidad Católica (Quito),El Nacional,1,1,D
+EC1,27/05/2018,Deportivo Cuenca,Aucas,1,1,D
+EC1,27/05/2018,Guayaquil City FC,Macará,0,2,A
+EC1,28/05/2018,Emelec,Barcelona SC,2,2,D
+EC1,29/05/2018,Liga de Quito,Delfín,3,0,H
+EC1,31/05/2018,Aucas,Universidad Católica (Quito),0,1,A
+EC1,02/06/2018,El Nacional,Deportivo Cuenca,1,0,H
+EC1,02/06/2018,Independiente del Valle,Liga de Quito,2,3,A
+EC1,02/06/2018,Emelec,Técnico Universitario,3,0,H
+EC1,03/06/2018,Aucas,Guayaquil City FC,1,1,D
+EC1,03/06/2018,Macará,Barcelona SC,0,1,A
+EC1,05/06/2018,Delfín,Universidad Católica (Quito),5,2,H
+EC1,09/06/2018,Deportivo Cuenca,Delfín,2,1,H
+EC1,09/06/2018,Guayaquil City FC,El Nacional,2,1,H
+EC1,09/06/2018,Liga de Quito,Emelec,1,1,D
+EC1,10/06/2018,Técnico Universitario,Macará,0,2,A
+EC1,10/06/2018,Barcelona SC,Aucas,1,1,D
+EC1,12/06/2018,Universidad Católica (Quito),Independiente del Valle,1,1,D
+EC1,16/06/2018,Técnico Universitario,Liga de Quito,0,1,A
+EC1,16/06/2018,Aucas,Macará,0,1,A
+EC1,17/06/2018,Delfín,Guayaquil City FC,1,0,H
+EC1,17/06/2018,El Nacional,Barcelona SC,2,2,D
+EC1,17/06/2018,Emelec,Universidad Católica (Quito),2,3,A
+EC1,19/06/2018,Independiente del Valle,Deportivo Cuenca,3,1,H
+EC1,23/06/2018,Deportivo Cuenca,Emelec,2,0,H
+EC1,23/06/2018,Aucas,Liga de Quito,0,0,D
+EC1,23/06/2018,Universidad Católica (Quito),Técnico Universitario,4,0,H
+EC1,24/06/2018,Macará,El Nacional,2,0,H
+EC1,24/06/2018,Barcelona SC,Delfín,5,1,H
+EC1,26/06/2018,Guayaquil City FC,Independiente del Valle,0,1,A
+EC1,30/06/2018,Técnico Universitario,Deportivo Cuenca,0,1,A
+EC1,30/06/2018,Delfín,Macará,1,1,D
+EC1,30/06/2018,Independiente del Valle,Barcelona SC,2,2,D
+EC1,01/07/2018,El Nacional,Aucas,1,2,A
+EC1,01/07/2018,Emelec,Guayaquil City FC,2,1,H
+EC1,03/07/2018,Liga de Quito,Universidad Católica (Quito),2,1,H
+EC1,07/07/2018,Deportivo Cuenca,Universidad Católica (Quito),1,1,D
+EC1,07/07/2018,Guayaquil City FC,Liga de Quito,0,0,D
+EC1,07/07/2018,El Nacional,Delfín,0,3,A
+EC1,08/07/2018,Macará,Emelec,2,2,D
+EC1,08/07/2018,Barcelona SC,Técnico Universitario,2,0,H
+EC1,10/07/2018,Aucas,Independiente del Valle,3,1,H
+EC1,14/07/2018,Independiente del Valle,Macará,2,0,H
+EC1,14/07/2018,Delfín,Aucas,1,1,D
+EC1,14/07/2018,Emelec,El Nacional,1,0,H
+EC1,15/07/2018,Liga de Quito,Deportivo Cuenca,0,2,A
+EC1,15/07/2018,Universidad Católica (Quito),Barcelona SC,2,3,A
+EC1,17/07/2018,Técnico Universitario,Guayaquil City FC,1,0,H
+EC1,21/07/2018,Macará,Independiente del Valle,2,1,H
+EC1,21/07/2018,Delfín,Liga de Quito,2,0,H
+EC1,21/07/2018,Emelec,Técnico Universitario,3,0,H
+EC1,22/07/2018,Aucas,Deportivo Cuenca,1,3,A
+EC1,22/07/2018,Barcelona SC,El Nacional,3,1,H
+EC1,24/07/2018,Universidad Católica (Quito),Guayaquil City FC,0,0,D
+EC1,27/07/2018,Guayaquil City FC,Macará,1,1,D
+EC1,28/07/2018,Deportivo Cuenca,Universidad Católica (Quito),2,1,H
+EC1,28/07/2018,El Nacional,Delfín,3,3,D
+EC1,28/07/2018,Técnico Universitario,Barcelona SC,1,2,A
+EC1,29/07/2018,Liga de Quito,Emelec,2,1,H
+EC1,31/07/2018,Independiente del Valle,Aucas,0,1,A
+EC1,04/08/2018,El Nacional,Liga de Quito,2,2,D
+EC1,04/08/2018,Delfín,Técnico Universitario,1,1,D
+EC1,05/08/2018,Aucas,Universidad Católica (Quito),0,1,A
+EC1,05/08/2018,Emelec,Guayaquil City FC,3,0,H
+EC1,05/08/2018,Barcelona SC,Independiente del Valle,2,0,H
+EC1,07/08/2018,Macará,Deportivo Cuenca,2,1,H
+EC1,11/08/2018,Técnico Universitario,El Nacional,1,3,A
+EC1,11/08/2018,Universidad Católica (Quito),Macará,0,1,A
+EC1,11/08/2018,Independiente del Valle,Emelec,3,1,H
+EC1,12/08/2018,Deportivo Cuenca,Barcelona SC,1,1,D
+EC1,12/08/2018,Guayaquil City FC,Delfín,0,2,A
+EC1,14/08/2018,Liga de Quito,Aucas,1,1,D
+EC1,18/08/2018,Macará,Aucas,2,1,H
+EC1,18/08/2018,Liga de Quito,Técnico Universitario,1,1,D
+EC1,18/08/2018,Barcelona SC,Universidad Católica (Quito),2,0,H
+EC1,19/08/2018,Delfín,Independiente del Valle,1,1,D
+EC1,19/08/2018,Emelec,Deportivo Cuenca,1,0,H
+EC1,21/08/2018,El Nacional,Guayaquil City FC,1,1,D
+EC1,25/08/2018,Macará,Técnico Universitario,0,3,A
+EC1,25/08/2018,Guayaquil City FC,Liga de Quito,1,4,A
+EC1,25/08/2018,Independiente del Valle,El Nacional,4,2,H
+EC1,26/08/2018,Aucas,Barcelona SC,0,0,D
+EC1,26/08/2018,Universidad Católica (Quito),Emelec,1,0,H
+EC1,26/08/2018,Deportivo Cuenca,Delfín,0,1,A
+EC1,29/08/2018,Técnico Universitario,Guayaquil City FC,3,2,H
+EC1,29/08/2018,Delfín,Universidad Católica (Quito),1,2,A
+EC1,29/08/2018,Liga de Quito,Independiente del Valle,1,0,H
+EC1,29/08/2018,Barcelona SC,Macará,1,1,D
+EC1,30/08/2018,El Nacional,Deportivo Cuenca,3,1,H
+EC1,30/08/2018,Emelec,Aucas,2,0,H
+EC1,01/09/2018,Universidad Católica (Quito),El Nacional,1,2,A
+EC1,01/09/2018,Aucas,Delfín,2,0,H
+EC1,02/09/2018,Deportivo Cuenca,Liga de Quito,2,2,D
+EC1,02/09/2018,Macará,Emelec,1,1,D
+EC1,02/09/2018,Independiente del Valle,Técnico Universitario,1,1,D
+EC1,02/09/2018,Barcelona SC,Guayaquil City FC,0,1,A
+EC1,07/09/2018,Técnico Universitario,Deportivo Cuenca,1,2,A
+EC1,08/09/2018,El Nacional,Aucas,1,2,A
+EC1,09/09/2018,Delfín,Macará,0,0,D
+EC1,09/09/2018,Emelec,Barcelona SC,2,0,H
+EC1,15/09/2018,Aucas,Técnico Universitario,3,0,H
+EC1,15/09/2018,Macará,Liga de Quito,3,2,H
+EC1,15/09/2018,Barcelona SC,Delfín,2,2,D
+EC1,16/09/2018,Deportivo Cuenca,Guayaquil City FC,0,0,D
+EC1,16/09/2018,Emelec,El Nacional,3,1,H
+EC1,18/09/2018,Universidad Católica (Quito),Independiente del Valle,1,2,A
+EC1,22/09/2018,El Nacional,Macará,1,2,A
+EC1,22/09/2018,Guayaquil City FC,Aucas,0,2,A
+EC1,23/09/2018,Delfín,Emelec,2,1,H
+EC1,23/09/2018,Liga de Quito,Barcelona SC,0,0,D
+EC1,23/09/2018,Independiente del Valle,Deportivo Cuenca,2,3,A
+EC1,25/09/2018,Técnico Universitario,Universidad Católica (Quito),4,5,A
+EC1,29/09/2018,Deportivo Cuenca,Independiente del Valle,0,1,A
+EC1,29/09/2018,Aucas,Guayaquil City FC,1,0,H
+EC1,29/09/2018,Emelec,Delfín,1,1,D
+EC1,30/09/2018,Universidad Católica (Quito),Técnico Universitario,2,0,H
+EC1,30/09/2018,Barcelona SC,Liga de Quito,1,1,D
+EC1,02/10/2018,Macará,El Nacional,2,2,D
+EC1,03/10/2018,Guayaquil City FC,Independiente del Valle,1,2,A
+EC1,04/10/2018,Liga de Quito,Universidad Católica (Quito),1,0,H
+EC1,06/10/2018,Técnico Universitario,Aucas,3,0,H
+EC1,06/10/2018,El Nacional,Emelec,1,1,D
+EC1,06/10/2018,Delfín,Barcelona SC,1,0,H
+EC1,07/10/2018,Independiente del Valle,Universidad Católica (Quito),1,3,A
+EC1,07/10/2018,Liga de Quito,Macará,0,0,D
+EC1,09/10/2018,Guayaquil City FC,Deportivo Cuenca,1,1,D
+EC1,13/10/2018,Macará,Delfín,1,1,D
+EC1,13/10/2018,Aucas,El Nacional,3,2,H
+EC1,13/10/2018,Universidad Católica (Quito),Liga de Quito,0,1,A
+EC1,14/10/2018,Deportivo Cuenca,Técnico Universitario,1,3,A
+EC1,14/10/2018,Barcelona SC,Emelec,1,0,H
+EC1,20/10/2018,El Nacional,Universidad Católica (Quito),1,3,A
+EC1,20/10/2018,Guayaquil City FC,Barcelona SC,3,4,A
+EC1,20/10/2018,Liga de Quito,Deportivo Cuenca,1,0,H
+EC1,21/10/2018,Delfín,Aucas,1,0,H
+EC1,21/10/2018,Emelec,Macará,3,1,H
+EC1,23/10/2018,Técnico Universitario,Independiente del Valle,0,2,A
+EC1,27/10/2018,Deportivo Cuenca,El Nacional,2,0,H
+EC1,27/10/2018,Universidad Católica (Quito),Delfín,2,2,D
+EC1,27/10/2018,Guayaquil City FC,Técnico Universitario,2,3,A
+EC1,28/10/2018,Aucas,Emelec,0,1,A
+EC1,28/10/2018,Independiente del Valle,Liga de Quito,1,1,D
+EC1,28/10/2018,Macará,Barcelona SC,1,0,H
+EC1,01/11/2018,Independiente del Valle,Guayaquil City FC,4,0,H
+EC1,03/11/2018,Delfín,Deportivo Cuenca,3,0,H
+EC1,03/11/2018,Emelec,Universidad Católica (Quito),3,1,H
+EC1,03/11/2018,Técnico Universitario,Macará,0,1,A
+EC1,04/11/2018,El Nacional,Independiente del Valle,1,1,D
+EC1,04/11/2018,Barcelona SC,Aucas,3,1,H
+EC1,06/11/2018,Liga de Quito,Guayaquil City FC,4,1,H
+EC1,10/11/2018,Independiente del Valle,Delfín,3,1,H
+EC1,10/11/2018,Técnico Universitario,Liga de Quito,2,1,H
+EC1,11/11/2018,Deportivo Cuenca,Emelec,0,2,A
+EC1,11/11/2018,Aucas,Macará,2,1,H
+EC1,11/11/2018,Universidad Católica (Quito),Barcelona SC,2,2,D
+EC1,13/11/2018,Guayaquil City FC,El Nacional,1,0,H
+EC1,23/11/2018,Técnico Universitario,Delfín,2,1,H
+EC1,23/11/2018,Universidad Católica (Quito),Aucas,0,2,A
+EC1,24/11/2018,Deportivo Cuenca,Macará,1,1,D
+EC1,24/11/2018,Liga de Quito,El Nacional,4,0,H
+EC1,24/11/2018,Guayaquil City FC,Emelec,1,4,A
+EC1,25/11/2018,Independiente del Valle,Barcelona SC,1,0,H
+EC1,28/11/2018,Macará,Universidad Católica (Quito),1,2,A
+EC1,28/11/2018,Delfín,Guayaquil City FC,3,0,H
+EC1,28/11/2018,Aucas,Liga de Quito,1,3,A
+EC1,28/11/2018,Barcelona SC,Deportivo Cuenca,2,1,H
+EC1,29/11/2018,El Nacional,Técnico Universitario,1,2,A
+EC1,29/11/2018,Emelec,Independiente del Valle,0,0,D
+EC1,02/12/2018,Aucas,Independiente del Valle,1,1,D
+EC1,02/12/2018,Barcelona SC,Técnico Universitario,2,1,H
+EC1,02/12/2018,Delfín,El Nacional,5,1,H
+EC1,02/12/2018,Emelec,Liga de Quito,0,0,D
+EC1,02/12/2018,Macará,Guayaquil City FC,6,1,H
+EC1,02/12/2018,Universidad Católica (Quito),Deportivo Cuenca,1,2,A
+EC1,08/12/2018,Deportivo Cuenca,Aucas,0,1,A
+EC1,08/12/2018,El Nacional,Barcelona SC,0,0,D
+EC1,08/12/2018,Guayaquil City FC,Universidad Católica (Quito),2,1,H
+EC1,08/12/2018,Independiente del Valle,Macará,0,1,A
+EC1,08/12/2018,Liga de Quito,Delfín,0,0,D
+EC1,08/12/2018,Técnico Universitario,Emelec,1,2,A
+EC1,11/12/2018,Mushuc Runa,Aucas,1,0,H
+EC1,13/12/2018,Emelec,Liga de Quito,1,1,D
+EC1,15/12/2018,Aucas,Mushuc Runa,2,2,D
+EC1,16/12/2018,Liga de Quito,Emelec,1,0,H

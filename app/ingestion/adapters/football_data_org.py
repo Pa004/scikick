@@ -135,6 +135,42 @@ TEAM_NAMES = {
         "AS Saint-Étienne": "St Etienne",
         "Stade Brestois 29": "Brest",
     },
+    # EC1 (ESPN displayNames, case-sensitive). Complete 2014-2026 set:
+    # displayNames are already clean canonicals, so most entries are
+    # identity mappings that silence warnings and document the league.
+    # Variants (e.g. "LDU Quito") map to the canonical on the right.
+    "EC1": {
+        "9 de Octubre": "9 de Octubre",
+        "América de Quito": "América de Quito",
+        "Aucas": "Aucas",
+        "Barcelona SC": "Barcelona SC",
+        "Clan Juvenil": "Clan Juvenil",
+        "Cumbayá": "Cumbayá",
+        "Delfín": "Delfín",
+        "Deportivo Cuenca": "Deportivo Cuenca",
+        "Deportivo Quito": "Deportivo Quito",
+        "El Nacional": "El Nacional",
+        "Emelec": "Emelec",
+        "Fuerza Amarilla": "Fuerza Amarilla",
+        "Gualaceo": "Gualaceo",
+        "Guayaquil City FC": "Guayaquil City FC",
+        "Imbabura": "Imbabura",
+        "Independiente del Valle": "Independiente del Valle",
+        "LDU Quito": "Liga de Quito",
+        "Leones": "Leones",
+        "Libertad (Ecuador)": "Libertad (Ecuador)",
+        "Liga de Loja": "Liga de Loja",
+        "Liga de Portoviejo": "Liga de Portoviejo",
+        "Liga de Quito": "Liga de Quito",
+        "Macará": "Macará",
+        "Manta F.C.": "Manta F.C.",
+        "Mushuc Runa": "Mushuc Runa",
+        "Olmedo": "Olmedo",
+        "Orense": "Orense",
+        "Técnico Universitario": "Técnico Universitario",
+        "Universidad Católica (Quito)": "Universidad Católica (Quito)",
+        "Vinotinto": "Vinotinto",
+    },
 }
 
 

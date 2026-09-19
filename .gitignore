@@ -7,8 +7,13 @@ __pycache__/
 .coverage
 htmlcov/
 
-# === Data (regenerable) ===
-data/
+# === Data (regenerable, except committed EC1 history) ===
+data/*
+!data/raw/
+data/raw/*
+# Immutable past EC1 seasons from ESPN; current year re-crawls each run.
+!data/raw/EC120*.csv
+data/raw/EC12026.csv
 backups/
 
 # === Model artifacts (too large, metrics.json documented in README) ===

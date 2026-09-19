@@ -9,7 +9,7 @@ from app.db.connection import get_connection
 
 router = APIRouter()
 
-LEAGUES = ("E0", "SP1", "D1", "I1", "F1")
+LEAGUES = ("E0", "SP1", "D1", "I1", "F1", "EC1")
 
 FIXTURES_CACHE_TTL_SECONDS = 120.0
 

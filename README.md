@@ -13,7 +13,7 @@ SciKick is an **analytical instrument, not a betting tool**. It answers "who win
 
 ## What it does
 
-- **Every upcoming match, 5 leagues** (Premier, La Liga, Bundesliga, Serie A, Ligue 1) — from today on, nearest first, 12 per page, with a toggle for past dates.
+- **Every upcoming match, 6 leagues** (Premier, La Liga, Bundesliga, Serie A, Ligue 1, Ecuador Liga Pro) — from today on, nearest first, 12 per page, with a toggle for past dates.
 - **One story per match**: verdict first ("Arsenal wins 7 in 10"), then the evidence across Mercados / Contexto / Valor tabs. Verdict, charts and context stay in plain language; the probable scoreline only appears when it agrees with the verdict.
 - **Full-market explorer**: accordions open on the active market, the chart updates live side by side; half-time scenarios one at a time.
 - **Value check that names its source** ("best European odds", possibly split across shops) with plain-words stakes; edges above +100% are treated as bad data. Model combo labeled as a rough guide.
@@ -23,9 +23,11 @@ SciKick is an **analytical instrument, not a betting tool**. It answers "who win
 
 - **Per-team Dixon-Coles** (`app/models/`): attack/defence strengths per club with a shrinkage prior (`k=8` games) for promoted teams; **LightGBM ensemble + isotonic calibration**. Walk-forward Brier (Sep 2026):
 
-| E0 | SP1 | D1 | I1 | F1 |
-|---|---|---|---|---|
-| 0.596 | 0.527 | 0.470 | 0.626 | 0.603 |
+| E0 | SP1 | D1 | I1 | F1 | EC1 |
+|---|---|---|---|---|---|
+| 0.596 | 0.527 | 0.470 | 0.626 | 0.603 | 0.570 |
+
+EC1 runs the same pipeline on ESPN data (no odds/xG sources there yet, so no value badges, corners/cards or scorer xG for now).
 
 Small test sets (27–37 matches) — judge trends over cycles, see `docs/retrain.md`. Scorer: Understat xG90 with position shrinkage and a minutes gate that scales early season. Served predictions carry the evaluated blend (`blend_applied`), never Dixon-Coles alone.
 
@@ -36,6 +38,7 @@ football-data.org ──▶ fixtures ──┐
 football-data.co.uk ─▶ history ───┤──▶ sync ──▶ features ──▶ models ──▶ API ──▶ UI
 Understat ──────────▶ player xG ──┤         Elo + form + xG ──▶ per-team DC + LightGBM
 The Odds API ───────▶ odds ───────┘         (1 credit/league/day, best EU price stored)
+ESPN (ecu.1) ──▶ EC1 fixtures + history (no odds/xG yet)
 ```
 
 FastAPI + SQLite (`GET /fixtures` with `upcoming` filter, `/predict/{id}`, `POST /value` with source, `/context`, `/predict/scorer/{id}`, stats, token-authed `/refresh` + `/resolve`). React + TypeScript UI (Radix, Recharts, WCAG-AA audited palette). `VITE_API_URL` points at any backend.

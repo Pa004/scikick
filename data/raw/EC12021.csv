@@ -1,0 +1,243 @@
+Div,Date,HomeTeam,AwayTeam,FTHG,FTAG,FTR
+EC1,19/02/2021,Universidad Católica (Quito),Olmedo,3,0,H
+EC1,20/02/2021,Liga de Quito,9 de Octubre,4,2,H
+EC1,20/02/2021,Mushuc Runa,Aucas,1,3,A
+EC1,20/02/2021,Guayaquil City FC,Macará,3,1,H
+EC1,21/02/2021,Manta F.C.,Barcelona SC,2,3,A
+EC1,21/02/2021,Orense,Independiente del Valle,2,0,H
+EC1,21/02/2021,Técnico Universitario,Delfín,0,1,A
+EC1,21/02/2021,Emelec,Deportivo Cuenca,4,1,H
+EC1,27/02/2021,Deportivo Cuenca,Guayaquil City FC,3,0,H
+EC1,27/02/2021,Universidad Católica (Quito),Manta F.C.,3,3,D
+EC1,27/02/2021,Macará,Independiente del Valle,3,1,H
+EC1,28/02/2021,Aucas,Emelec,2,3,A
+EC1,28/02/2021,9 de Octubre,Mushuc Runa,1,2,A
+EC1,28/02/2021,Olmedo,Liga de Quito,0,0,D
+EC1,28/02/2021,Barcelona SC,Técnico Universitario,3,0,H
+EC1,02/03/2021,Delfín,Orense,1,1,D
+EC1,06/03/2021,Independiente del Valle,Mushuc Runa,2,0,H
+EC1,06/03/2021,Orense,Aucas,2,2,D
+EC1,06/03/2021,Liga de Quito,Universidad Católica (Quito),2,1,H
+EC1,07/03/2021,Emelec,Delfín,1,0,H
+EC1,07/03/2021,Olmedo,Macará,0,2,A
+EC1,07/03/2021,Manta F.C.,Deportivo Cuenca,1,0,H
+EC1,07/03/2021,Guayaquil City FC,Barcelona SC,0,3,A
+EC1,09/03/2021,Técnico Universitario,9 de Octubre,0,0,D
+EC1,12/03/2021,Macará,Emelec,1,1,D
+EC1,13/03/2021,Deportivo Cuenca,Liga de Quito,2,2,D
+EC1,13/03/2021,Universidad Católica (Quito),Técnico Universitario,1,1,D
+EC1,13/03/2021,Delfín,Guayaquil City FC,1,1,D
+EC1,14/03/2021,Aucas,Independiente del Valle,3,4,A
+EC1,14/03/2021,Mushuc Runa,Manta F.C.,4,2,H
+EC1,14/03/2021,9 de Octubre,Olmedo,2,0,H
+EC1,14/03/2021,Barcelona SC,Orense,2,0,H
+EC1,20/03/2021,Técnico Universitario,Olmedo,0,0,D
+EC1,20/03/2021,Mushuc Runa,Macará,0,0,D
+EC1,20/03/2021,Independiente del Valle,Delfín,2,0,H
+EC1,20/03/2021,Liga de Quito,Barcelona SC,2,2,D
+EC1,21/03/2021,Manta F.C.,Aucas,1,1,D
+EC1,21/03/2021,Guayaquil City FC,Universidad Católica (Quito),1,2,A
+EC1,21/03/2021,Emelec,9 de Octubre,0,1,A
+EC1,23/03/2021,Deportivo Cuenca,Orense,1,0,H
+EC1,31/03/2021,Aucas,Delfín,3,3,D
+EC1,31/03/2021,Guayaquil City FC,Orense,4,1,H
+EC1,01/04/2021,Técnico Universitario,Independiente del Valle,0,2,A
+EC1,01/04/2021,Universidad Católica (Quito),Macará,1,1,D
+EC1,02/04/2021,Olmedo,Emelec,2,3,A
+EC1,03/04/2021,Delfín,Deportivo Cuenca,1,1,D
+EC1,03/04/2021,Liga de Quito,Mushuc Runa,0,0,D
+EC1,03/04/2021,Barcelona SC,Independiente del Valle,2,2,D
+EC1,04/04/2021,Orense,Manta F.C.,0,1,A
+EC1,04/04/2021,9 de Octubre,Aucas,1,3,A
+EC1,04/04/2021,Técnico Universitario,Guayaquil City FC,3,0,H
+EC1,08/04/2021,Mushuc Runa,Olmedo,4,0,H
+EC1,08/04/2021,Deportivo Cuenca,Barcelona SC,1,0,H
+EC1,09/04/2021,Manta F.C.,Técnico Universitario,0,2,A
+EC1,10/04/2021,Macará,9 de Octubre,3,2,H
+EC1,10/04/2021,Emelec,Liga de Quito,1,1,D
+EC1,12/04/2021,Orense,Mushuc Runa,0,2,A
+EC1,12/04/2021,Barcelona SC,Aucas,3,0,H
+EC1,13/04/2021,9 de Octubre,Guayaquil City FC,4,0,H
+EC1,13/04/2021,Olmedo,Deportivo Cuenca,2,2,D
+EC1,14/04/2021,Delfín,Macará,2,0,H
+EC1,14/04/2021,Liga de Quito,Manta F.C.,1,0,H
+EC1,14/04/2021,Universidad Católica (Quito),Emelec,2,3,A
+EC1,17/04/2021,Mushuc Runa,Barcelona SC,2,2,D
+EC1,17/04/2021,Macará,Orense,1,0,H
+EC1,17/04/2021,Aucas,Olmedo,1,3,A
+EC1,18/04/2021,Guayaquil City FC,Liga de Quito,2,2,D
+EC1,18/04/2021,Deportivo Cuenca,Universidad Católica (Quito),0,1,A
+EC1,18/04/2021,Independiente del Valle,9 de Octubre,2,1,H
+EC1,18/04/2021,Emelec,Técnico Universitario,2,0,H
+EC1,20/04/2021,Manta F.C.,Delfín,1,2,A
+EC1,01/05/2021,Universidad Católica (Quito),Aucas,1,1,D
+EC1,01/05/2021,9 de Octubre,Deportivo Cuenca,2,1,H
+EC1,01/05/2021,Liga de Quito,Macará,2,1,H
+EC1,02/05/2021,Barcelona SC,Delfín,2,1,H
+EC1,02/05/2021,Técnico Universitario,Mushuc Runa,1,3,A
+EC1,02/05/2021,Orense,Emelec,2,3,A
+EC1,02/05/2021,Manta F.C.,Independiente del Valle,2,1,H
+EC1,04/05/2021,Olmedo,Guayaquil City FC,0,0,D
+EC1,08/05/2021,Macará,Deportivo Cuenca,1,0,H
+EC1,08/05/2021,Orense,9 de Octubre,3,1,H
+EC1,08/05/2021,Independiente del Valle,Liga de Quito,3,1,H
+EC1,09/05/2021,Mushuc Runa,Universidad Católica (Quito),2,6,A
+EC1,09/05/2021,Delfín,Olmedo,2,4,A
+EC1,09/05/2021,Aucas,Técnico Universitario,0,2,A
+EC1,11/05/2021,Guayaquil City FC,Manta F.C.,0,3,A
+EC1,15/05/2021,Deportivo Cuenca,Mushuc Runa,1,2,A
+EC1,15/05/2021,Olmedo,Independiente del Valle,1,3,A
+EC1,15/05/2021,Universidad Católica (Quito),Delfín,0,1,A
+EC1,16/05/2021,Emelec,Guayaquil City FC,1,0,H
+EC1,16/05/2021,Manta F.C.,Macará,1,1,D
+EC1,16/05/2021,Liga de Quito,Aucas,1,3,A
+EC1,17/05/2021,9 de Octubre,Barcelona SC,0,1,A
+EC1,18/05/2021,Técnico Universitario,Orense,1,2,A
+EC1,22/05/2021,9 de Octubre,Manta F.C.,2,0,H
+EC1,22/05/2021,Orense,Universidad Católica (Quito),0,3,A
+EC1,22/05/2021,Independiente del Valle,Guayaquil City FC,3,0,H
+EC1,22/05/2021,Mushuc Runa,Emelec,1,2,A
+EC1,23/05/2021,Aucas,Deportivo Cuenca,2,0,H
+EC1,23/05/2021,Delfín,Liga de Quito,1,1,D
+EC1,24/05/2021,Barcelona SC,Olmedo,4,0,H
+EC1,25/05/2021,Macará,Técnico Universitario,1,1,D
+EC1,29/05/2021,Olmedo,Manta F.C.,1,1,D
+EC1,29/05/2021,Delfín,9 de Octubre,2,2,D
+EC1,29/05/2021,Guayaquil City FC,Mushuc Runa,0,0,D
+EC1,30/05/2021,Deportivo Cuenca,Técnico Universitario,1,0,H
+EC1,30/05/2021,Macará,Aucas,1,0,H
+EC1,30/05/2021,Liga de Quito,Orense,2,1,H
+EC1,31/05/2021,Emelec,Independiente del Valle,0,0,D
+EC1,31/05/2021,Universidad Católica (Quito),Barcelona SC,2,0,H
+EC1,10/07/2021,Barcelona SC,Emelec,1,1,D
+EC1,10/07/2021,Independiente del Valle,Universidad Católica (Quito),2,3,A
+EC1,17/07/2021,Técnico Universitario,Liga de Quito,0,1,A
+EC1,17/07/2021,Mushuc Runa,Delfín,6,1,H
+EC1,17/07/2021,Orense,Olmedo,0,0,D
+EC1,17/07/2021,Aucas,Guayaquil City FC,3,0,H
+EC1,18/07/2021,Independiente del Valle,Deportivo Cuenca,0,0,D
+EC1,18/07/2021,Barcelona SC,Macará,3,0,H
+EC1,18/07/2021,Manta F.C.,Emelec,0,4,A
+EC1,20/07/2021,9 de Octubre,Universidad Católica (Quito),1,0,H
+EC1,24/07/2021,Aucas,Mushuc Runa,1,1,D
+EC1,24/07/2021,Olmedo,Universidad Católica (Quito),0,3,A
+EC1,24/07/2021,Macará,Guayaquil City FC,0,2,A
+EC1,25/07/2021,Deportivo Cuenca,Emelec,0,1,A
+EC1,25/07/2021,Independiente del Valle,Orense,3,2,H
+EC1,25/07/2021,9 de Octubre,Liga de Quito,4,1,H
+EC1,26/07/2021,Barcelona SC,Manta F.C.,2,0,H
+EC1,27/07/2021,Delfín,Técnico Universitario,1,1,D
+EC1,31/07/2021,Manta F.C.,Universidad Católica (Quito),0,1,A
+EC1,31/07/2021,Mushuc Runa,9 de Octubre,1,2,A
+EC1,31/07/2021,Guayaquil City FC,Deportivo Cuenca,2,1,H
+EC1,01/08/2021,Técnico Universitario,Barcelona SC,1,2,A
+EC1,01/08/2021,Orense,Delfín,2,2,D
+EC1,01/08/2021,Independiente del Valle,Macará,4,0,H
+EC1,02/08/2021,Emelec,Aucas,2,2,D
+EC1,03/08/2021,Liga de Quito,Olmedo,4,0,H
+EC1,07/08/2021,Deportivo Cuenca,Manta F.C.,1,0,H
+EC1,07/08/2021,Mushuc Runa,Independiente del Valle,0,2,A
+EC1,07/08/2021,Universidad Católica (Quito),Liga de Quito,2,2,D
+EC1,08/08/2021,Barcelona SC,Guayaquil City FC,2,1,H
+EC1,08/08/2021,Aucas,Orense,0,0,D
+EC1,08/08/2021,9 de Octubre,Técnico Universitario,0,1,A
+EC1,09/08/2021,Delfín,Emelec,1,2,A
+EC1,10/08/2021,Macará,Olmedo,3,2,H
+EC1,14/08/2021,Técnico Universitario,Universidad Católica (Quito),1,1,D
+EC1,14/08/2021,Independiente del Valle,Aucas,1,0,H
+EC1,14/08/2021,Guayaquil City FC,Delfín,2,1,H
+EC1,15/08/2021,Emelec,Macará,3,0,H
+EC1,15/08/2021,Manta F.C.,Mushuc Runa,0,0,D
+EC1,15/08/2021,Orense,Barcelona SC,1,0,H
+EC1,15/08/2021,Liga de Quito,Deportivo Cuenca,3,3,D
+EC1,17/08/2021,Olmedo,9 de Octubre,1,2,A
+EC1,21/08/2021,Macará,Mushuc Runa,1,1,D
+EC1,21/08/2021,Olmedo,Técnico Universitario,0,0,D
+EC1,21/08/2021,Universidad Católica (Quito),Guayaquil City FC,1,1,D
+EC1,22/08/2021,9 de Octubre,Emelec,2,2,D
+EC1,22/08/2021,Orense,Deportivo Cuenca,1,1,D
+EC1,22/08/2021,Aucas,Manta F.C.,3,0,H
+EC1,23/08/2021,Delfín,Independiente del Valle,0,0,D
+EC1,24/08/2021,Barcelona SC,Liga de Quito,0,2,A
+EC1,28/08/2021,Emelec,Olmedo,4,0,H
+EC1,28/08/2021,Aucas,9 de Octubre,1,1,D
+EC1,28/08/2021,Manta F.C.,Orense,0,0,D
+EC1,29/08/2021,Mushuc Runa,Liga de Quito,1,3,A
+EC1,29/08/2021,Guayaquil City FC,Técnico Universitario,1,0,H
+EC1,29/08/2021,Macará,Universidad Católica (Quito),1,2,A
+EC1,30/08/2021,Independiente del Valle,Barcelona SC,1,0,H
+EC1,31/08/2021,Deportivo Cuenca,Delfín,2,3,A
+EC1,14/09/2021,Universidad Católica (Quito),Independiente del Valle,1,3,A
+EC1,18/09/2021,Barcelona SC,Deportivo Cuenca,3,2,H
+EC1,18/09/2021,Orense,Guayaquil City FC,2,0,H
+EC1,18/09/2021,Delfín,Aucas,1,2,A
+EC1,19/09/2021,9 de Octubre,Macará,1,1,D
+EC1,19/09/2021,Olmedo,Mushuc Runa,2,5,A
+EC1,19/09/2021,Técnico Universitario,Manta F.C.,0,0,D
+EC1,20/09/2021,Liga de Quito,Emelec,3,2,H
+EC1,25/09/2021,Independiente del Valle,Técnico Universitario,1,1,D
+EC1,25/09/2021,Mushuc Runa,Orense,0,0,D
+EC1,25/09/2021,Guayaquil City FC,9 de Octubre,0,1,A
+EC1,26/09/2021,Manta F.C.,Liga de Quito,2,2,D
+EC1,26/09/2021,Deportivo Cuenca,Olmedo,5,0,H
+EC1,26/09/2021,Macará,Delfín,2,3,A
+EC1,27/09/2021,Emelec,Universidad Católica (Quito),2,2,D
+EC1,02/10/2021,Universidad Católica (Quito),Deportivo Cuenca,3,2,H
+EC1,02/10/2021,Orense,Macará,2,1,H
+EC1,02/10/2021,9 de Octubre,Independiente del Valle,1,0,H
+EC1,03/10/2021,Liga de Quito,Guayaquil City FC,3,1,H
+EC1,03/10/2021,Olmedo,Aucas,1,4,A
+EC1,03/10/2021,Barcelona SC,Mushuc Runa,4,0,H
+EC1,04/10/2021,Técnico Universitario,Emelec,1,0,H
+EC1,05/10/2021,Delfín,Manta F.C.,2,1,H
+EC1,16/10/2021,Emelec,Orense,1,0,H
+EC1,16/10/2021,Guayaquil City FC,Olmedo,4,2,H
+EC1,16/10/2021,Aucas,Universidad Católica (Quito),1,2,A
+EC1,17/10/2021,Macará,Liga de Quito,2,1,H
+EC1,17/10/2021,Mushuc Runa,Técnico Universitario,0,1,A
+EC1,17/10/2021,Deportivo Cuenca,9 de Octubre,3,1,H
+EC1,18/10/2021,Delfín,Barcelona SC,4,1,H
+EC1,19/10/2021,Independiente del Valle,Manta F.C.,1,1,D
+EC1,23/10/2021,Técnico Universitario,Aucas,1,1,D
+EC1,23/10/2021,Universidad Católica (Quito),Mushuc Runa,0,1,A
+EC1,23/10/2021,9 de Octubre,Orense,3,1,H
+EC1,24/10/2021,Liga de Quito,Independiente del Valle,0,2,A
+EC1,24/10/2021,Olmedo,Delfín,1,3,A
+EC1,24/10/2021,Manta F.C.,Guayaquil City FC,1,1,D
+EC1,24/10/2021,Emelec,Barcelona SC,2,1,H
+EC1,26/10/2021,Deportivo Cuenca,Macará,1,1,D
+EC1,28/10/2021,Aucas,Barcelona SC,1,0,H
+EC1,30/10/2021,Delfín,Universidad Católica (Quito),0,2,A
+EC1,30/10/2021,Orense,Técnico Universitario,0,0,D
+EC1,30/10/2021,Macará,Manta F.C.,1,2,A
+EC1,31/10/2021,Guayaquil City FC,Emelec,0,1,A
+EC1,31/10/2021,Mushuc Runa,Deportivo Cuenca,1,0,H
+EC1,31/10/2021,Independiente del Valle,Olmedo,5,0,H
+EC1,01/11/2021,Aucas,Liga de Quito,1,0,H
+EC1,02/11/2021,Barcelona SC,9 de Octubre,1,3,A
+EC1,06/11/2021,Emelec,Mushuc Runa,2,0,H
+EC1,06/11/2021,Universidad Católica (Quito),Orense,1,0,H
+EC1,06/11/2021,Deportivo Cuenca,Aucas,2,1,H
+EC1,07/11/2021,Olmedo,Barcelona SC,0,2,A
+EC1,07/11/2021,Técnico Universitario,Macará,2,0,H
+EC1,07/11/2021,Liga de Quito,Delfín,1,1,D
+EC1,08/11/2021,Guayaquil City FC,Independiente del Valle,0,2,A
+EC1,09/11/2021,Manta F.C.,9 de Octubre,1,3,A
+EC1,20/11/2021,Aucas,Macará,2,4,A
+EC1,21/11/2021,9 de Octubre,Delfín,1,0,H
+EC1,21/11/2021,Barcelona SC,Universidad Católica (Quito),1,1,D
+EC1,21/11/2021,Independiente del Valle,Emelec,3,2,H
+EC1,21/11/2021,Manta F.C.,Olmedo,3,0,H
+EC1,21/11/2021,Mushuc Runa,Guayaquil City FC,1,0,H
+EC1,21/11/2021,Orense,Liga de Quito,1,1,D
+EC1,23/11/2021,Técnico Universitario,Deportivo Cuenca,3,1,H
+EC1,27/11/2021,Liga de Quito,Técnico Universitario,1,0,H
+EC1,28/11/2021,Delfín,Mushuc Runa,3,0,H
+EC1,28/11/2021,Deportivo Cuenca,Independiente del Valle,1,1,D
+EC1,28/11/2021,Emelec,Manta F.C.,4,0,H
+EC1,28/11/2021,Guayaquil City FC,Aucas,1,0,H
+EC1,28/11/2021,Olmedo,Orense,0,2,A
+EC1,29/11/2021,Macará,Barcelona SC,1,1,D
+EC1,29/11/2021,Universidad Católica (Quito),9 de Octubre,3,0,H
+EC1,06/12/2021,Independiente del Valle,Emelec,3,1,H
+EC1,13/12/2021,Emelec,Independiente del Valle,1,1,D

@@ -1,7 +1,7 @@
 import { rareEvents } from './rare.js';
 import { evaluateValue } from './value.js';
 
-const LEAGUES = ['E0', 'SP1', 'D1', 'I1', 'F1'];
+const LEAGUES = ['E0', 'SP1', 'D1', 'I1', 'F1', 'EC1'];
 const CACHE_TTL = 120;
 
 function allowedOrigin(env, request) {

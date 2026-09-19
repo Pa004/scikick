@@ -1,0 +1,243 @@
+Div,Date,HomeTeam,AwayTeam,FTHG,FTAG,FTR
+EC1,19/02/2022,Emelec,Macará,4,0,H
+EC1,19/02/2022,Mushuc Runa,Universidad Católica (Quito),1,2,A
+EC1,19/02/2022,Liga de Quito,Gualaceo,1,0,H
+EC1,20/02/2022,Delfín,Barcelona SC,0,1,A
+EC1,20/02/2022,Orense,Aucas,1,1,D
+EC1,20/02/2022,Guayaquil City FC,Deportivo Cuenca,2,0,H
+EC1,21/02/2022,Cumbayá,Independiente del Valle,0,1,A
+EC1,22/02/2022,Técnico Universitario,9 de Octubre,2,1,H
+EC1,26/02/2022,Deportivo Cuenca,Liga de Quito,2,0,H
+EC1,26/02/2022,Aucas,Delfín,3,0,H
+EC1,26/02/2022,Universidad Católica (Quito),Guayaquil City FC,1,1,D
+EC1,27/02/2022,Barcelona SC,Técnico Universitario,1,0,H
+EC1,27/02/2022,Gualaceo,Cumbayá,0,1,A
+EC1,27/02/2022,9 de Octubre,Mushuc Runa,2,0,H
+EC1,28/02/2022,Independiente del Valle,Emelec,0,1,A
+EC1,01/03/2022,Macará,Orense,1,0,H
+EC1,05/03/2022,Emelec,Guayaquil City FC,2,2,D
+EC1,05/03/2022,Técnico Universitario,Mushuc Runa,1,3,A
+EC1,05/03/2022,Liga de Quito,Universidad Católica (Quito),2,1,H
+EC1,06/03/2022,9 de Octubre,Barcelona SC,1,3,A
+EC1,06/03/2022,Cumbayá,Orense,1,1,D
+EC1,06/03/2022,Delfín,Macará,1,0,H
+EC1,07/03/2022,Independiente del Valle,Aucas,1,0,H
+EC1,08/03/2022,Deportivo Cuenca,Gualaceo,2,1,H
+EC1,12/03/2022,Aucas,Deportivo Cuenca,0,0,D
+EC1,12/03/2022,Mushuc Runa,Cumbayá,4,2,H
+EC1,12/03/2022,Técnico Universitario,Liga de Quito,1,2,A
+EC1,13/03/2022,Barcelona SC,Independiente del Valle,2,0,H
+EC1,13/03/2022,Orense,9 de Octubre,2,1,H
+EC1,13/03/2022,Universidad Católica (Quito),Macará,2,2,D
+EC1,14/03/2022,Gualaceo,Emelec,2,1,H
+EC1,15/03/2022,Guayaquil City FC,Delfín,1,1,D
+EC1,19/03/2022,Independiente del Valle,Orense,1,1,D
+EC1,19/03/2022,Cumbayá,Técnico Universitario,2,0,H
+EC1,19/03/2022,Liga de Quito,Aucas,4,4,D
+EC1,20/03/2022,Mushuc Runa,Barcelona SC,1,1,D
+EC1,20/03/2022,9 de Octubre,Gualaceo,1,1,D
+EC1,20/03/2022,Macará,Guayaquil City FC,2,0,H
+EC1,21/03/2022,Emelec,Delfín,1,2,A
+EC1,22/03/2022,Deportivo Cuenca,Universidad Católica (Quito),0,2,A
+EC1,02/04/2022,Universidad Católica (Quito),Barcelona SC,1,2,A
+EC1,02/04/2022,Emelec,Liga de Quito,2,0,H
+EC1,02/04/2022,Gualaceo,Independiente del Valle,1,3,A
+EC1,03/04/2022,Aucas,9 de Octubre,1,1,D
+EC1,03/04/2022,Orense,Mushuc Runa,0,0,D
+EC1,03/04/2022,Guayaquil City FC,Técnico Universitario,0,1,A
+EC1,04/04/2022,Delfín,Deportivo Cuenca,0,0,D
+EC1,05/04/2022,Macará,Cumbayá,0,0,D
+EC1,09/04/2022,Técnico Universitario,Gualaceo,1,1,D
+EC1,09/04/2022,Mushuc Runa,Delfín,1,2,A
+EC1,09/04/2022,9 de Octubre,Universidad Católica (Quito),0,4,A
+EC1,10/04/2022,Cumbayá,Liga de Quito,0,2,A
+EC1,10/04/2022,Independiente del Valle,Guayaquil City FC,0,0,D
+EC1,10/04/2022,Deportivo Cuenca,Emelec,2,2,D
+EC1,10/04/2022,Barcelona SC,Orense,2,0,H
+EC1,12/04/2022,Aucas,Macará,2,0,H
+EC1,16/04/2022,Gualaceo,Mushuc Runa,3,2,H
+EC1,16/04/2022,Orense,Técnico Universitario,0,0,D
+EC1,16/04/2022,Delfín,Cumbayá,1,1,D
+EC1,16/04/2022,Guayaquil City FC,Aucas,4,0,H
+EC1,17/04/2022,Universidad Católica (Quito),Independiente del Valle,3,1,H
+EC1,17/04/2022,Macará,Deportivo Cuenca,0,1,A
+EC1,17/04/2022,Emelec,9 de Octubre,2,1,H
+EC1,17/04/2022,Liga de Quito,Barcelona SC,2,0,H
+EC1,20/04/2022,Técnico Universitario,Delfín,1,1,D
+EC1,20/04/2022,Independiente del Valle,Deportivo Cuenca,2,0,H
+EC1,20/04/2022,Orense,Liga de Quito,3,0,H
+EC1,21/04/2022,Barcelona SC,Gualaceo,0,1,A
+EC1,21/04/2022,Mushuc Runa,Macará,0,0,D
+EC1,21/04/2022,Aucas,Universidad Católica (Quito),3,2,H
+EC1,21/04/2022,Cumbayá,Emelec,1,1,D
+EC1,23/04/2022,Gualaceo,Orense,2,1,H
+EC1,23/04/2022,Deportivo Cuenca,9 de Octubre,1,1,D
+EC1,24/04/2022,Delfín,Independiente del Valle,0,1,A
+EC1,24/04/2022,Universidad Católica (Quito),Técnico Universitario,4,1,H
+EC1,24/04/2022,Liga de Quito,Mushuc Runa,3,2,H
+EC1,24/04/2022,Emelec,Aucas,1,0,H
+EC1,25/04/2022,Macará,Barcelona SC,0,1,A
+EC1,26/04/2022,Guayaquil City FC,Cumbayá,4,1,H
+EC1,30/04/2022,Gualaceo,Macará,2,1,H
+EC1,30/04/2022,Mushuc Runa,Guayaquil City FC,2,0,H
+EC1,30/04/2022,9 de Octubre,Delfín,0,1,A
+EC1,01/05/2022,Técnico Universitario,Aucas,0,1,A
+EC1,01/05/2022,Orense,Universidad Católica (Quito),1,0,H
+EC1,01/05/2022,Cumbayá,Deportivo Cuenca,0,1,A
+EC1,02/05/2022,Independiente del Valle,Liga de Quito,1,0,H
+EC1,07/05/2022,Deportivo Cuenca,Técnico Universitario,1,0,H
+EC1,07/05/2022,Delfín,Orense,2,1,H
+EC1,07/05/2022,Aucas,Cumbayá,1,0,H
+EC1,08/05/2022,Emelec,Mushuc Runa,4,0,H
+EC1,08/05/2022,Universidad Católica (Quito),Gualaceo,3,1,H
+EC1,08/05/2022,Liga de Quito,9 de Octubre,2,0,H
+EC1,09/05/2022,Guayaquil City FC,Barcelona SC,1,4,A
+EC1,10/05/2022,Macará,Independiente del Valle,0,1,A
+EC1,11/05/2022,9 de Octubre,Guayaquil City FC,2,2,D
+EC1,12/05/2022,Barcelona SC,Emelec,1,1,D
+EC1,14/05/2022,Universidad Católica (Quito),Cumbayá,1,0,H
+EC1,14/05/2022,Mushuc Runa,Aucas,1,1,D
+EC1,14/05/2022,9 de Octubre,Macará,1,1,D
+EC1,15/05/2022,Liga de Quito,Delfín,3,2,H
+EC1,15/05/2022,Técnico Universitario,Independiente del Valle,2,3,A
+EC1,15/05/2022,Orense,Emelec,2,0,H
+EC1,15/05/2022,Barcelona SC,Deportivo Cuenca,1,1,D
+EC1,17/05/2022,Gualaceo,Guayaquil City FC,2,1,H
+EC1,21/05/2022,Cumbayá,9 de Octubre,3,2,H
+EC1,21/05/2022,Delfín,Gualaceo,1,0,H
+EC1,21/05/2022,Emelec,Universidad Católica (Quito),0,1,A
+EC1,22/05/2022,Guayaquil City FC,Liga de Quito,2,2,D
+EC1,22/05/2022,Macará,Técnico Universitario,3,1,H
+EC1,23/05/2022,Aucas,Barcelona SC,2,1,H
+EC1,23/05/2022,Independiente del Valle,Mushuc Runa,0,1,A
+EC1,24/05/2022,Deportivo Cuenca,Orense,1,1,D
+EC1,28/05/2022,Gualaceo,Aucas,1,4,A
+EC1,28/05/2022,Mushuc Runa,Deportivo Cuenca,1,0,H
+EC1,28/05/2022,Orense,Guayaquil City FC,0,1,A
+EC1,28/05/2022,Técnico Universitario,Emelec,1,1,D
+EC1,29/05/2022,9 de Octubre,Independiente del Valle,1,1,D
+EC1,29/05/2022,Barcelona SC,Cumbayá,4,0,H
+EC1,29/05/2022,Liga de Quito,Macará,3,2,H
+EC1,29/05/2022,Universidad Católica (Quito),Delfín,4,2,H
+EC1,09/07/2022,Universidad Católica (Quito),Mushuc Runa,2,1,H
+EC1,09/07/2022,Aucas,Orense,2,0,H
+EC1,09/07/2022,9 de Octubre,Técnico Universitario,2,0,H
+EC1,10/07/2022,Gualaceo,Liga de Quito,0,1,A
+EC1,10/07/2022,Independiente del Valle,Cumbayá,2,0,H
+EC1,10/07/2022,Macará,Emelec,1,3,A
+EC1,11/07/2022,Barcelona SC,Delfín,0,1,A
+EC1,12/07/2022,Deportivo Cuenca,Guayaquil City FC,1,0,H
+EC1,16/07/2022,Cumbayá,Gualaceo,1,2,A
+EC1,16/07/2022,Orense,Macará,1,1,D
+EC1,16/07/2022,Liga de Quito,Deportivo Cuenca,1,1,D
+EC1,17/07/2022,Técnico Universitario,Barcelona SC,0,2,A
+EC1,17/07/2022,Mushuc Runa,9 de Octubre,3,1,H
+EC1,17/07/2022,Guayaquil City FC,Universidad Católica (Quito),2,0,H
+EC1,18/07/2022,Emelec,Independiente del Valle,2,3,A
+EC1,19/07/2022,Delfín,Aucas,0,0,D
+EC1,23/07/2022,Gualaceo,Deportivo Cuenca,0,0,D
+EC1,23/07/2022,Orense,Cumbayá,3,1,H
+EC1,23/07/2022,Aucas,Independiente del Valle,5,0,H
+EC1,24/07/2022,Guayaquil City FC,Emelec,0,0,D
+EC1,24/07/2022,Mushuc Runa,Técnico Universitario,0,0,D
+EC1,24/07/2022,Universidad Católica (Quito),Liga de Quito,4,0,H
+EC1,25/07/2022,Barcelona SC,9 de Octubre,2,2,D
+EC1,26/07/2022,Macará,Delfín,1,2,A
+EC1,30/07/2022,Deportivo Cuenca,Aucas,1,2,A
+EC1,30/07/2022,Delfín,Guayaquil City FC,1,3,A
+EC1,30/07/2022,Liga de Quito,Técnico Universitario,2,0,H
+EC1,31/07/2022,Independiente del Valle,Barcelona SC,1,1,D
+EC1,31/07/2022,Cumbayá,Mushuc Runa,1,1,D
+EC1,31/07/2022,Macará,Universidad Católica (Quito),1,3,A
+EC1,01/08/2022,Emelec,Gualaceo,2,1,H
+EC1,02/08/2022,9 de Octubre,Orense,0,0,D
+EC1,06/08/2022,Técnico Universitario,Cumbayá,3,3,D
+EC1,06/08/2022,Orense,Independiente del Valle,1,2,A
+EC1,06/08/2022,Guayaquil City FC,Macará,0,0,D
+EC1,07/08/2022,Delfín,Emelec,0,3,A
+EC1,07/08/2022,Aucas,Liga de Quito,1,1,D
+EC1,07/08/2022,Universidad Católica (Quito),Deportivo Cuenca,0,2,A
+EC1,08/08/2022,Barcelona SC,Mushuc Runa,4,1,H
+EC1,09/08/2022,Gualaceo,9 de Octubre,1,0,H
+EC1,13/08/2022,Mushuc Runa,Orense,1,1,D
+EC1,13/08/2022,Independiente del Valle,Gualaceo,2,0,H
+EC1,13/08/2022,9 de Octubre,Aucas,1,2,A
+EC1,14/08/2022,Barcelona SC,Universidad Católica (Quito),0,0,D
+EC1,14/08/2022,Cumbayá,Macará,1,0,H
+EC1,14/08/2022,Técnico Universitario,Guayaquil City FC,3,1,H
+EC1,14/08/2022,Liga de Quito,Emelec,2,0,H
+EC1,16/08/2022,Deportivo Cuenca,Delfín,3,2,H
+EC1,20/08/2022,Gualaceo,Técnico Universitario,0,3,A
+EC1,20/08/2022,Orense,Barcelona SC,1,2,A
+EC1,20/08/2022,Liga de Quito,Cumbayá,1,0,H
+EC1,21/08/2022,Macará,Aucas,1,1,D
+EC1,23/08/2022,Guayaquil City FC,Independiente del Valle,0,1,A
+EC1,27/08/2022,Deportivo Cuenca,Macará,1,1,D
+EC1,27/08/2022,Cumbayá,Delfín,2,1,H
+EC1,27/08/2022,Aucas,Guayaquil City FC,2,1,H
+EC1,28/08/2022,9 de Octubre,Emelec,0,3,A
+EC1,28/08/2022,Mushuc Runa,Gualaceo,2,0,H
+EC1,28/08/2022,Independiente del Valle,Universidad Católica (Quito),1,2,A
+EC1,29/08/2022,Barcelona SC,Liga de Quito,1,1,D
+EC1,30/08/2022,Técnico Universitario,Orense,2,0,H
+EC1,03/09/2022,Emelec,Cumbayá,1,0,H
+EC1,03/09/2022,Deportivo Cuenca,Independiente del Valle,2,1,H
+EC1,03/09/2022,Guayaquil City FC,9 de Octubre,1,1,D
+EC1,04/09/2022,Gualaceo,Barcelona SC,2,1,H
+EC1,04/09/2022,Macará,Mushuc Runa,3,0,H
+EC1,04/09/2022,Liga de Quito,Orense,1,2,A
+EC1,05/09/2022,Universidad Católica (Quito),Aucas,1,2,A
+EC1,06/09/2022,Delfín,Técnico Universitario,0,0,D
+EC1,10/09/2022,Mushuc Runa,Liga de Quito,1,2,A
+EC1,10/09/2022,Orense,Gualaceo,4,1,H
+EC1,10/09/2022,Cumbayá,Guayaquil City FC,3,0,H
+EC1,11/09/2022,Barcelona SC,Macará,5,3,H
+EC1,11/09/2022,Independiente del Valle,Delfín,2,0,H
+EC1,11/09/2022,Aucas,Emelec,1,1,D
+EC1,12/09/2022,9 de Octubre,Deportivo Cuenca,1,0,H
+EC1,13/09/2022,Técnico Universitario,Universidad Católica (Quito),1,1,D
+EC1,17/09/2022,Deportivo Cuenca,Cumbayá,1,1,D
+EC1,17/09/2022,Macará,Gualaceo,1,1,D
+EC1,17/09/2022,Delfín,9 de Octubre,3,1,H
+EC1,17/09/2022,Liga de Quito,Independiente del Valle,2,2,D
+EC1,18/09/2022,Universidad Católica (Quito),Orense,2,0,H
+EC1,18/09/2022,Aucas,Técnico Universitario,5,2,H
+EC1,19/09/2022,Emelec,Barcelona SC,1,3,A
+EC1,20/09/2022,Guayaquil City FC,Mushuc Runa,4,1,H
+EC1,24/09/2022,Universidad Católica (Quito),9 de Octubre,3,0,H
+EC1,25/09/2022,Independiente del Valle,Macará,1,0,H
+EC1,25/09/2022,Delfín,Mushuc Runa,0,0,D
+EC1,25/09/2022,Emelec,Deportivo Cuenca,3,1,H
+EC1,01/10/2022,Gualaceo,Universidad Católica (Quito),0,1,A
+EC1,01/10/2022,9 de Octubre,Liga de Quito,2,2,D
+EC1,02/10/2022,Mushuc Runa,Emelec,0,0,D
+EC1,02/10/2022,Orense,Delfín,1,1,D
+EC1,02/10/2022,Cumbayá,Aucas,0,0,D
+EC1,02/10/2022,Barcelona SC,Guayaquil City FC,1,1,D
+EC1,04/10/2022,Técnico Universitario,Deportivo Cuenca,1,0,H
+EC1,08/10/2022,Delfín,Liga de Quito,3,0,H
+EC1,08/10/2022,Cumbayá,Universidad Católica (Quito),0,0,D
+EC1,08/10/2022,Macará,9 de Octubre,3,1,H
+EC1,08/10/2022,Deportivo Cuenca,Barcelona SC,2,1,H
+EC1,09/10/2022,Guayaquil City FC,Gualaceo,1,0,H
+EC1,09/10/2022,Aucas,Mushuc Runa,0,0,D
+EC1,09/10/2022,Emelec,Orense,0,0,D
+EC1,11/10/2022,Independiente del Valle,Técnico Universitario,0,1,A
+EC1,15/10/2022,Gualaceo,Delfín,2,1,H
+EC1,15/10/2022,Liga de Quito,Guayaquil City FC,2,0,H
+EC1,15/10/2022,Orense,Deportivo Cuenca,1,0,H
+EC1,16/10/2022,Barcelona SC,Aucas,0,2,A
+EC1,16/10/2022,Mushuc Runa,Independiente del Valle,0,1,A
+EC1,16/10/2022,Universidad Católica (Quito),Emelec,2,0,H
+EC1,18/10/2022,9 de Octubre,Cumbayá,0,1,A
+EC1,18/10/2022,Técnico Universitario,Macará,3,1,H
+EC1,22/10/2022,Deportivo Cuenca,Mushuc Runa,3,1,H
+EC1,22/10/2022,Macará,Liga de Quito,0,5,A
+EC1,22/10/2022,Emelec,Técnico Universitario,3,1,H
+EC1,22/10/2022,Cumbayá,Barcelona SC,1,1,D
+EC1,23/10/2022,Independiente del Valle,9 de Octubre,1,0,H
+EC1,23/10/2022,Aucas,Gualaceo,3,0,H
+EC1,23/10/2022,Delfín,Universidad Católica (Quito),2,1,H
+EC1,23/10/2022,Guayaquil City FC,Orense,1,1,D
+EC1,06/11/2022,Barcelona SC,Aucas,0,1,A
+EC1,13/11/2022,Aucas,Barcelona SC,0,0,D

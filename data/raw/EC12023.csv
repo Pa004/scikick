@@ -1,0 +1,243 @@
+Div,Date,HomeTeam,AwayTeam,FTHG,FTAG,FTR
+EC1,25/02/2023,Deportivo Cuenca,Liga de Quito,2,0,H
+EC1,25/02/2023,Independiente del Valle,Mushuc Runa,3,1,H
+EC1,25/02/2023,Guayaquil City FC,Cumbayá,1,1,D
+EC1,26/02/2023,Gualaceo,Barcelona SC,2,1,H
+EC1,26/02/2023,Técnico Universitario,Universidad Católica (Quito),4,1,H
+EC1,26/02/2023,Aucas,El Nacional,0,2,A
+EC1,27/02/2023,Emelec,Libertad (Ecuador),2,0,H
+EC1,28/02/2023,Delfín,Orense,1,1,D
+EC1,04/03/2023,Libertad (Ecuador),Deportivo Cuenca,3,1,H
+EC1,04/03/2023,El Nacional,Técnico Universitario,3,2,H
+EC1,04/03/2023,Liga de Quito,Aucas,1,1,D
+EC1,05/03/2023,Barcelona SC,Delfín,5,0,H
+EC1,05/03/2023,Mushuc Runa,Gualaceo,2,1,H
+EC1,05/03/2023,Universidad Católica (Quito),Guayaquil City FC,3,0,H
+EC1,06/03/2023,Orense,Emelec,2,1,H
+EC1,07/03/2023,Cumbayá,Independiente del Valle,1,0,H
+EC1,18/03/2023,Gualaceo,Orense,2,1,H
+EC1,18/03/2023,Delfín,Libertad (Ecuador),3,2,H
+EC1,18/03/2023,Guayaquil City FC,Mushuc Runa,4,1,H
+EC1,19/03/2023,Independiente del Valle,Barcelona SC,1,0,H
+EC1,19/03/2023,Aucas,Universidad Católica (Quito),4,1,H
+EC1,19/03/2023,El Nacional,Liga de Quito,0,2,A
+EC1,20/03/2023,Emelec,Técnico Universitario,1,0,H
+EC1,21/03/2023,Deportivo Cuenca,Cumbayá,1,0,H
+EC1,31/03/2023,Universidad Católica (Quito),Independiente del Valle,2,3,A
+EC1,01/04/2023,Liga de Quito,Gualaceo,6,1,H
+EC1,01/04/2023,Libertad (Ecuador),Aucas,2,2,D
+EC1,01/04/2023,Barcelona SC,Mushuc Runa,1,0,H
+EC1,02/04/2023,Delfín,Emelec,3,2,H
+EC1,02/04/2023,Técnico Universitario,Deportivo Cuenca,3,0,H
+EC1,02/04/2023,Cumbayá,El Nacional,2,0,H
+EC1,03/04/2023,Orense,Guayaquil City FC,3,2,H
+EC1,08/04/2023,Orense,Deportivo Cuenca,2,0,H
+EC1,08/04/2023,Gualaceo,Técnico Universitario,1,1,D
+EC1,08/04/2023,El Nacional,Universidad Católica (Quito),1,2,A
+EC1,08/04/2023,Independiente del Valle,Delfín,3,0,H
+EC1,09/04/2023,Mushuc Runa,Libertad (Ecuador),2,1,H
+EC1,09/04/2023,Guayaquil City FC,Liga de Quito,1,2,A
+EC1,09/04/2023,Aucas,Emelec,2,1,H
+EC1,11/04/2023,Barcelona SC,Cumbayá,4,1,H
+EC1,15/04/2023,Libertad (Ecuador),Independiente del Valle,0,0,D
+EC1,15/04/2023,Técnico Universitario,Aucas,0,1,A
+EC1,15/04/2023,Deportivo Cuenca,Guayaquil City FC,4,1,H
+EC1,15/04/2023,Liga de Quito,Barcelona SC,0,1,A
+EC1,16/04/2023,Cumbayá,Gualaceo,1,0,H
+EC1,16/04/2023,Delfín,Mushuc Runa,3,0,H
+EC1,17/04/2023,Emelec,El Nacional,1,2,A
+EC1,18/04/2023,Universidad Católica (Quito),Orense,1,1,D
+EC1,22/04/2023,Guayaquil City FC,Delfín,2,1,H
+EC1,22/04/2023,Gualaceo,Universidad Católica (Quito),1,0,H
+EC1,22/04/2023,Independiente del Valle,Técnico Universitario,1,0,H
+EC1,22/04/2023,Orense,Liga de Quito,2,1,H
+EC1,23/04/2023,El Nacional,Libertad (Ecuador),4,2,H
+EC1,23/04/2023,Barcelona SC,Deportivo Cuenca,2,1,H
+EC1,23/04/2023,Mushuc Runa,Emelec,0,0,D
+EC1,25/04/2023,Aucas,Cumbayá,2,1,H
+EC1,28/04/2023,Aucas,Guayaquil City FC,1,0,H
+EC1,29/04/2023,Emelec,Independiente del Valle,2,3,A
+EC1,29/04/2023,Deportivo Cuenca,Gualaceo,1,2,A
+EC1,29/04/2023,Universidad Católica (Quito),Liga de Quito,0,4,A
+EC1,29/04/2023,Técnico Universitario,Barcelona SC,2,2,D
+EC1,30/04/2023,Cumbayá,Mushuc Runa,1,1,D
+EC1,30/04/2023,Libertad (Ecuador),Orense,0,0,D
+EC1,30/04/2023,Delfín,El Nacional,2,0,H
+EC1,06/05/2023,Orense,Técnico Universitario,2,1,H
+EC1,06/05/2023,Universidad Católica (Quito),Deportivo Cuenca,1,0,H
+EC1,06/05/2023,Guayaquil City FC,Libertad (Ecuador),1,1,D
+EC1,06/05/2023,Gualaceo,Independiente del Valle,1,2,A
+EC1,07/05/2023,Mushuc Runa,El Nacional,0,1,A
+EC1,07/05/2023,Cumbayá,Emelec,0,0,D
+EC1,07/05/2023,Barcelona SC,Aucas,5,1,H
+EC1,09/05/2023,Liga de Quito,Delfín,1,1,D
+EC1,13/05/2023,Deportivo Cuenca,Mushuc Runa,3,0,H
+EC1,13/05/2023,El Nacional,Orense,3,1,H
+EC1,13/05/2023,Aucas,Gualaceo,1,0,H
+EC1,13/05/2023,Libertad (Ecuador),Barcelona SC,2,2,D
+EC1,14/05/2023,Delfín,Universidad Católica (Quito),0,0,D
+EC1,14/05/2023,Independiente del Valle,Guayaquil City FC,4,0,H
+EC1,14/05/2023,Emelec,Liga de Quito,1,1,D
+EC1,16/05/2023,Técnico Universitario,Cumbayá,0,0,D
+EC1,19/05/2023,Liga de Quito,Técnico Universitario,2,1,H
+EC1,20/05/2023,Barcelona SC,Orense,2,0,H
+EC1,20/05/2023,Mushuc Runa,Aucas,0,0,D
+EC1,20/05/2023,Deportivo Cuenca,Independiente del Valle,1,2,A
+EC1,20/05/2023,Universidad Católica (Quito),Emelec,3,2,H
+EC1,21/05/2023,Gualaceo,Libertad (Ecuador),1,1,D
+EC1,21/05/2023,Cumbayá,Delfín,0,1,A
+EC1,21/05/2023,Guayaquil City FC,El Nacional,3,1,H
+EC1,27/05/2023,Libertad (Ecuador),Universidad Católica (Quito),2,2,D
+EC1,27/05/2023,Técnico Universitario,Mushuc Runa,1,0,H
+EC1,27/05/2023,Orense,Cumbayá,1,0,H
+EC1,27/05/2023,Delfín,Gualaceo,1,0,H
+EC1,28/05/2023,Aucas,Deportivo Cuenca,0,2,A
+EC1,28/05/2023,Independiente del Valle,Liga de Quito,2,3,A
+EC1,28/05/2023,El Nacional,Barcelona SC,4,1,H
+EC1,30/05/2023,Emelec,Guayaquil City FC,0,0,D
+EC1,02/06/2023,Independiente del Valle,Aucas,2,0,H
+EC1,03/06/2023,Liga de Quito,Libertad (Ecuador),4,2,H
+EC1,03/06/2023,Mushuc Runa,Orense,3,1,H
+EC1,03/06/2023,Barcelona SC,Emelec,1,3,A
+EC1,04/06/2023,Cumbayá,Universidad Católica (Quito),0,1,A
+EC1,04/06/2023,Técnico Universitario,Guayaquil City FC,3,0,H
+EC1,04/06/2023,Gualaceo,El Nacional,3,4,A
+EC1,06/06/2023,Deportivo Cuenca,Delfín,4,0,H
+EC1,10/06/2023,Universidad Católica (Quito),Mushuc Runa,3,2,H
+EC1,10/06/2023,Libertad (Ecuador),Técnico Universitario,1,0,H
+EC1,10/06/2023,Liga de Quito,Cumbayá,0,0,D
+EC1,10/06/2023,El Nacional,Deportivo Cuenca,3,1,H
+EC1,11/06/2023,Delfín,Aucas,2,0,H
+EC1,11/06/2023,Guayaquil City FC,Barcelona SC,1,2,A
+EC1,11/06/2023,Orense,Independiente del Valle,0,2,A
+EC1,13/06/2023,Emelec,Gualaceo,0,0,D
+EC1,17/06/2023,Independiente del Valle,El Nacional,3,4,A
+EC1,17/06/2023,Cumbayá,Libertad (Ecuador),2,1,H
+EC1,17/06/2023,Gualaceo,Guayaquil City FC,2,1,H
+EC1,17/06/2023,Mushuc Runa,Liga de Quito,2,2,D
+EC1,18/06/2023,Deportivo Cuenca,Emelec,3,2,H
+EC1,18/06/2023,Barcelona SC,Universidad Católica (Quito),1,2,A
+EC1,20/06/2023,Técnico Universitario,Delfín,3,0,H
+EC1,24/06/2023,Aucas,Orense,2,0,H
+EC1,05/08/2023,Libertad (Ecuador),Emelec,0,0,D
+EC1,05/08/2023,Universidad Católica (Quito),Técnico Universitario,0,0,D
+EC1,05/08/2023,Orense,Delfín,0,0,D
+EC1,05/08/2023,El Nacional,Aucas,2,2,D
+EC1,06/08/2023,Mushuc Runa,Independiente del Valle,1,0,H
+EC1,06/08/2023,Cumbayá,Guayaquil City FC,2,2,D
+EC1,06/08/2023,Barcelona SC,Gualaceo,2,0,H
+EC1,08/08/2023,Liga de Quito,Deportivo Cuenca,2,0,H
+EC1,11/08/2023,Guayaquil City FC,Universidad Católica (Quito),0,0,D
+EC1,12/08/2023,Gualaceo,Mushuc Runa,0,0,D
+EC1,12/08/2023,Deportivo Cuenca,Libertad (Ecuador),2,1,H
+EC1,12/08/2023,Técnico Universitario,El Nacional,3,3,D
+EC1,12/08/2023,Delfín,Barcelona SC,1,1,D
+EC1,13/08/2023,Independiente del Valle,Cumbayá,2,0,H
+EC1,13/08/2023,Emelec,Orense,0,0,D
+EC1,13/08/2023,Aucas,Liga de Quito,0,0,D
+EC1,16/08/2023,Mushuc Runa,Guayaquil City FC,3,0,H
+EC1,17/08/2023,Orense,Gualaceo,2,0,H
+EC1,17/08/2023,Libertad (Ecuador),Delfín,1,3,A
+EC1,17/08/2023,Universidad Católica (Quito),Aucas,2,2,D
+EC1,18/08/2023,Técnico Universitario,Emelec,0,0,D
+EC1,18/08/2023,Cumbayá,Deportivo Cuenca,1,1,D
+EC1,18/08/2023,Liga de Quito,El Nacional,0,0,D
+EC1,19/08/2023,Barcelona SC,Independiente del Valle,1,1,D
+EC1,26/08/2023,El Nacional,Cumbayá,2,2,D
+EC1,26/08/2023,Independiente del Valle,Universidad Católica (Quito),0,1,A
+EC1,26/08/2023,Guayaquil City FC,Orense,1,0,H
+EC1,26/08/2023,Mushuc Runa,Barcelona SC,2,2,D
+EC1,27/08/2023,Aucas,Libertad (Ecuador),1,2,A
+EC1,27/08/2023,Emelec,Delfín,0,1,A
+EC1,27/08/2023,Gualaceo,Liga de Quito,1,3,A
+EC1,29/08/2023,Deportivo Cuenca,Técnico Universitario,1,1,D
+EC1,02/09/2023,Delfín,Independiente del Valle,1,0,H
+EC1,02/09/2023,Libertad (Ecuador),Mushuc Runa,0,1,A
+EC1,02/09/2023,Universidad Católica (Quito),El Nacional,1,1,D
+EC1,02/09/2023,Emelec,Aucas,0,0,D
+EC1,03/09/2023,Deportivo Cuenca,Orense,1,0,H
+EC1,03/09/2023,Técnico Universitario,Gualaceo,4,0,H
+EC1,03/09/2023,Cumbayá,Barcelona SC,2,2,D
+EC1,05/09/2023,Liga de Quito,Guayaquil City FC,2,0,H
+EC1,16/09/2023,Orense,Universidad Católica (Quito),1,2,A
+EC1,16/09/2023,Mushuc Runa,Delfín,2,0,H
+EC1,16/09/2023,Guayaquil City FC,Deportivo Cuenca,0,0,D
+EC1,16/09/2023,El Nacional,Emelec,1,1,D
+EC1,17/09/2023,Aucas,Técnico Universitario,2,4,A
+EC1,17/09/2023,Independiente del Valle,Libertad (Ecuador),2,0,H
+EC1,17/09/2023,Barcelona SC,Liga de Quito,1,0,H
+EC1,19/09/2023,Gualaceo,Cumbayá,0,3,A
+EC1,23/09/2023,Liga de Quito,Orense,1,0,H
+EC1,23/09/2023,Universidad Católica (Quito),Gualaceo,0,0,D
+EC1,23/09/2023,Emelec,Mushuc Runa,3,1,H
+EC1,23/09/2023,Técnico Universitario,Independiente del Valle,2,2,D
+EC1,24/09/2023,Cumbayá,Aucas,1,1,D
+EC1,24/09/2023,Delfín,Guayaquil City FC,1,0,H
+EC1,25/09/2023,Deportivo Cuenca,Barcelona SC,1,2,A
+EC1,26/09/2023,Libertad (Ecuador),El Nacional,0,1,A
+EC1,30/09/2023,Gualaceo,Deportivo Cuenca,1,1,D
+EC1,30/09/2023,Mushuc Runa,Cumbayá,1,1,D
+EC1,30/09/2023,El Nacional,Delfín,2,2,D
+EC1,30/09/2023,Independiente del Valle,Emelec,2,1,H
+EC1,01/10/2023,Guayaquil City FC,Aucas,0,1,A
+EC1,01/10/2023,Orense,Libertad (Ecuador),3,0,H
+EC1,01/10/2023,Barcelona SC,Técnico Universitario,1,0,H
+EC1,07/10/2023,Deportivo Cuenca,Universidad Católica (Quito),2,3,A
+EC1,07/10/2023,Técnico Universitario,Orense,2,1,H
+EC1,07/10/2023,Emelec,Cumbayá,3,0,H
+EC1,07/10/2023,Aucas,Barcelona SC,3,2,H
+EC1,08/10/2023,El Nacional,Mushuc Runa,2,0,H
+EC1,08/10/2023,Independiente del Valle,Gualaceo,2,0,H
+EC1,08/10/2023,Delfín,Liga de Quito,0,0,D
+EC1,10/10/2023,Libertad (Ecuador),Guayaquil City FC,1,0,H
+EC1,21/10/2023,Orense,El Nacional,1,1,D
+EC1,21/10/2023,Cumbayá,Técnico Universitario,0,1,A
+EC1,21/10/2023,Mushuc Runa,Deportivo Cuenca,1,1,D
+EC1,21/10/2023,Barcelona SC,Libertad (Ecuador),1,0,H
+EC1,22/10/2023,Gualaceo,Aucas,1,2,A
+EC1,22/10/2023,Guayaquil City FC,Independiente del Valle,0,2,A
+EC1,23/10/2023,Liga de Quito,Emelec,1,0,H
+EC1,24/10/2023,Universidad Católica (Quito),Delfín,2,2,D
+EC1,28/10/2023,Libertad (Ecuador),Gualaceo,3,0,H
+EC1,28/10/2023,Independiente del Valle,Deportivo Cuenca,2,0,H
+EC1,28/10/2023,Emelec,Universidad Católica (Quito),2,1,H
+EC1,29/10/2023,Delfín,Cumbayá,4,0,H
+EC1,29/10/2023,Aucas,Mushuc Runa,4,0,H
+EC1,29/10/2023,Orense,Barcelona SC,2,3,A
+EC1,31/10/2023,El Nacional,Guayaquil City FC,2,0,H
+EC1,02/11/2023,Liga de Quito,Universidad Católica (Quito),1,0,H
+EC1,04/11/2023,Deportivo Cuenca,Aucas,0,0,D
+EC1,04/11/2023,Gualaceo,Delfín,2,2,D
+EC1,04/11/2023,Guayaquil City FC,Emelec,0,0,D
+EC1,04/11/2023,Liga de Quito,Independiente del Valle,2,0,H
+EC1,05/11/2023,Mushuc Runa,Técnico Universitario,1,0,H
+EC1,05/11/2023,Cumbayá,Orense,0,1,A
+EC1,05/11/2023,Barcelona SC,El Nacional,3,2,H
+EC1,07/11/2023,Universidad Católica (Quito),Libertad (Ecuador),0,0,D
+EC1,09/11/2023,Técnico Universitario,Liga de Quito,0,2,A
+EC1,11/11/2023,Orense,Mushuc Runa,1,0,H
+EC1,11/11/2023,Universidad Católica (Quito),Cumbayá,1,0,H
+EC1,11/11/2023,Guayaquil City FC,Técnico Universitario,1,0,H
+EC1,11/11/2023,Aucas,Independiente del Valle,2,0,H
+EC1,12/11/2023,El Nacional,Gualaceo,4,2,H
+EC1,12/11/2023,Libertad (Ecuador),Liga de Quito,0,2,A
+EC1,12/11/2023,Emelec,Barcelona SC,0,0,D
+EC1,14/11/2023,Delfín,Deportivo Cuenca,0,0,D
+EC1,25/11/2023,Aucas,Delfín,0,0,D
+EC1,25/11/2023,Deportivo Cuenca,El Nacional,1,0,H
+EC1,25/11/2023,Independiente del Valle,Orense,2,2,D
+EC1,25/11/2023,Mushuc Runa,Universidad Católica (Quito),0,2,A
+EC1,26/11/2023,Barcelona SC,Guayaquil City FC,2,1,H
+EC1,26/11/2023,Cumbayá,Liga de Quito,1,2,A
+EC1,26/11/2023,Gualaceo,Emelec,0,2,A
+EC1,26/11/2023,Técnico Universitario,Libertad (Ecuador),1,1,D
+EC1,02/12/2023,El Nacional,Independiente del Valle,2,1,H
+EC1,02/12/2023,Guayaquil City FC,Gualaceo,0,2,A
+EC1,02/12/2023,Libertad (Ecuador),Cumbayá,3,1,H
+EC1,02/12/2023,Liga de Quito,Mushuc Runa,3,1,H
+EC1,03/12/2023,Delfín,Técnico Universitario,2,2,D
+EC1,03/12/2023,Emelec,Deportivo Cuenca,2,1,H
+EC1,03/12/2023,Orense,Aucas,1,2,A
+EC1,03/12/2023,Universidad Católica (Quito),Barcelona SC,0,1,A
+EC1,10/12/2023,Independiente del Valle,Liga de Quito,0,0,D
+EC1,17/12/2023,Liga de Quito,Independiente del Valle,1,1,D

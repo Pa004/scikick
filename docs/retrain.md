@@ -7,6 +7,9 @@ retrains, season-file checks, and judging whether a cycle regressed.
 
 ## 0. Check for the new season file (5 seconds, weekly)
 
+EC1 needs no check: ESPN serves history back to 2014 and the current year
+re-crawls every run (`data/raw/EC1*.csv` committed, current year ignored).
+
 ```powershell
 curl.exe --insecure -s -o NUL -w "%{http_code}" https://www.football-data.co.uk/mmz4281/2627/E0.csv
 ```
@@ -55,6 +58,7 @@ loader picks the newest remaining by mtime).
 | D1 | 0.6285 | 2026-09-19 | 16 |
 | I1 | 0.5495 | 2026-09-19 | 30 |
 | F1 | 0.6151 | 2026-09-19 | 11 |
+| EC1 | 0.5698 | 2026-09-19 | 23 |
 
 Note: test sets are small (27–37 matches), so single retrains are noisy. Judge
 trends over 2–3 cycles, not one number.

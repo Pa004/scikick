@@ -9,6 +9,9 @@ pydantic-settings==2.15.0
 python-dotenv==1.2.3
 httpx==0.28.1
 requests==2.34.2
+# Browser-TLS impersonation for Akamai-fronted sources (ESPN); plain
+# requests/httpx get 403. Pinned impersonation string in espn.py.
+curl_cffi==0.16.3
 
 # Data / ML
 pandas==3.0.5
