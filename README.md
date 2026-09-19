@@ -51,7 +51,7 @@ FastAPI + SQLite (`GET /fixtures` with `upcoming` filter, `/predict/{id}`, `POST
 
 ## Health
 
-- **Tested**: 364 backend tests / 53 files (pytest) + 226 frontend tests / 33 files (vitest); `oxlint` + `vite build` green on every PR via split CI.
+- **Tested**: 374 backend tests / 54 files (pytest) + 226 frontend tests / 33 files (vitest); `oxlint` + `vite build` green on every PR via split CI.
 - **Reproducible**: every train persists params, strengths and metrics (`data/runs/<league>/`); monthly ops in `docs/retrain.md`. CPU-only, free-tier sources.
 
 ## Quick start
