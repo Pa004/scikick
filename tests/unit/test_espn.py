@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from app.ingestion.adapters import espn
 
@@ -76,3 +76,31 @@ def test_download_history_unknown_league(tmp_path):
 
     with pytest.raises(ValueError, match="Unknown league code"):
         espn.download_history("XX", 2026, tmp_path)
+
+
+def test_get_json_leaves_ua_to_impersonation():
+    # A hand-written UA next to a browser TLS fingerprint trips ESPN's 403.
+    assert "User-Agent" not in espn.HEADERS
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.json.return_value = {"events": []}
+    with patch("curl_cffi.requests.get", return_value=resp) as mock_get:
+        assert espn._get_json("https://example.test/scoreboard") == {"events": []}
+    _, kwargs = mock_get.call_args
+    assert kwargs["impersonate"] == espn.IMPERSONATE
+    assert "Referer" in kwargs["headers"]
+
+
+def test_get_json_retries_with_exponential_backoff():
+    def resp(status):
+        r = MagicMock()
+        r.status_code = status
+        r.raise_for_status.side_effect = Exception("HTTP %d" % status) if status >= 400 else None
+        r.json.return_value = {"events": []}
+        return r
+
+    with patch("curl_cffi.requests.get", side_effect=[resp(500), resp(500), resp(200)]) as mock_get:
+        with patch("app.ingestion.adapters.espn.time.sleep") as sleep:
+            assert espn._get_json("https://example.test/scoreboard") == {"events": []}
+    assert mock_get.call_count == 3
+    assert [c.args[0] for c in sleep.call_args_list] == [2, 4]

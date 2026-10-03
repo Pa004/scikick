@@ -1,9 +1,12 @@
 """ESPN scoreboard adapter (currently: Ecuador Liga Pro, EC1).
 
-Free, keyless, but bot-sensitive: use a research UA, never a full browser
-string. Returns the same fixture-dict shape as the other scheduled adapters
-(api_fixture_id, date, home_team, away_team, crests, league) so
-_insert_future_fixtures consumes it unchanged.
+Free, keyless, but bot-sensitive: Akamai compares the TLS/JA3 fingerprint
+against the User-Agent, so a hand-written UA alongside an impersonated
+browser handshake gets 403'd (GitHub runners included). Let curl_cffi own
+the UA and send only headers it does not fill in. Returns the same
+fixture-dict shape as the other scheduled adapters (api_fixture_id, date,
+home_team, away_team, crests, league) so _insert_future_fixtures consumes
+it unchanged.
 """
 from __future__ import annotations
 
@@ -17,7 +20,13 @@ logger = logging.getLogger(__name__)
 from app.ingestion.adapters.football_data_org import normalize_team_name
 
 BASE_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer"
-HEADERS = {"User-Agent": "Mozilla/5.0 (research)"}
+IMPERSONATE = "chrome150"
+HEADERS = {
+    "Accept": "application/json",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://www.espn.com/",
+}
+RETRY_BASE_WAIT = 2
 
 ESPN_SLUG_MAP = {
     "EC1": "ecu.1",
@@ -31,10 +40,10 @@ def _get_json(url: str, timeout: int = 20) -> dict:
     from curl_cffi import requests as impersonated
 
     last: Exception | None = None
-    for _ in range(3):
+    for attempt in range(3):
         try:
             resp = impersonated.get(
-                url, headers=HEADERS, timeout=timeout, impersonate="chrome120"
+                url, headers=HEADERS, timeout=timeout, impersonate=IMPERSONATE
             )
             # HTTP 400 is deterministic (e.g. unsupported date range):
             # retrying never helps.
@@ -46,7 +55,8 @@ def _get_json(url: str, timeout: int = 20) -> dict:
             raise
         except Exception as exc:
             last = exc
-            time.sleep(2)
+            if attempt < 2:
+                time.sleep(RETRY_BASE_WAIT * (2 ** attempt))
     raise ConnectionError(f"ESPN request failed for {url}: {last}")
 
 
