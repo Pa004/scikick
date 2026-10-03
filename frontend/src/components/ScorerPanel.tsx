@@ -20,6 +20,8 @@ import { Table, TableRegion, Td, Th } from './ui/table'
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 const VISIBLE_COUNT = 5
+// Shared fallback so `scorer.scorers ?? EMPTY` keeps a stable reference across renders.
+const EMPTY_SCORERS: ScorerPlayer[] = []
 
 interface ScorerPanelProps {
   scorer: ScorerPrediction
@@ -90,7 +92,7 @@ function ScorerRow({ s }: { s: ScorerPlayer }) {
 
 export default function ScorerPanel({ scorer }: ScorerPanelProps) {
   const { t } = useLanguage()
-  const list = scorer.scorers ?? []
+  const list = scorer.scorers ?? EMPTY_SCORERS
   const [sortKey, setSortKey] = useState<ScorerSortKey>('prob_anytime')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [team, setTeam] = useState<TeamFilter>('both')
