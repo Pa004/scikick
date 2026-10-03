@@ -90,8 +90,9 @@ export default function ValueChecker({
     return () => {
       cancelled = true
     }
-    // autoResult is set once per mount (bundle already loaded when rendered)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // autoResult is set once per mount (bundle already loaded when rendered);
+    // re-running would wipe odds the user already typed.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- deliberate mount-only fetch
   }, [fixtureId])
 
   const labels: Record<Side, string> = { home: displayTeam(home), draw: t('draw'), away: displayTeam(away) }

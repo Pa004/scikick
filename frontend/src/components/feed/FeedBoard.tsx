@@ -110,14 +110,17 @@ export function FeedBoard({
       }
     })
     // Only on first mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // hasStoredValue reads a mutable module cache that the prefetch effect below
+  // fills in, so valuesReady must re-run the filter even though it is not read
+  // inside the callback.
   const filtered = useMemo(() => {
     return fixtures.filter(f => {
       if (showValue && hasStoredValue(f.id) !== true) return false
       return true
     })
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- external cache is the real dep
   }, [fixtures, showValue, valuesReady])
 
   const pick = useMemo(() => selectPickOfDay(filtered), [filtered])
@@ -188,8 +191,9 @@ export function FeedBoard({
     } else {
       setDeepLinkMiss(true)
     }
-    // Only on first load of this league feed
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Only on first load of this league feed: currentPage is read to land the
+    // deep link on the right page and must not re-trigger the effect.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- run once per feed load
   }, [loading, filtered, currentPage])
 
   const saveStateAndGo = (id: number) => {
