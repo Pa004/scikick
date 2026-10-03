@@ -59,10 +59,10 @@ describe('FeedBoard', () => {
     expect(screen.getByText('Showing 1-12 of 25')).toBeDefined()
     expect(screen.queryByRole('heading', { name: /Home13/ })).toBeNull()
     expect(screen.queryByRole('heading', { name: /Home25/ })).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Página 2 de 3' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Page 2 of 3' }))
     expect(screen.getByText('Showing 13-24 of 25')).toBeDefined()
     expect(screen.getByRole('heading', { name: /Home13/ })).toBeDefined()
-    fireEvent.click(screen.getByRole('button', { name: 'Página 3 de 3' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Page 3 of 3' }))
     expect(screen.getByText('Showing 25-25 of 25')).toBeDefined()
     expect(screen.getByRole('heading', { name: /Home25/ })).toBeDefined()
   })
@@ -120,7 +120,7 @@ describe('FeedBoard', () => {
 
   it('resets pagination when toggling filters', () => {
     const { rerender } = renderBoard(makeFixtures(25))
-    fireEvent.click(screen.getByRole('button', { name: 'Página 2 de 3' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Page 2 of 3' }))
     expect(screen.getByText('Showing 13-24 of 25')).toBeDefined()
     const rerenderBoard = (show: boolean) => rerender(
       <MemoryRouter initialEntries={['/']}>

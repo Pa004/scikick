@@ -146,18 +146,18 @@ export function MatchPage() {
             <h2 className="border-b border-border pb-2 text-xs font-semibold tracking-[0.08em] text-faint uppercase">{t('matchMeta')}</h2>
             <div className="mt-3 flex flex-col gap-4">
               <div className="flex flex-col gap-1 border-l-2 border-border pl-3">
-                <span className="text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">Serie</span>
+                <span className="text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">{t('metaCompetition')}</span>
                 <p className="text-sm font-semibold text-foreground">{leagueName(meta.league)}</p>
               </div>
               <div className="flex flex-col gap-1 border-l-2 border-border pl-3">
-                <span className="text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">Fecha</span>
+                <span className="text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">{t('tableDate')}</span>
                 <p className="text-sm text-muted">{new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(meta.date + 'T12:00:00'))}</p>
               </div>
               {hasValue === true && (
                 <div className="flex flex-col gap-1 border-l-2 border-value/30 pl-3">
-                  <span className="text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">Valor</span>
-                  <Badge variant="value" className="w-fit text-xs" title="Valor esperado positivo: el modelo estima más probabilidad que la cuota implícita">{t('valueIsValue')}</Badge>
-                  <p className="text-xs leading-snug text-muted">Cuota con valor esperado +</p>
+                  <span className="text-[11px] font-semibold tracking-[0.08em] text-faint uppercase">{t('tabValue')}</span>
+                  <Badge variant="value" className="w-fit text-xs" title={t('valuePositiveTitle')}>{t('valueIsValue')}</Badge>
+                  <p className="text-xs leading-snug text-muted">{t('valuePositiveHint')}</p>
                 </div>
               )}
             </div>

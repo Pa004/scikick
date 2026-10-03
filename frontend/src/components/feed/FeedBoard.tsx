@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { ChevronDown } from 'lucide-react'
 import type { Fixture } from '../../types'
-import { useLanguage } from '../../i18n'
+import { useLanguage, fillVars } from '../../i18n'
 import { getCachedValue, prefetchValues } from '../../api/detail'
 import { formatHumanDate } from '../fixtures/fixtureUtils'
 import { parseDeepLinkId, syncDeepLink } from '../../lib/deeplink'
@@ -247,7 +247,7 @@ export function FeedBoard({
       {groups.length > 1 && (
         <div className="mb-2 flex items-center justify-between gap-2">
           <span className="text-xs text-faint">
-            {groups.length} {locale === 'es' ? 'fechas' : 'dates'}
+            {fillVars(t('datesCount'), { n: groups.length })}
           </span>
           <Button
             type="button"
@@ -289,7 +289,7 @@ export function FeedBoard({
           <p className="text-sm font-medium text-foreground">{showValue ? t('noValueMatches') : t('noFixtures')}</p>
           {showValue && (
             <p className="mt-1.5 text-xs text-muted">
-              No hay cuotas por encima del modelo en los {fixtures.length} cargados. Prueba otra liga o vuelve luego.
+              {fillVars(t('noValueHint'), { n: fixtures.length })}
             </p>
           )}
         </div>
@@ -364,14 +364,12 @@ export function FeedBoard({
             })}
           </div>
           {filtered.length > PAGE_SIZE && (
-            <nav aria-label="Paginación" className="mt-6 flex flex-col items-center gap-3 pt-4">
+            <nav aria-label={t('pagination')} className="mt-6 flex flex-col items-center gap-3 pt-4">
               <p aria-live="polite" className="text-xs text-faint">
                 {(() => {
                   const start = (currentPage - 1) * PAGE_SIZE + 1
                   const end = Math.min(currentPage * PAGE_SIZE, filtered.length)
-                  return locale === 'es'
-                    ? `Mostrando ${start}-${end} de ${filtered.length}`
-                    : `Showing ${start}-${end} of ${filtered.length}`
+                  return fillVars(t('showingRange'), { start, end, total: filtered.length })
                 })()}
               </p>
               <div className="flex items-center gap-1">
@@ -384,7 +382,7 @@ export function FeedBoard({
                     setCurrentPage(next)
                     window.scrollTo({ top: 0, behavior: 'smooth' })
                   }}
-                  aria-label="Página anterior"
+                  aria-label={t('prevPage')}
                   className="min-w-11"
                 >
                   ←
@@ -407,7 +405,7 @@ export function FeedBoard({
                         type="button"
                         variant={p === currentPage ? 'primary' : 'secondary'}
                         aria-current={p === currentPage ? 'page' : undefined}
-                        aria-label={`Página ${p} de ${totalPages}`}
+                        aria-label={fillVars(t('pageOf'), { p, total: totalPages })}
                         onClick={() => {
                           setCurrentPage(p as number)
                           window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -427,7 +425,7 @@ export function FeedBoard({
                     setCurrentPage(next)
                     window.scrollTo({ top: 0, behavior: 'smooth' })
                   }}
-                  aria-label="Página siguiente"
+                  aria-label={t('nextPage')}
                   className="min-w-11"
                 >
                   →

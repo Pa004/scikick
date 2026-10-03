@@ -163,7 +163,7 @@ export function MatchCard({
               </Badge>
             )}
             {hasValue === true && (
-              <Badge variant="value" className="text-xs" title="Valor esperado positivo: cuota con valor">
+              <Badge variant="value" className="text-xs" title={t('valuePositiveTitle')}>
                 {t('valueIsValue')}
               </Badge>
             )}
@@ -229,7 +229,7 @@ export function MatchCard({
                   <span className="font-mono tabular-nums">{t('draw')} {drawPct}%</span>
                   <span className="mx-1.5 text-faint">·</span>
                   <span className="font-mono tabular-nums">{displayTeam(f.away)} {awayPct}%</span>
-                  <span className="ml-2 text-xs font-normal text-faint">{locale === 'es' ? '· suman 100' : '· sums to 100'}</span>
+                  <span className="ml-2 text-xs font-normal text-faint">{t('sumsTo100')}</span>
                 </p>
               </>
             )

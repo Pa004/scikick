@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, useLocation } from 'react-router'
 import { Search } from 'lucide-react'
-import { useLanguage } from '../../i18n'
+import { useLanguage, fillVars } from '../../i18n'
 import { BrandLockup } from './Brand'
 import { LeagueSwitcher } from './LeagueSwitcher'
 import { StatusCluster } from './StatusCluster'
@@ -140,7 +140,7 @@ export function AppShell({
                     type="button"
                     aria-pressed={showValue}
                     aria-label={t('valueOnly')}
-                    title="Filtrar solo cuotas con valor +EV"
+                    title={t('valueOnlyHint')}
                     onClick={() => onShowValueChange(!showValue)}
                     className={cn(
                       'inline-flex min-h-9 shrink-0 cursor-pointer items-center rounded-full border px-3 text-xs font-bold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
@@ -161,7 +161,7 @@ export function AppShell({
                     )}
                   </button>
                   <span aria-live="polite" aria-atomic="true" className="sr-only">
-                    {showValue ? `Filtrado a ${valueCount ?? 0} partidos con valor` : 'Mostrando todos los partidos'}
+                    {showValue ? fillVars(t('valueFilterCount'), { n: valueCount ?? 0 }) : t('valueFilterAll')}
                   </span>
                 </>
               )}

@@ -86,7 +86,7 @@ function MarketsBlock({ marketLayout, selectedMarket, onMarketChange, availableM
         {/* Mercados heading removed as per user feedback: redundant with tab Mercados and accordion titles.
              Keep live region for mode announcements. */}
         <div aria-live="polite" aria-atomic="true" className="sr-only">
-          {mode === 'prob' ? 'Mostrando probabilidades' : 'Mostrando cuotas'}
+          {mode === 'prob' ? t('showingProbs') : t('showingOdds')}
         </div>
 
         <Card className={marketLayout === 'parallel' ? 'mb-4 xl:sticky xl:top-[150px]' : 'mb-4'}>
