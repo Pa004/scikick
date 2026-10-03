@@ -25,6 +25,15 @@ export function useFixtures(league: string, limit: number, upcoming: boolean) {
         setFixtures(data)
         setFetchedAt(Date.now())
         setLoading(false)
+        // When the feed itself is the full list, derive counts without a second request.
+        if (wantLeague === 'all') {
+          const counts: Record<string, number> = { '': data.length }
+          for (const l of LEAGUES) {
+            if (l.code === '') continue
+            counts[l.code] = data.filter(f => f.league === l.code).length
+          }
+          setLeagueCounts(counts)
+        }
       })
       .catch(() => {
         if (id !== requestId.current) return
@@ -35,6 +44,9 @@ export function useFixtures(league: string, limit: number, upcoming: boolean) {
   }, [league, limit, upcoming, attempt])
 
   useEffect(() => {
+    // Only fetch the full list when the feed itself is scoped; otherwise counts
+    // come from the main fetch above and avoid the duplicate /fixtures request.
+    if (league === '') return
     let active = true
     fetchFixtures('all', 100, upcoming)
       .then(all => {
@@ -52,7 +64,7 @@ export function useFixtures(league: string, limit: number, upcoming: boolean) {
     return () => {
       active = false
     }
-  }, [fetchedAt, attempt, upcoming])
+  }, [league, attempt, upcoming])
 
   return {
     fixtures,

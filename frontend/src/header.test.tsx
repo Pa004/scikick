@@ -152,7 +152,7 @@ describe('header', () => {
     await screen.findAllByText(/Arsenal/)
     fireEvent.click(screen.getByRole('menuitemcheckbox', { name: 'Analyst' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'About the model' }))
-    expect(await screen.findByText('No results to calibrate yet. Check back after the matchday.')).toBeDefined()
+    expect(await screen.findByText('No results to calibrate yet. Check back after the matchday.', {}, { timeout: 5000 })).toBeDefined()
     expect(screen.getByText('How SciKick works')).toBeDefined()
     expect(screen.getByText('Calibrated model')).toBeDefined()
   })

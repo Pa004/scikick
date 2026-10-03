@@ -1,5 +1,5 @@
 import type { Fixture, Prediction, TeamContext, ValueResponse } from '../types'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { useLanguage } from '../i18n'
 import { useDisplayMode, type DisplayMode } from '../hooks/useDisplayMode'
 import { useMovement, type MoveDirection } from '../hooks/useMovement'
@@ -7,13 +7,15 @@ import { formatDecimal } from '../utils/odds'
 import { getMarketLabel, getOutcomeLabel } from '../utils/marketLabels'
 import { getSuperCombo } from '../utils/matchCenter'
 import { MatchCenter } from './MatchCenter'
-import MarketRenderer from './MarketRenderer'
 import MarketSelector from './MarketSelector'
 import ValueChecker from './ValueChecker'
 import { Badge } from './ui/badge'
 import { Card, CardBody, CardTitle } from './ui/card'
 import { Input } from './ui/input'
 import { Table, Td, Th } from './ui/table'
+
+// Chart bundle (recharts) is deferred until a market card is visible.
+const MarketRendererLifted = lazy(() => import('./MarketRenderer'))
 
 const formatProb = (p: number) => `${(p * 100).toFixed(1)}%`
 
@@ -92,7 +94,9 @@ function MarketsBlock({ marketLayout, selectedMarket, onMarketChange, availableM
             <CardTitle className="mb-3">
               {getMarketLabel(selectedMarket, locale)}{analyst ? ` · ${selectedMarket}` : ''}
             </CardTitle>
-            <MarketRenderer market={selectedMarket} probabilities={prediction.probabilities} mode={mode} moves={moves} />
+            <Suspense fallback={<div role="status" aria-label={t('loading')} className="h-36 rounded-[14px] border border-border bg-surface animate-pulse" />}>
+              <MarketRendererLifted market={selectedMarket} probabilities={prediction.probabilities} mode={mode} moves={moves} />
+            </Suspense>
             {Object.values(moves).some(m => m !== 'flat') && (
               <p className="mt-2 mb-0 text-xs text-faint" aria-hidden="true">
                 ▲ {t('oddsUp')} · ▼ {t('oddsDown')}

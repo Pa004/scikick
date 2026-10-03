@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import type { CalibrationData, MatchdayData, Stats } from '../../types'
 import { fetchCalibration, fetchMatchdayStats, fetchStats } from '../../api'
 import { useLanguage } from '../../i18n'
 import { LEAGUES } from '../layout/LeagueSwitcher'
-import StatsDashboard from '../StatsDashboard'
 import { Button } from '../ui/button'
 import { Drawer, DrawerContent } from '../ui/drawer'
 import { Skeleton } from '../ui/skeleton'
@@ -11,6 +10,7 @@ import { Skeleton } from '../ui/skeleton'
 // Model trust lives outside the story flow: a side drawer with its
 // own data lifecycle. Open state is lifted so header tabs, the overflow
 // menu and shortcuts can all open the same drawer.
+const StatsDashboard = lazy(() => import('../StatsDashboard'))
 export function ModelDrawer({ league, open, onOpenChange }: {
   league: string
   open: boolean
@@ -73,13 +73,22 @@ export function ModelDrawer({ league, open, onOpenChange }: {
             </Button>
           </div>
         ) : stats ? (
-          <StatsDashboard
-            stats={stats}
-            matchdayData={matchdayData}
-            calibrationData={calibrationData}
-            selectedMarket="1x2"
-            scopeName={t(LEAGUES.find(l => l.code === league)?.labelKey ?? 'allLeagues')}
-          />
+          <Suspense
+            fallback={
+              <div role="status" aria-label={t('loading')} className="flex flex-col gap-2">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-40 w-full" />
+              </div>
+            }
+          >
+            <StatsDashboard
+              stats={stats}
+              matchdayData={matchdayData}
+              calibrationData={calibrationData}
+              selectedMarket="1x2"
+              scopeName={t(LEAGUES.find(l => l.code === league)?.labelKey ?? 'allLeagues')}
+            />
+          </Suspense>
         ) : (
           <div role="status" aria-label={t('loading')} className="flex flex-col gap-2">
             <Skeleton className="h-24 w-full" />
