@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import time
 
 import httpx
 
@@ -10,6 +11,10 @@ from app.ingestion.aliases import canonicalize
 logger = logging.getLogger(__name__)
 
 FDORG_BASE = "https://api.football-data.org/v4"
+
+# Free tier allows 10 requests/min; wait out the window before giving up.
+RATE_LIMIT_RETRIES = 3
+RATE_LIMIT_WAIT = 15
 
 COMPETITION_MAP = {
     "E0": "PL",
@@ -68,10 +73,16 @@ TEAM_NAMES = {
         "RCD Mallorca": "Mallorca",
         "UD Las Palmas": "Las Palmas",
         "Deportivo Alavés": "Alaves",
-        "RCD Espanyol de Barcelona": "Espanyol",
+        "RCD Espanyol de Barcelona": "Espanol",
         "Espanyol": "Espanol",
         "CD Leganés": "Leganes",
         "Real Valladolid CF": "Valladolid",
+        # Promoted sides (2026-27 fdbuk CSV) — warned on every sync run.
+        "Málaga CF": "Malaga",
+        "Elche CF": "Elche",
+        "RC Deportivo La Coruña": "La Coruna",
+        "Real Racing Club de Santander": "Santander",
+        "Levante UD": "Levante",
     },
     "D1": {
         "FC Bayern München": "Bayern Munich",
@@ -92,6 +103,12 @@ TEAM_NAMES = {
         "FC St. Pauli 1910": "St Pauli",
         "Holstein Kiel": "Holstein Kiel",
         "1. FC Heidenheim 1846": "Heidenheim",
+        # Promoted sides (2026-27 fdbuk CSV) — warned on every sync run.
+        "1. FC Köln": "FC Koln",
+        "FC Schalke 04": "Schalke 04",
+        "Hamburger SV": "Hamburg",
+        "SC Paderborn 07": "Paderborn",
+        "SV 07 Elversberg": "Elversberg",
     },
     "I1": {
         "FC Internazionale Milano": "Inter",
@@ -114,6 +131,9 @@ TEAM_NAMES = {
         "Como 1907": "Como",
         "Venezia FC": "Venezia",
         "AC Monza": "Monza",
+        # Promoted sides (2026-27 fdbuk CSV) — warned on every sync run.
+        "Frosinone Calcio": "Frosinone",
+        "US Sassuolo Calcio": "Sassuolo",
     },
     "F1": {
         "Paris Saint-Germain FC": "PSG",
@@ -174,13 +194,38 @@ TEAM_NAMES = {
 }
 
 
+# Once per (name, league) per process: sync logs the same unmapped name
+# hundreds of times per run, drowning everything else.
+_WARNED_UNMAPPED: set[tuple[str, str]] = set()
+
+
 def normalize_team_name(name: str, league_code: str) -> str:
     name = canonicalize(name)
     mapped = TEAM_NAMES.get(league_code, {}).get(name)
     if mapped:
         return mapped
-    logger.warning("Unmapped team name '%s' for league %s", name, league_code)
+    if (name, league_code) not in _WARNED_UNMAPPED:
+        _WARNED_UNMAPPED.add((name, league_code))
+        logger.warning("Unmapped team name '%s' for league %s", name, league_code)
     return name.removesuffix(" FC").removesuffix(" CF")
+
+
+def _get_matches(competition: str, api_key: str) -> httpx.Response:
+    attempt = 0
+    while True:
+        resp = httpx.get(
+            f"{FDORG_BASE}/competitions/{competition}/matches",
+            headers={"X-Auth-Token": api_key},
+            params={"status": "SCHEDULED"},
+            timeout=15,
+        )
+        if resp.status_code != 429:
+            resp.raise_for_status()
+            return resp
+        attempt += 1
+        if attempt >= RATE_LIMIT_RETRIES:
+            raise ConnectionError(f"football-data.org rate limited (HTTP 429): {competition}")
+        time.sleep(RATE_LIMIT_WAIT * attempt)
 
 
 def fetch_scheduled(league_code: str) -> list[dict]:
@@ -195,13 +240,7 @@ def fetch_scheduled(league_code: str) -> list[dict]:
         return []
 
     try:
-        resp = httpx.get(
-            f"{FDORG_BASE}/competitions/{competition}/matches",
-            headers={"X-Auth-Token": settings.football_data_org_key},
-            params={"status": "SCHEDULED"},
-            timeout=15,
-        )
-        resp.raise_for_status()
+        resp = _get_matches(competition, settings.football_data_org_key)
         data = resp.json()
     except Exception as exc:
         logger.warning("football-data.org request failed for %s: %s", league_code, exc)

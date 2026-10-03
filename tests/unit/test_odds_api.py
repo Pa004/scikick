@@ -167,13 +167,13 @@ def test_sync_odds_skips_unmatched_date(tmp_path, monkeypatch, caplog):
 def test_promoted_teams_resolve_via_overrides():
     from app.ingestion.adapters.api_football import normalize_api_name
 
-    assert normalize_api_name("1. FC Köln", "D1") == "1. FC Köln"
+    assert normalize_api_name("1. FC Köln", "D1") == "FC Koln"
     assert normalize_api_name("Lorient", "F1") == "Lorient"
-    assert normalize_api_name("Hamburger SV", "D1") == "Hamburger SV"
+    assert normalize_api_name("Hamburger SV", "D1") == "Hamburg"
     assert normalize_api_name("Le Mans", "F1") == "Le Mans"
-    assert normalize_api_name("Real Racing Club de Santander", "SP1") == "Real Racing Club de Santander"
-    assert normalize_api_name("Málaga", "SP1") == "Málaga"
-    assert normalize_api_name("Malaga", "SP1") == "Málaga"
+    assert normalize_api_name("Real Racing Club de Santander", "SP1") == "Santander"
+    assert normalize_api_name("Málaga", "SP1") == "Malaga"
+    assert normalize_api_name("Malaga", "SP1") == "Malaga"
 
 
 def test_match_event_matches_names_date_bucketed_upstream(tmp_path, monkeypatch):

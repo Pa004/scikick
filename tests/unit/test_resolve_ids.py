@@ -58,6 +58,17 @@ def test_normalize_api_name():
     assert normalize_api_name("Atalanta BC", "I1") == "Atalanta"
     assert normalize_api_name("Bayer Leverkusen", "D1") == "Leverkusen"
     assert normalize_api_name("FSV Mainz 05", "D1") == "Mainz"
+    # Promoted sides: canonicals must match the fdbuk short names.
+    assert normalize_api_name("Málaga", "SP1") == "Malaga"
+    assert normalize_api_name("Levante", "SP1") == "Levante"
+    assert normalize_api_name("Deportivo La Coruña", "SP1") == "La Coruna"
+    assert normalize_api_name("Real Racing Club de Santander", "SP1") == "Santander"
+    assert normalize_api_name("1. FC Köln", "D1") == "FC Koln"
+    assert normalize_api_name("Hamburger SV", "D1") == "Hamburg"
+    assert normalize_api_name("SC Paderborn", "D1") == "Paderborn"
+    assert normalize_api_name("Elversberg", "D1") == "Elversberg"
+    assert normalize_api_name("Frosinone", "I1") == "Frosinone"
+    assert normalize_api_name("Sassuolo", "I1") == "Sassuolo"
     assert normalize_api_name("Alave\u0301s", "SP1") == "Alaves"
 
 

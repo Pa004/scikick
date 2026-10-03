@@ -11,8 +11,9 @@ from app.ingestion.adapters.football_data_org import (
 
 
 class FakeResponse:
-    def __init__(self, payload):
+    def __init__(self, payload, status=200):
         self._payload = payload
+        self.status_code = status
 
     def raise_for_status(self):
         pass
@@ -126,6 +127,18 @@ def test_fetch_scheduled_extracts_crests(monkeypatch):
     ("I1", "FC Internazionale Milano", "Inter"),
     ("F1", "Paris Saint-Germain FC", "PSG"),
     ("F1", "AS Saint-Étienne", "St Etienne"),
+    ("SP1", "Málaga CF", "Malaga"),
+    ("SP1", "Elche CF", "Elche"),
+    ("SP1", "RC Deportivo La Coruña", "La Coruna"),
+    ("SP1", "Real Racing Club de Santander", "Santander"),
+    ("SP1", "Levante UD", "Levante"),
+    ("D1", "1. FC Köln", "FC Koln"),
+    ("D1", "FC Schalke 04", "Schalke 04"),
+    ("D1", "Hamburger SV", "Hamburg"),
+    ("D1", "SC Paderborn 07", "Paderborn"),
+    ("D1", "SV 07 Elversberg", "Elversberg"),
+    ("I1", "Frosinone Calcio", "Frosinone"),
+    ("I1", "US Sassuolo Calcio", "Sassuolo"),
 ])
 def test_normalize_mapped_names(league, source, expected):
     assert normalize_team_name(source, league) == expected
@@ -135,3 +148,30 @@ def test_normalize_unmapped_strips_suffix(caplog):
     with caplog.at_level(logging.WARNING):
         assert normalize_team_name("Some New Club FC", "E0") == "Some New Club"
     assert "Unmapped team name" in caplog.text
+
+
+def test_normalize_unmapped_warns_once_per_name_and_league(caplog):
+    with caplog.at_level(logging.WARNING):
+        normalize_team_name("Once Only FC", "E0")
+        assert caplog.text.count("Unmapped team name 'Once Only FC'") == 1
+        caplog.clear()
+        normalize_team_name("Once Only FC", "E0")
+        assert "Unmapped team name" not in caplog.text
+
+
+def test_fetch_scheduled_retries_rate_limit(monkeypatch):
+    _settings_with_key(monkeypatch)
+    responses = [FakeResponse({}, status=429), FakeResponse({"matches": []})]
+    monkeypatch.setattr(fdorg.httpx, "get", lambda *a, **k: responses.pop(0))
+    monkeypatch.setattr(fdorg.time, "sleep", lambda *_: None)
+    assert fetch_scheduled("E0") == []
+    assert responses == []
+
+
+def test_fetch_scheduled_gives_up_after_rate_limit(monkeypatch, caplog):
+    _settings_with_key(monkeypatch)
+    monkeypatch.setattr(fdorg.httpx, "get", lambda *a, **k: FakeResponse({}, status=429))
+    monkeypatch.setattr(fdorg.time, "sleep", lambda *_: None)
+    with caplog.at_level(logging.WARNING):
+        assert fetch_scheduled("E0") == []
+    assert "rate limited" in caplog.text
