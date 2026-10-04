@@ -60,6 +60,54 @@ def test_run_migrations_resumes_after_partial_apply(tmp_path: Path) -> None:
     assert applied == _migration_count() - 1
 
 
+def test_migration_010_drops_historyless_pre_fixtures(tmp_path: Path) -> None:
+    import sqlite3
+
+    db_path = str(tmp_path / "test.db")
+    run_migrations(db_path)
+    conn = get_connection(db_path)
+    try:
+        conn.execute(
+            "INSERT INTO leagues (id, name, country, tier, source_csv_code, "
+            "has_odds, has_xg, season_start_month, min_seasons) "
+            "VALUES ('E0', 'PL', 'England', 1, 'E0', 1, 0, 8, 2)"
+        )
+        conn.execute("INSERT INTO teams (id, canonical_name) VALUES (1, 'Paris SG')")
+        conn.execute("INSERT INTO teams (id, canonical_name) VALUES (2, 'PSG')")
+        conn.execute("INSERT INTO teams (id, canonical_name) VALUES (3, 'Lens')")
+        conn.execute(
+            "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+            "status, source, source_fixture_id) "
+            "VALUES ('E0', '2026-09-20', 1, 3, 'post', 'football_data', 'h1')"
+        )
+        conn.execute(
+            "INSERT INTO fixtures (league, match_date, home_team_id, away_team_id, "
+            "status, source, source_fixture_id) "
+            "VALUES ('E0', '2026-10-01', 2, 3, 'pre', 'football_data_org', 'fd1')"
+        )
+        conn.execute(
+            "INSERT INTO fixture_odds (fixture_id, bookmaker, home, draw, away, fetched_at) "
+            "VALUES (2, 'best-eu', 2.0, 3.0, 4.0, '2026-09-18T00:00:00Z')"
+        )
+        conn.execute("PRAGMA user_version = 9")
+        conn.commit()
+    finally:
+        conn.close()
+
+    applied = run_migrations(db_path)
+    assert applied == 1
+
+    conn = get_connection(db_path)
+    try:
+        rows = conn.execute("SELECT id, source, status FROM fixtures").fetchall()
+        assert [(r["id"], r["source"], r["status"]) for r in rows] == [(1, "football_data", "post")]
+        teams = {r["canonical_name"] for r in conn.execute("SELECT canonical_name FROM teams")}
+        assert teams == {"Paris SG", "Lens"}
+        assert conn.execute("SELECT COUNT(*) FROM fixture_odds").fetchone()[0] == 0
+    finally:
+        conn.close()
+
+
 def test_migration_009_indexes_and_odds_cascade(tmp_path: Path) -> None:
     import sqlite3
 

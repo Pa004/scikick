@@ -136,7 +136,7 @@ TEAM_NAMES = {
         "US Sassuolo Calcio": "Sassuolo",
     },
     "F1": {
-        "Paris Saint-Germain FC": "PSG",
+        "Paris Saint-Germain FC": "Paris SG",
         "Olympique de Marseille": "Marseille",
         "AS Monaco FC": "Monaco",
         "Olympique Lyonnais": "Lyon",
@@ -154,6 +154,12 @@ TEAM_NAMES = {
         "Stade de Reims": "Reims",
         "AS Saint-Étienne": "St Etienne",
         "Stade Brestois 29": "Brest",
+        # Promoted sides (2026-27 fdbuk CSV).
+        "Racing Club de Lens": "Lens",
+        "FC Lorient": "Lorient",
+        "Paris FC": "Paris FC",
+        "Le Mans FC": "Le Mans",
+        "ES Troyes AC": "Troyes",
     },
     # EC1 (ESPN displayNames, case-sensitive). Complete 2014-2026 set:
     # displayNames are already clean canonicals, so most entries are

@@ -125,7 +125,7 @@ def test_fetch_scheduled_extracts_crests(monkeypatch):
     ("D1", "FC Bayern München", "Bayern Munich"),
     ("D1", "Borussia Mönchengladbach", "M'gladbach"),
     ("I1", "FC Internazionale Milano", "Inter"),
-    ("F1", "Paris Saint-Germain FC", "PSG"),
+    ("F1", "Paris Saint-Germain FC", "Paris SG"),
     ("F1", "AS Saint-Étienne", "St Etienne"),
     ("SP1", "Málaga CF", "Malaga"),
     ("SP1", "Elche CF", "Elche"),
@@ -139,6 +139,11 @@ def test_fetch_scheduled_extracts_crests(monkeypatch):
     ("D1", "SV 07 Elversberg", "Elversberg"),
     ("I1", "Frosinone Calcio", "Frosinone"),
     ("I1", "US Sassuolo Calcio", "Sassuolo"),
+    ("F1", "Racing Club de Lens", "Lens"),
+    ("F1", "FC Lorient", "Lorient"),
+    ("F1", "Paris FC", "Paris FC"),
+    ("F1", "Le Mans FC", "Le Mans"),
+    ("F1", "ES Troyes AC", "Troyes"),
 ])
 def test_normalize_mapped_names(league, source, expected):
     assert normalize_team_name(source, league) == expected
